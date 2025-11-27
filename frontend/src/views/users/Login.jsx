@@ -3,7 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { login, googleLogin } from "../../lib/api/auth.js";
 import AuthLayout from "../../layouts/Auth.jsx";
 import Alert from "../../components/Alertas.jsx";
-import TextField from "../../components/Textfield.jsx";
+import Texto from "../../components/Texto.jsx";
 import { Link } from "react-router-dom";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -102,7 +102,7 @@ export default function Login() {
         {msg && <Alert variant="success">{msg}</Alert>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <TextField
+          <Texto
             label="Correo electrónico"
             name="email"
             type="email"
@@ -111,7 +111,7 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <TextField
+          <Texto
             label="Contraseña"
             name="password"
             type="password"
@@ -161,7 +161,7 @@ export default function Login() {
               onSubmit={handleRecuperar}
               className="mt-3 bg-crema/60 p-4 rounded-xl shadow-sm border border-uva/10 flex flex-col gap-3"
             >
-              <TextField
+              <Texto
                 label="Ingresá tu correo"
                 type="email"
                 value={recMail}

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import AuthLayout from "../../layouts/Auth.jsx";
 import Alert from "../../components/Alertas.jsx";
-import TextField from "../../components/TextField.jsx";
+import Texto from "../../components/Texto.jsx";
 import { Link } from "react-router-dom";
 
-const API = import.meta.env.VITE_API_URL;   // 🔥 CAMBIO HECHO
-
+const API = import.meta.env.VITE_API_URL;   
 export default function Register() {
   const [form, setForm] = useState({
     nombre: "",
@@ -66,7 +65,7 @@ export default function Register() {
         className="flex flex-col gap-3"
         aria-describedby={err ? "register-error" : undefined}
       >
-        <TextField
+        <Texto
           label="Nombre completo"
           name="nombre"
           value={form.nombre}
@@ -74,7 +73,7 @@ export default function Register() {
           required
         />
 
-        <TextField
+        <Texto
           label="Correo electrónico"
           name="email"
           type="email"
@@ -84,7 +83,7 @@ export default function Register() {
           autoComplete="email"
         />
 
-        <TextField
+        <Texto
           label="Contraseña"
           name="password"
           type="password"
@@ -94,7 +93,7 @@ export default function Register() {
           autoComplete="new-password"
         />
 
-        <TextField
+        <Texto
           label="Confirmar contraseña"
           name="passwordConfirm"
           type="password"
