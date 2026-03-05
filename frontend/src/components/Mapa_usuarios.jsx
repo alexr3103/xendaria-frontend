@@ -200,7 +200,7 @@ export default function MapaUsuario({
 
       const aura = document.createElement("div");
       aura.className =
-        "absolute w-20 h-20 rounded-full bg-morado/20 animate-[ping_3s_linear_infinite]";
+        "absolute w-20 h-20 rounded-full bg-morado/20 animate-[ping_3s_linear_infinite] pointer-events-none";
 
       const icon = document.createElement("div");
       icon.style.width = "38px";
