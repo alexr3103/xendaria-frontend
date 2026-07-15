@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../assets/logo-oficial.png";
 
 export default function AuthLayout({ children, title }) {
   return (
@@ -9,7 +10,7 @@ export default function AuthLayout({ children, title }) {
         aria-hidden="true"
       >
         <img
-          src="/src/assets/logo-oficial.png"
+          src={logo}
           alt="Logo de Xendaria"
           className="w-16 h-16 object-contain"
         />
