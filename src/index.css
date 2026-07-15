@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer base {
+  body {
+    @apply bg-crema text-gris;
+  }
+}
+
+
+@layer base {
+  html {
+    font-family: "Nunito Sans", sans-serif;
+  }
+  h1, h2 {
+    font-family: "Fredoka", sans-serif;
+    font-weight: bold;
+  }
+}
+
+@layer utilities {
+  .font-fredoka {
+    font-family: "Fredoka", sans-serif !important;
+  }
+}
+
