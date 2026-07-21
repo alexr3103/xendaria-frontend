@@ -150,7 +150,7 @@ export default function MultimediaAdmin({ punto, onChange }) {
         </label>
 
         <label className="flex min-w-0 flex-col gap-2 text-sm font-semibold text-uva/80">
-          Titulo
+          Título
           <input
             name="titulo"
             value={form.titulo}
@@ -173,7 +173,7 @@ export default function MultimediaAdmin({ punto, onChange }) {
       </div>
 
       <label className="flex flex-col gap-2 text-sm font-semibold text-uva/80">
-        Descripcion
+        Descripción
         <textarea
           name="descripcion"
           value={form.descripcion}

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Award, ListFilter, Plus } from "lucide-react";
 import { categorias } from "../components/CategoriasFiltros.jsx";
-import AdminSearchBox from "../components/AdminSearchBox.jsx";
-import FilterPill from "../components/FilterPill.jsx";
+import BuscadorAdmin from "../components/BuscadorAdmin.jsx";
+import PildoraFiltro from "../components/PildoraFiltro.jsx";
 
 export default function AdminFilterPanel({
   buscar,
@@ -27,7 +27,7 @@ export default function AdminFilterPanel({
           </Link>
         )}
 
-        <AdminSearchBox
+        <BuscadorAdmin
           value={buscar}
           onChange={setBuscar}
           placeholder="Buscar punto"
@@ -37,18 +37,18 @@ export default function AdminFilterPanel({
 
       <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-uva/50">
         <ListFilter size={14} />
-        Categorias
+        Categorías
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
-        <FilterPill active={!filtroCategoria} onClick={() => setFiltroCategoria(null)}>
+        <PildoraFiltro active={!filtroCategoria} onClick={() => setFiltroCategoria(null)}>
           Todos
-        </FilterPill>
+        </PildoraFiltro>
 
         {Object.entries(categorias)
           .filter(([cat]) => cat !== "propios")
           .map(([cat, info]) => (
-            <FilterPill
+            <PildoraFiltro
               key={cat}
               active={filtroCategoria === cat}
               onClick={() =>
@@ -58,19 +58,19 @@ export default function AdminFilterPanel({
               icon={info.icon}
             >
               {info.label}
-            </FilterPill>
+            </PildoraFiltro>
           ))}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {setFiltroInsignia && (
-          <FilterPill
+          <PildoraFiltro
             active={filtroInsignia}
             onClick={() => setFiltroInsignia(!filtroInsignia)}
             icon={Award}
           >
             Con insignia
-          </FilterPill>
+          </PildoraFiltro>
         )}
       </div>
     </div>

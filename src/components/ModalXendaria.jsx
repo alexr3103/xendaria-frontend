@@ -1,6 +1,6 @@
 import BotonCerrar from "./BotonCerrar.jsx";
 
-export default function XendariaModal({
+export default function ModalXendaria({
   open = true,
   onClose,
   header,

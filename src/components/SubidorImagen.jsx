@@ -5,7 +5,7 @@ import Alert from "./Alertas.jsx";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-export default function ImageUploader({
+export default function SubidorImagen({
   tipo = "punto",
   label = "Subir imagen",
   value = "",
@@ -42,7 +42,7 @@ export default function ImageUploader({
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Necesitas iniciar sesion para subir imagenes.");
+        setError("Necesitás iniciar sesión para subir imágenes.");
         return;
       }
 
@@ -64,7 +64,7 @@ export default function ImageUploader({
         if (res.status === 401) {
           localStorage.removeItem("token");
           localStorage.removeItem("usuario");
-          setError("Tu sesion expiro. Inicia sesion nuevamente para subir imagenes.");
+          setError("Tu sesión expiró. Iniciá sesión nuevamente para subir imágenes.");
           setTimeout(() => navigate("/login", { replace: true }), 1800);
           return;
         }

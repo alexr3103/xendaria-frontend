@@ -15,7 +15,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
-import MapaLoader from "../../components/MapaLoader.jsx";
+import CargadorMapa from "../../components/CargadorMapa.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { resolveAvatarSrc, getFallbackAvatar } from "../../lib/avatarOptions.js";
@@ -136,7 +136,7 @@ export default function Ranking() {
       </div>
 
       {loading ? (
-        <MapaLoader text="Cargando ranking..." className="top-24 z-[999]" />
+        <CargadorMapa text="Cargando ranking..." className="top-24 z-[999]" />
       ) : (
         <main className="mx-auto w-full max-w-5xl px-4 pt-5 sm:px-6 lg:px-8">
           <section className="flex items-start justify-between gap-4">

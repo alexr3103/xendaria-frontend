@@ -17,7 +17,7 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
 import Alert from "../../components/Alertas.jsx";
-import MapaLoader from "../../components/MapaLoader.jsx";
+import CargadorMapa from "../../components/CargadorMapa.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
@@ -392,7 +392,7 @@ export default function Perfil() {
         <div className="sticky top-0 z-50">
           <Header disableFilter />
         </div>
-        <MapaLoader text="Cargando perfil..." className="top-24 z-[999]" />
+        <CargadorMapa text="Cargando perfil..." className="top-24 z-[999]" />
         <Navbar active="perfil" />
       </div>
     );

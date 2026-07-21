@@ -17,7 +17,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
-import MapaLoader from "../../components/MapaLoader.jsx";
+import CargadorMapa from "../../components/CargadorMapa.jsx";
 import useGeolocation from "../../hooks/geo.js";
 import xendariaMapStyle from "../../map/xendariaMapStyle.js";
 import cargafail from "../../assets/cargafail.png";
@@ -392,7 +392,7 @@ export default function Rutas() {
       </div>
 
       {loading ? (
-        <MapaLoader text="Cargando rutas..." className="top-24 z-[999]" />
+        <CargadorMapa text="Cargando rutas..." className="top-24 z-[999]" />
       ) : (
         <main className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6 lg:px-8">
           <section className="flex items-center justify-between gap-3">

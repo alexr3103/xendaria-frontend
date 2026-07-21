@@ -14,22 +14,22 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import ImageUploader from "../../components/ImageUploader.jsx";
+import SubidorImagen from "../../components/SubidorImagen.jsx";
 import HistoriasAdmin from "../../components/HistoriasAdmin.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import {
-  UserDetailPreviewCard,
-  UserPreviewCard,
-} from "../../components/AdminPuntoPreview.jsx";
+  TarjetaDetalleUsuario,
+  TarjetaVistaUsuario,
+} from "../../components/VistaPreviaPuntoAdmin.jsx";
 import {
-  AdminEditorForm,
-  AdminEditorPage,
-  AdminField,
-  AdminFlatSection,
-  AdminSectionTitle,
-  adminInputClass,
-} from "../../components/AdminEditor.jsx";
-import AdminActiveToggle from "../../components/AdminActiveToggle.jsx";
+  FormularioEditorAdmin,
+  PaginaEditorAdmin,
+  CampoAdmin,
+  SeccionPlanaAdmin,
+  TituloSeccionAdmin,
+  claseInputAdmin,
+} from "../../components/EditorAdmin.jsx";
+import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -110,7 +110,7 @@ export default function CrearPunto() {
       const lon = Number(punto.lon);
 
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-        setError("Latitud y longitud deben ser numeros validos.");
+        setError("Latitud y longitud deben ser números válidos.");
         return;
       }
 
@@ -154,7 +154,7 @@ export default function CrearPunto() {
       setOk("Punto creado correctamente");
       setTimeout(() => navigate("/admin/mapa"), 900);
     } catch {
-      setError("No se pudo conectar con la API. Revisa que el backend este funcionando.");
+      setError("No se pudo conectar con la API. Revisá que el backend esté funcionando.");
     } finally {
       setGuardando(false);
     }
@@ -162,7 +162,7 @@ export default function CrearPunto() {
 
   return (
     <AdminStyle title="Nuevo punto">
-      <AdminEditorPage
+      <PaginaEditorAdmin
         title="Nuevo punto"
         actions={
           <>
@@ -178,7 +178,7 @@ export default function CrearPunto() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="ml-4 flex items-center justify-center gap-2 rounded-full bg-fucsia px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-fucsia/85"
+              className="flex items-center justify-center gap-2 rounded-full bg-fucsia px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-fucsia/85"
             >
               <X size={18} />
               Cancelar
@@ -191,14 +191,8 @@ export default function CrearPunto() {
           {ok && <Alert variant="success">{ok}</Alert>}
         </div>
 
-        <div
-          className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start"
-          style={{
-            gridTemplateColumns: "minmax(0, 1040px) clamp(240px, 22vw, 340px)",
-            columnGap: "clamp(20px, 2vw, 32px)",
-          }}
-        >
-          <AdminEditorForm
+        <div className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] 2xl:grid-cols-[minmax(0,1040px)_340px]">
+          <FormularioEditorAdmin
             className="min-w-0 max-w-none"
             onSubmit={(event) => {
               event.preventDefault();
@@ -206,33 +200,33 @@ export default function CrearPunto() {
             }}
           >
           <section className="space-y-9 pb-4">
-            <AdminSectionTitle
+            <TituloSeccionAdmin
               icon={Info}
               title="Datos principales"
-              subtitle="Lo basico que identifica al punto en mapa y listados."
+              subtitle="Lo básico que identifica al punto en mapa y listados."
             />
 
             <div className="grid min-w-0 gap-4 lg:grid-cols-2">
-              <AdminField label="Nombre del punto">
+              <CampoAdmin label="Nombre del punto">
                 <input
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   value={punto.nombre}
                   placeholder="Ej: Museo del Agua"
                   onChange={(event) => actualizarCampo("nombre", event.target.value)}
                 />
-              </AdminField>
+              </CampoAdmin>
 
-              <AdminField label="Direccion">
+              <CampoAdmin label="Dirección">
                 <input
-                  className={adminInputClass}
-                  placeholder="Ej: Av. Cordoba 1234"
+                  className={claseInputAdmin}
+                  placeholder="Ej: Av. Córdoba 1234"
                   value={punto.direccion}
                   onChange={(event) => actualizarCampo("direccion", event.target.value)}
                 />
-              </AdminField>
+              </CampoAdmin>
             </div>
 
-            <AdminField label="Categorias">
+            <CampoAdmin label="Categorías">
               <div className="flex flex-wrap gap-2">
                 {Object.entries(categorias)
                   .filter(([key]) => key !== "propios")
@@ -261,49 +255,49 @@ export default function CrearPunto() {
                     );
                   })}
               </div>
-            </AdminField>
+            </CampoAdmin>
 
-            <AdminField label="Estado del punto">
+            <CampoAdmin label="Estado del punto">
               <div className="max-w-xs">
-                <AdminActiveToggle
+                <InterruptorActivoAdmin
                   active={punto.activo !== false}
                   activeLabel="Punto activo"
                   inactiveLabel="Punto inactivo"
                   onClick={() => actualizarCampo("activo", punto.activo === false)}
                 />
               </div>
-            </AdminField>
+            </CampoAdmin>
           </section>
 
-          <AdminFlatSection
+          <SeccionPlanaAdmin
             title="Descripciones"
             description="Resumen visible en el modal y texto extendido del detalle."
             icon={FileText}
             contentClassName="space-y-10"
           >
-            <AdminField label="Descripcion breve">
+            <CampoAdmin label="Descripción breve">
               <textarea
-                className={`${adminInputClass} min-h-28 resize-y`}
+                className={`${claseInputAdmin} min-h-28 resize-y`}
                 placeholder="Texto corto, resumen..."
                 value={punto.descripcion}
                 onChange={(event) => actualizarCampo("descripcion", event.target.value)}
               />
-            </AdminField>
+            </CampoAdmin>
 
-            <AdminField label="Descripcion completa">
+            <CampoAdmin label="Descripción completa">
               <textarea
-                className={`${adminInputClass} min-h-40 resize-y`}
+                className={`${claseInputAdmin} min-h-40 resize-y`}
                 placeholder="Historia, detalles largos..."
                 value={punto.descripcion_completa}
                 onChange={(event) =>
                   actualizarCampo("descripcion_completa", event.target.value)
                 }
               />
-            </AdminField>
-          </AdminFlatSection>
+            </CampoAdmin>
+          </SeccionPlanaAdmin>
 
-          <AdminFlatSection
-            title="Imagenes"
+          <SeccionPlanaAdmin
+            title="Imágenes"
             description="Foto principal e insignia del lugar."
             icon={Images}
           >
@@ -325,46 +319,46 @@ export default function CrearPunto() {
                 onChange={(value) => actualizarCampo("insignia", value || null)}
               />
             </div>
-          </AdminFlatSection>
+          </SeccionPlanaAdmin>
 
-          <AdminFlatSection
-            title="Ubicacion y enlace"
+          <SeccionPlanaAdmin
+            title="Ubicación y enlace"
             description="Coordenadas GeoJSON y sitio externo si existe."
             icon={MapPinned}
           >
-            <AdminField label="Sitio web">
+            <CampoAdmin label="Sitio web">
               <input
                 type="url"
-                className={adminInputClass}
+                className={claseInputAdmin}
                 placeholder="https://sitio-oficial.com"
                 value={punto.link}
                 onChange={(event) => actualizarCampo("link", event.target.value)}
               />
-            </AdminField>
+            </CampoAdmin>
 
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-              <AdminField label="Latitud">
+              <CampoAdmin label="Latitud">
                 <input
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   placeholder="Latitud"
                   value={punto.lat}
                   onChange={(event) => actualizarCampo("lat", event.target.value)}
                 />
-              </AdminField>
-              <AdminField label="Longitud">
+              </CampoAdmin>
+              <CampoAdmin label="Longitud">
                 <input
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   placeholder="Longitud"
                   value={punto.lon}
                   onChange={(event) => actualizarCampo("lon", event.target.value)}
                 />
-              </AdminField>
+              </CampoAdmin>
             </div>
-          </AdminFlatSection>
+          </SeccionPlanaAdmin>
 
-          <AdminFlatSection
+          <SeccionPlanaAdmin
             title={`Historias desbloqueables (${punto.historias.length}/3)`}
-            description="Curiosidades o leyendas que acompanan al lugar."
+            description="Curiosidades o leyendas que acompañan al lugar."
             icon={BookOpen}
             contentClassName="space-y-10"
           >
@@ -372,7 +366,7 @@ export default function CrearPunto() {
               historias={punto.historias}
               onChange={(historias) => actualizarCampo("historias", historias)}
             />
-          </AdminFlatSection>
+          </SeccionPlanaAdmin>
 
           <div className="mt-16 flex flex-wrap items-center justify-end gap-3 border-t border-uva/10 pt-8">
             <button
@@ -393,14 +387,14 @@ export default function CrearPunto() {
               {guardando ? "Guardando..." : "Guardar"}
             </button>
           </div>
-          </AdminEditorForm>
+          </FormularioEditorAdmin>
 
-          <aside className="sticky top-5 min-w-0 self-start space-y-8 pr-1">
-            <UserPreviewCard punto={punto} />
-            <UserDetailPreviewCard punto={punto} />
+          <aside className="min-w-0 self-start space-y-8 pr-1 xl:sticky xl:top-5">
+            <TarjetaVistaUsuario punto={punto} />
+            <TarjetaDetalleUsuario punto={punto} />
           </aside>
         </div>
-      </AdminEditorPage>
+      </PaginaEditorAdmin>
     </AdminStyle>
   );
 }
@@ -441,7 +435,7 @@ function ImageField({ title, helper, tipo, value, onChange, circular = false }) 
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <ImageUploader
+            <SubidorImagen
               tipo={tipo}
               label={`Subir ${title.toLowerCase()}`}
               value={value}
@@ -460,7 +454,7 @@ function ImageField({ title, helper, tipo, value, onChange, circular = false }) 
               Editar URL manual
             </summary>
             <input
-              className={`${adminInputClass} mt-3`}
+              className={`${claseInputAdmin} mt-3`}
               placeholder="https://..."
               value={value || ""}
               onChange={(event) => onChange(event.target.value)}

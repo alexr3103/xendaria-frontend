@@ -6,7 +6,7 @@ import UserNav from "../../components/Navbar.jsx";
 import DescripcionPunto from "../../components/DescripcionPunto.jsx";
 import Alert from "../../components/Alertas.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
-import MapaLoader from "../../components/MapaLoader.jsx";
+import CargadorMapa from "../../components/CargadorMapa.jsx";
 import {
   Check,
   CheckCircle2,
@@ -989,14 +989,14 @@ export default function Home() {
       />
 
       {mensajeFocoPunto && (
-        <MapaLoader
+        <CargadorMapa
           text={mensajeFocoPunto}
           className={`${cargandoMapa ? "top-40" : "top-24"} z-[1000]`}
         />
       )}
 
       {cargandoMapa && (
-        <MapaLoader text="Buscando lugares cerca..." className="top-24 z-[999]" />
+        <CargadorMapa text="Buscando lugares cerca..." className="top-24 z-[999]" />
       )}
 
       {rutaEnCurso && (

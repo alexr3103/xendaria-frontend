@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-export default function RequireAdmin() {
+export default function ProteccionAdmin() {
   const token = localStorage.getItem("token");
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 

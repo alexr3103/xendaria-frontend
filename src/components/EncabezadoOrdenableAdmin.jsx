@@ -1,6 +1,6 @@
 import { ArrowDownAZ, ArrowUpZA, ChevronsUpDown } from "lucide-react";
 
-export default function AdminSortableHeader({ active, direction, onClick, children }) {
+export default function EncabezadoOrdenableAdmin({ active, direction, onClick, children }) {
   const Icon = active
     ? direction === "az"
       ? ArrowDownAZ

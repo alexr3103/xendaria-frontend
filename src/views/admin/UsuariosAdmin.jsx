@@ -9,12 +9,12 @@ import {
   Users,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
-import AdminSearchBox from "../../components/AdminSearchBox.jsx";
+import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
 import Alert from "../../components/Alertas.jsx";
-import ConfirmModal from "../../components/ConfirmModal.jsx";
-import FilterPill from "../../components/FilterPill.jsx";
-import AdminSegmentedTabs from "../../components/AdminSegmentedTabs.jsx";
-import AdminSortableHeader from "../../components/AdminSortableHeader.jsx";
+import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
+import PildoraFiltro from "../../components/PildoraFiltro.jsx";
+import PestanasAdmin from "../../components/PestanasAdmin.jsx";
+import EncabezadoOrdenableAdmin from "../../components/EncabezadoOrdenableAdmin.jsx";
 
 function normalizarBusqueda(valor = "") {
   return String(valor)
@@ -63,7 +63,7 @@ export default function UsuariosAdmin() {
 
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("No hay token, inicia sesion.");
+        setError("No hay token. Iniciá sesión nuevamente.");
         setUsuarios([]);
         return;
       }
@@ -231,9 +231,9 @@ export default function UsuariosAdmin() {
   const totalPaginas = Math.ceil(usuariosOrdenados.length / porPagina);
 
   return (
-    <AdminStyle title="Gestion de Usuarios">
+    <AdminStyle title="Gestión de usuarios">
       <div className="mb-6 border-b border-uva/10 pb-3">
-        <AdminSegmentedTabs
+        <PestanasAdmin
           tabs={[
             {
               key: "usuarios",
@@ -265,7 +265,7 @@ export default function UsuariosAdmin() {
         <>
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-              <AdminSearchBox
+              <BuscadorAdmin
                 value={buscar}
                 onChange={(value) => {
                   setBuscar(value);
@@ -276,7 +276,7 @@ export default function UsuariosAdmin() {
               />
 
               <div className="flex gap-2 overflow-x-auto pb-1">
-                <FilterPill
+                <PildoraFiltro
                   active={!filtroFavoritos}
                   onClick={() => {
                     setFiltroFavoritos(null);
@@ -284,8 +284,8 @@ export default function UsuariosAdmin() {
                   }}
                 >
                   Todos
-                </FilterPill>
-                <FilterPill
+                </PildoraFiltro>
+                <PildoraFiltro
                   active={filtroFavoritos === "Con favoritos"}
                   onClick={() => {
                     setFiltroFavoritos(
@@ -297,8 +297,8 @@ export default function UsuariosAdmin() {
                   icon={Heart}
                 >
                   Con favoritos
-                </FilterPill>
-                <FilterPill
+                </PildoraFiltro>
+                <PildoraFiltro
                   active={filtroFavoritos === "Sin favoritos"}
                   onClick={() => {
                     setFiltroFavoritos(
@@ -310,7 +310,7 @@ export default function UsuariosAdmin() {
                   icon={Heart}
                 >
                   Sin favoritos
-                </FilterPill>
+                </PildoraFiltro>
               </div>
             </div>
 
@@ -339,22 +339,22 @@ export default function UsuariosAdmin() {
                 <thead>
                   <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
                     <th className="px-3 py-4">
-                      <AdminSortableHeader
+                      <EncabezadoOrdenableAdmin
                         active={ordenUsuarios.campo === "nombre"}
                         direction={ordenUsuarios.direccion}
                         onClick={() => cambiarOrdenUsuarios("nombre")}
                       >
                         Usuario
-                      </AdminSortableHeader>
+                      </EncabezadoOrdenableAdmin>
                     </th>
                     <th className="p-3">
-                      <AdminSortableHeader
+                      <EncabezadoOrdenableAdmin
                         active={ordenUsuarios.campo === "email"}
                         direction={ordenUsuarios.direccion}
                         onClick={() => cambiarOrdenUsuarios("email")}
                       >
                         Email
-                      </AdminSortableHeader>
+                      </EncabezadoOrdenableAdmin>
                     </th>
                     <th className="p-3">Rol</th>
                     <th className="p-3">Favoritos</th>
@@ -382,7 +382,7 @@ export default function UsuariosAdmin() {
                               </p>
                               {esAdminActual && (
                                 <p className="text-xs font-bold text-morado">
-                                  Sesion actual
+                                  Sesión actual
                                 </p>
                               )}
                             </div>
@@ -429,7 +429,7 @@ export default function UsuariosAdmin() {
                               }`}
                               title={
                                 esAdminActual
-                                  ? "No podes eliminar tu usuario actual"
+                                  ? "No podés eliminar tu usuario actual"
                                   : "Eliminar usuario"
                               }
                             >
@@ -487,7 +487,7 @@ export default function UsuariosAdmin() {
             </div>
 
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <AdminSearchBox
+              <BuscadorAdmin
                 value={buscarPuntos}
                 onChange={setBuscarPuntos}
                 placeholder="Buscar usuario o punto"
@@ -571,12 +571,12 @@ export default function UsuariosAdmin() {
         </>
       )}
 
-      <ConfirmModal
+      <ModalConfirmacion
         open={Boolean(usuarioAEliminar)}
         title="Eliminar usuario"
         message={`Se va a eliminar el usuario "${
           usuarioAEliminar?.nombre || usuarioAEliminar?.email || ""
-        }" y tambien sus puntos propios privados. Esta accion no se puede deshacer.`}
+        }" y también sus puntos propios privados. Esta acción no se puede deshacer.`}
         confirmText={eliminando ? "Eliminando..." : "Eliminar"}
         cancelText="Cancelar"
         danger

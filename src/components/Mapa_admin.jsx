@@ -334,7 +334,7 @@ export default function MapaAdmin({
                 destino,
                 distanciaMetros: distancia * 1000,
               })
-            : window.confirm("Moviste el punto mas de una cuadra. Confirmas el ajuste?");
+            : window.confirm("Moviste el punto más de una cuadra. ¿Confirmás el ajuste?");
 
           if (!aceptar) {
             marker.setLngLat(posicionPreviaCoords || origenCoords);

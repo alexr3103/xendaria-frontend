@@ -1,6 +1,6 @@
 import { ListFilter } from "lucide-react";
 
-export default function AdminFilterHeading({
+export default function TituloFiltroAdmin({
   children,
   icon: Icon = ListFilter,
   className = "",

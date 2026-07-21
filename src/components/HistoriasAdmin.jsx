@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from "lucide-react";
-import ImageUploader from "./ImageUploader.jsx";
+import SubidorImagen from "./SubidorImagen.jsx";
 
 const HISTORIA_VACIA = {
   titulo: "",
@@ -73,7 +73,7 @@ export default function HistoriasAdmin({ historias = [], onChange }) {
             <span className="text-sm font-semibold text-uva/80">
               Foto pequena opcional
             </span>
-            <ImageUploader
+            <SubidorImagen
               tipo="punto"
               label="Subir foto de historia"
               value={historia.foto || ""}

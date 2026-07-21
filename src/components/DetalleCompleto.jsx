@@ -168,7 +168,7 @@ export default function PuntoDetalle() {
     if (!idUsuario || !token) {
       setMensajeCalificacion({
         variant: "error",
-        text: "Tenes que iniciar sesion para calificar.",
+        text: "Tenés que iniciar sesión para calificar.",
       });
       return;
     }
@@ -176,7 +176,7 @@ export default function PuntoDetalle() {
     if (!coords) {
       setMensajeCalificacion({
         variant: "error",
-        text: "Necesitamos tu ubicacion actual para confirmar que estas en el punto.",
+        text: "Necesitamos tu ubicación actual para confirmar que estás en el punto.",
       });
       return;
     }
@@ -302,7 +302,7 @@ return (
           <div>
             <h2 className="font-fredoka text-uva text-xl">Tu calificacion</h2>
             <p className="mt-1 text-sm text-gris">
-              Solo podes calificar si estas en el lugar.
+              Solo podés calificar si estás en el lugar.
             </p>
           </div>
           <div className="text-right">

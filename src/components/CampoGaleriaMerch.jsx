@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { Image, ImageOff, Loader2, Plus, Trash2, Upload } from "lucide-react";
 
-export default function MerchGalleryInput({
+export default function CampoGaleriaMerch({
   imagenes = [],
   subiendo = false,
   onDelete,
@@ -23,7 +23,7 @@ export default function MerchGalleryInput({
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Image size={20} className="text-morado" />
-            <h4 className="font-fredoka text-xl text-uva">Galeria del producto</h4>
+            <h4 className="font-fredoka text-xl text-uva">Galería del producto</h4>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="text-xs font-bold uppercase tracking-wide text-uva/45">

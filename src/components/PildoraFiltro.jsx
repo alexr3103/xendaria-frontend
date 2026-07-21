@@ -1,4 +1,4 @@
-export default function FilterPill({ active, onClick, children, color, icon: Icon }) {
+export default function PildoraFiltro({ active, onClick, children, color, icon: Icon }) {
   return (
     <button
       type="button"

@@ -29,12 +29,12 @@ function getImagenUrl(foto) {
   return foto?.url || "";
 }
 
-export function UserPreviewCard({ punto }) {
+export function TarjetaVistaUsuario({ punto }) {
   const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
   const insigniaUrl = getInsigniaUrl(punto);
 
   return (
-    <section className="ml-auto w-full max-w-[340px]">
+    <section className="mx-auto w-full max-w-[340px] xl:ml-0">
       <div className="mb-3 flex items-center gap-2 text-uva">
         <BadgeCheck size={20} className="text-morado" />
         <h3 className="font-fredoka text-2xl">Vista previa usuario</h3>
@@ -73,12 +73,12 @@ export function UserPreviewCard({ punto }) {
           <div className="mt-4 flex items-start gap-2 text-fucsia">
             <MapPin size={23} className="mt-0.5 shrink-0" />
             <span className="text-sm font-bold leading-snug">
-              {punto.direccion || "Direccion del punto"}
+              {punto.direccion || "Dirección del punto"}
             </span>
           </div>
 
           <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-gris">
-            {punto.descripcion || "Descripcion breve visible para el usuario."}
+            {punto.descripcion || "Descripción breve visible para el usuario."}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
@@ -111,7 +111,7 @@ export function UserPreviewCard({ punto }) {
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-uva py-3 font-bold text-crema shadow"
             >
               <FileText size={17} />
-              Ver mas info
+              Ver más info
             </button>
             <button
               type="button"
@@ -125,7 +125,7 @@ export function UserPreviewCard({ punto }) {
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-morado py-3 font-bold text-crema shadow"
             >
               <Navigation size={17} />
-              Navegar hasta aca
+              Navegar hasta acá
             </button>
           </div>
 
@@ -146,14 +146,14 @@ export function UserPreviewCard({ punto }) {
   );
 }
 
-export function UserDetailPreviewCard({ punto }) {
+export function TarjetaDetalleUsuario({ punto }) {
   const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
   const imagenDetalle = punto.foto || getImagenUrl(punto.fotos?.[0]) || cargafail;
   const historiasCount = (punto.historias || []).length;
   const multimediaCount = (punto.multimedia || []).length;
 
   return (
-    <section className="ml-auto w-full max-w-[340px]">
+    <section className="mx-auto w-full max-w-[340px] xl:ml-0">
       <div className="mb-3 flex items-center gap-2 text-uva">
         <FileText size={20} className="text-morado" />
         <h3 className="font-fredoka text-2xl">Vista detalle usuario</h3>
@@ -198,7 +198,7 @@ export function UserDetailPreviewCard({ punto }) {
           <div className="flex items-start gap-2 text-fucsia">
             <MapPin size={20} className="mt-0.5 shrink-0" />
             <span className="text-sm font-bold leading-snug">
-              {punto.direccion || "Direccion del punto"}
+              {punto.direccion || "Dirección del punto"}
             </span>
           </div>
 

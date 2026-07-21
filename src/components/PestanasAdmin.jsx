@@ -1,4 +1,4 @@
-export default function AdminSegmentedTabs({ tabs = [] }) {
+export default function PestanasAdmin({ tabs = [] }) {
   return (
     <div className="inline-flex max-w-full gap-1 overflow-x-auto rounded-2xl border border-uva/10 bg-white p-1 shadow-sm">
       {tabs.map(({ key, active, icon: Icon, label, count, onClick }) => (

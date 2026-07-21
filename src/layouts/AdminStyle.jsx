@@ -39,25 +39,25 @@ export default function AdminLayout({ children, title }) {
   }
 
   return (
-    <main className="min-h-screen flex bg-crema font-nunito">
+    <main className="min-h-screen bg-crema font-nunito lg:flex">
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-uva text-crema flex flex-col py-10 px-5 shadow-2xl">
+      <aside className="sticky top-0 z-40 flex w-full flex-col bg-uva px-3 py-3 text-crema shadow-2xl sm:px-5 lg:h-screen lg:w-64 lg:shrink-0 lg:px-5 lg:py-10">
 
         {/* LOGO */}
-        <div className="flex items-center gap-3 mb-10 px-2">
+        <div className="mb-3 flex items-center gap-3 px-2 lg:mb-10">
           <img
             src={logoWhite}
-            className="w-11 h-11 object-contain drop-shadow-md"
+            className="h-10 w-10 object-contain drop-shadow-md lg:h-11 lg:w-11"
             alt="Logo Xendaria"
           />
-          <h2 className="font-fredoka text-2xl tracking-wide leading-none">
+          <h2 className="text-xl font-normal leading-none tracking-wide lg:text-2xl">
             Xendaria
           </h2>
         </div>
 
         {/* NAV PRINCIPAL */}
-        <nav className="flex flex-col gap-1 text-base font-medium">
+        <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 text-sm font-medium lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 lg:text-base">
 
           <AdminLink to="/admin" icon={<LayoutDashboard size={20} />}>
             Dashboard
@@ -86,10 +86,10 @@ export default function AdminLayout({ children, title }) {
         </nav>
 
         {/* SEPARADOR */}
-        <div className="my-6 border-t border-crema/25" />
+        <div className="my-6 hidden border-t border-crema/25 lg:block" />
 
         {/* REDES COMO ÍTEM PROFESIONAL */}
-        <div className="flex flex-col gap-3 text-base font-medium">
+        <div className="hidden flex-col gap-3 text-base font-medium lg:flex">
 
           <p className="px-2 text-sm text-crema/70 tracking-wide">
             Redes oficiales
@@ -125,10 +125,10 @@ export default function AdminLayout({ children, title }) {
       </aside>
 
       {/* CONTENIDO */}
-      <section className="flex-1 p-10 overflow-y-auto">
-        <header className="mb-8 flex items-start justify-between gap-4">
+      <section className="min-w-0 flex-1 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto lg:p-10">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-8">
           {title ? (
-            <h1 className="text-4xl font-fredoka text-uva">
+            <h1 className="text-3xl font-fredoka leading-none text-uva sm:text-4xl">
               {title}
             </h1>
           ) : (
@@ -139,9 +139,9 @@ export default function AdminLayout({ children, title }) {
             <button
               type="button"
               onClick={() => setAdminMenuOpen((open) => !open)}
-              className="flex items-center gap-3 rounded-full border border-uva/10 bg-crema px-4 py-2 text-right shadow-sm transition hover:bg-white"
+              className="flex max-w-full items-center gap-3 rounded-full border border-uva/10 bg-crema px-3 py-2 text-left shadow-sm transition hover:bg-white sm:px-4 sm:text-right"
               aria-expanded={adminMenuOpen}
-              aria-label="Abrir menu de administrador"
+              aria-label="Abrir menú de administrador"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-uva text-crema shadow-sm">
                 <UserRound size={18} />
@@ -150,7 +150,7 @@ export default function AdminLayout({ children, title }) {
                 <p className="text-[11px] font-bold uppercase tracking-wide text-uva/50">
                   Admin
                 </p>
-                <p className="max-w-56 truncate font-bold text-uva">
+                <p className="max-w-44 truncate font-bold text-uva sm:max-w-56">
                   {adminName}
                 </p>
               </div>
@@ -170,7 +170,7 @@ export default function AdminLayout({ children, title }) {
                   className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left font-bold transition hover:bg-fucsia/10 hover:text-fucsia"
                 >
                   <LogOut size={18} />
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -192,7 +192,7 @@ function AdminLink({ to, icon, children }) {
       to={to}
       end={to === "/admin"}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-2 rounded-lg transition-all cursor-pointer
+        `flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 transition-all cursor-pointer lg:gap-3 lg:px-4
          ${
            isActive
              ? "bg-rosa text-uva font-bold shadow-md"
@@ -201,7 +201,7 @@ function AdminLink({ to, icon, children }) {
       }
     >
       {icon}
-      <span>{children}</span>
+      <span className="whitespace-nowrap">{children}</span>
     </NavLink>
   );
 }

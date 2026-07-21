@@ -5,6 +5,9 @@ import {
   ChevronDown,
   ChevronUp,
   CreditCard,
+  Eye,
+  EyeOff,
+  Loader2,
   Package,
   Pencil,
   Plus,
@@ -17,20 +20,20 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import ConfirmModal from "../../components/ConfirmModal.jsx";
-import AdminSearchBox from "../../components/AdminSearchBox.jsx";
-import AdminFilterHeading from "../../components/AdminFilterHeading.jsx";
-import FilterPill from "../../components/FilterPill.jsx";
-import AdminSegmentedTabs from "../../components/AdminSegmentedTabs.jsx";
+import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
+import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
+import TituloFiltroAdmin from "../../components/TituloFiltroAdmin.jsx";
+import PildoraFiltro from "../../components/PildoraFiltro.jsx";
+import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 import {
   MERCH_CATEGORY_OPTIONS,
   getMerchCategoryInfo,
 } from "../../constants/merchOptions.js";
 
 const TAB_LABELS = {
-  ordenes: "Ordenes",
+  ordenes: "Órdenes",
   productos: "Productos",
-  envios: "Envios",
+  envios: "Envíos",
 };
 
 const PROVINCIAS_LABEL = {
@@ -40,17 +43,17 @@ const PROVINCIAS_LABEL = {
   catamarca: "Catamarca",
   chaco: "Chaco",
   chubut: "Chubut",
-  cordoba: "Cordoba",
+  cordoba: "Córdoba",
   corrientes: "Corrientes",
-  entre_rios: "Entre Rios",
+  entre_rios: "Entre Ríos",
   formosa: "Formosa",
   jujuy: "Jujuy",
   la_pampa: "La Pampa",
   la_rioja: "La Rioja",
   mendoza: "Mendoza",
   misiones: "Misiones",
-  neuquen: "Neuquen",
-  rio_negro: "Rio Negro",
+  neuquen: "Neuquén",
+  rio_negro: "Río Negro",
   salta: "Salta",
   san_juan: "San Juan",
   san_luis: "San Luis",
@@ -58,8 +61,8 @@ const PROVINCIAS_LABEL = {
   santa_fe: "Santa Fe",
   santiago_del_estero: "Santiago del Estero",
   tierra_del_fuego: "Tierra del Fuego",
-  tucuman: "Tucuman",
-  resto_pais: "Resto del pais",
+  tucuman: "Tucumán",
+  resto_pais: "Resto del país",
 };
 
 const ESTADO_ORDEN = {
@@ -125,7 +128,7 @@ function describirVariante(variante) {
 
   if (variante?.color) partes.push(`Color: ${variante.color}`);
   if (variante?.talle) partes.push(`Talle: ${variante.talle}`);
-  if (variante?.diseno) partes.push(`Diseno: ${variante.diseno}`);
+  if (variante?.diseno) partes.push(`Diseño: ${variante.diseno}`);
 
   return partes.length > 0 ? partes.join(" | ") : "";
 }
@@ -164,6 +167,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
   const [cargandoEnvios, setCargandoEnvios] = useState(true);
   const [guardandoEnvios, setGuardandoEnvios] = useState(false);
   const [actualizandoOrden, setActualizandoOrden] = useState(null);
+  const [actualizandoProducto, setActualizandoProducto] = useState(null);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
@@ -177,14 +181,14 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
       const data = await res.json().catch(() => []);
 
       if (!res.ok) {
-        throw new Error(data?.message || "No se pudieron cargar las ordenes");
+        throw new Error(data?.message || "No se pudieron cargar las órdenes");
       }
 
       setOrdenes(Array.isArray(data) ? data : []);
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudieron cargar las ordenes",
+        text: error.message || "No se pudieron cargar las órdenes",
       });
     } finally {
       setCargandoOrdenes(false);
@@ -194,7 +198,9 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
   const cargarProductos = useCallback(async () => {
     try {
       setCargandoProductos(true);
-      const res = await fetch(`${API}/api/merch`);
+      const res = await fetch(`${API}/api/merch/admin/todos`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
       const data = await res.json().catch(() => []);
 
       if (!res.ok) {
@@ -221,7 +227,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data?.message || "No se pudo cargar envios");
+        throw new Error(data?.message || "No se pudo cargar envíos");
       }
 
       setConfigEnvios({
@@ -234,7 +240,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo cargar envios",
+        text: error.message || "No se pudo cargar envíos",
       });
     } finally {
       setCargandoEnvios(false);
@@ -327,6 +333,45 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     }
   }
 
+  async function actualizarEstadoProducto(idProducto, activo) {
+    try {
+      setActualizandoProducto(idProducto);
+      setMensaje(null);
+
+      const res = await fetch(`${API}/api/merch/${idProducto}/estado`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ activo }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || "No se pudo cambiar la visibilidad");
+      }
+
+      setProductos((prev) =>
+        prev.map((producto) =>
+          producto._id === idProducto ? { ...producto, activo } : producto
+        )
+      );
+
+      setMensaje({
+        variant: "success",
+        text: activo ? "Producto habilitado en la tienda." : "Producto oculto de la tienda.",
+      });
+    } catch (error) {
+      setMensaje({
+        variant: "error",
+        text: error.message || "No se pudo cambiar la visibilidad",
+      });
+    } finally {
+      setActualizandoProducto(null);
+    }
+  }
+
   async function guardarConfiguracionEnvios(event) {
     event.preventDefault();
 
@@ -355,18 +400,18 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data?.message || "No se pudo guardar la configuracion");
+        throw new Error(data?.message || "No se pudo guardar la configuración");
       }
 
       setMensaje({
         variant: "success",
-        text: "Configuracion de envios actualizada.",
+        text: "Configuración de envíos actualizada.",
       });
       await cargarEnvios();
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo guardar envios",
+        text: error.message || "No se pudo guardar envíos",
       });
     } finally {
       setGuardandoEnvios(false);
@@ -374,9 +419,9 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
   }
 
   return (
-    <AdminStyle title="Gestion de Merch">
+    <AdminStyle title="Gestión de merch">
       <div className="mb-6 border-b border-uva/10 pb-4">
-        <AdminSegmentedTabs
+        <PestanasAdmin
           tabs={[
             {
               key: "ordenes",
@@ -424,6 +469,8 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
         <ProductosPanel
           productos={productos}
           cargando={cargandoProductos}
+          actualizandoProducto={actualizandoProducto}
+          onToggleActivo={actualizarEstadoProducto}
           onDelete={setProductoAEliminar}
         />
       )}
@@ -438,12 +485,12 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
         />
       )}
 
-      <ConfirmModal
+      <ModalConfirmacion
         open={!!productoAEliminar}
         title="Eliminar producto"
         message={
           productoAEliminar
-            ? `Seguro que queres eliminar "${productoAEliminar.nombre}"?`
+            ? `¿Seguro que querés eliminar "${productoAEliminar.nombre}"? Esta acción borra el producto del catálogo.`
             : ""
         }
         confirmText={eliminando ? "Eliminando..." : "Eliminar"}
@@ -523,24 +570,24 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
   }, [busquedaOrden, filtro, ordenes]);
 
   if (cargando) {
-    return <EmptyPanel icon={ReceiptText} text="Cargando ordenes..." />;
+    return <EmptyPanel icon={ReceiptText} text="Cargando órdenes..." />;
   }
 
   if (ordenes.length === 0) {
-    return <EmptyPanel icon={ReceiptText} text="Todavia no hay ordenes de compra." />;
+    return <EmptyPanel icon={ReceiptText} text="Todavía no hay órdenes de compra." />;
   }
 
   return (
     <section>
       <div className="mb-5 flex flex-col items-start gap-3">
         <div>
-          <h2 className="font-fredoka text-3xl text-uva">Ordenes de compra</h2>
+          <h2 className="font-fredoka text-3xl text-uva">Órdenes de compra</h2>
           <p className="text-sm text-uva/65">
-            Administra las compras pagadas, el procesamiento de productos y los envios.
+            Administrá las compras pagadas, el procesamiento de productos y los envíos.
           </p>
         </div>
 
-        <AdminSearchBox
+        <BuscadorAdmin
           value={busquedaOrden}
           onChange={(value) => {
             setBusquedaOrden(value);
@@ -550,11 +597,11 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
           className="w-full sm:max-w-[320px]"
         />
 
-        <AdminFilterHeading>Estados</AdminFilterHeading>
+        <TituloFiltroAdmin>Estados</TituloFiltroAdmin>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
           {filtros.map((item) => (
-            <FilterPill
+            <PildoraFiltro
               key={item.key}
               active={filtro === item.key}
               onClick={() => {
@@ -565,7 +612,7 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
               icon={item.icon}
             >
               {item.label} ({item.count})
-            </FilterPill>
+            </PildoraFiltro>
           ))}
         </div>
       </div>
@@ -578,7 +625,7 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
               <th className="p-3">Usuario</th>
               <th className="p-3">Pago</th>
               <th className="p-3">Estado</th>
-              <th className="p-3">Articulos</th>
+              <th className="p-3">Artículos</th>
               <th className="p-3">Total</th>
               <th className="p-3 text-center">Acciones</th>
             </tr>
@@ -698,7 +745,7 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
         </table>
 
         {ordenesFiltradas.length === 0 && (
-          <EmptyPanel icon={ReceiptText} text="No hay ordenes con ese filtro." />
+          <EmptyPanel icon={ReceiptText} text="No hay órdenes con ese filtro." />
         )}
       </div>
     </section>
@@ -714,7 +761,7 @@ function OrdenDetalle({ orden }) {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div>
           <h3 className="mb-3 font-fredoka text-xl text-uva">
-            Articulos comprados
+            Artículos comprados
           </h3>
           <div className="grid gap-2 md:grid-cols-2">
             {items.map((item, index) => (
@@ -724,12 +771,12 @@ function OrdenDetalle({ orden }) {
         </div>
 
         <div className="rounded-2xl border border-uva/10 bg-crema/65 p-4">
-          <h3 className="font-fredoka text-xl text-uva">Detalle de envio</h3>
+          <h3 className="font-fredoka text-xl text-uva">Detalle de envío</h3>
           <dl className="mt-3 grid gap-2 text-sm">
             <DetailRow label="Nombre" value={datosEnvio.nombreCompleto} />
-            <DetailRow label="Telefono" value={datosEnvio.telefono} />
+            <DetailRow label="Teléfono" value={datosEnvio.telefono} />
             <DetailRow
-              label="Direccion"
+              label="Dirección"
               value={`${datosEnvio.calle || ""} ${datosEnvio.numero || ""}, ${
                 datosEnvio.ciudad || "-"
               }`}
@@ -775,12 +822,40 @@ function OrderItem({ item }) {
 function ProductosPanel({
   productos,
   cargando,
+  actualizandoProducto,
+  onToggleActivo,
   onDelete,
 }) {
   const [busquedaProducto, setBusquedaProducto] = useState("");
   const [categoriaProducto, setCategoriaProducto] = useState("");
+  const [estadoProducto, setEstadoProducto] = useState("todos");
   const [productoVariantesAbiertas, setProductoVariantesAbiertas] =
     useState(null);
+
+  const estadosProducto = useMemo(
+    () => [
+      {
+        key: "todos",
+        label: "Todos",
+        count: productos.length,
+      },
+      {
+        key: "visibles",
+        label: "Visibles",
+        count: productos.filter((producto) => producto.activo !== false).length,
+        color: "#83FFC4",
+        icon: Eye,
+      },
+      {
+        key: "ocultos",
+        label: "Ocultos",
+        count: productos.filter((producto) => producto.activo === false).length,
+        color: "#D1D1D1",
+        icon: EyeOff,
+      },
+    ],
+    [productos]
+  );
 
   const categoriasProducto = useMemo(() => {
     const categoriasBase = MERCH_CATEGORY_OPTIONS.map((categoria) => ({
@@ -809,12 +884,19 @@ function ProductosPanel({
 
   const productosFiltrados = useMemo(() => {
     const query = busquedaProducto.trim().toLowerCase();
+    const porEstado =
+      estadoProducto === "ocultos"
+        ? productos.filter((producto) => producto.activo === false)
+        : estadoProducto === "visibles"
+          ? productos.filter((producto) => producto.activo !== false)
+          : productos;
+
     const porCategoria = categoriaProducto
-      ? productos.filter(
+      ? porEstado.filter(
           (producto) =>
             getMerchCategoryInfo(producto.categoria).value === categoriaProducto
         )
-      : productos;
+      : porEstado;
 
     const base = !query
       ? porCategoria
@@ -836,7 +918,7 @@ function ProductosPanel({
         );
 
     return base;
-  }, [busquedaProducto, categoriaProducto, productos]);
+  }, [busquedaProducto, categoriaProducto, estadoProducto, productos]);
 
   if (cargando) {
     return <EmptyPanel icon={ShoppingBasket} text="Cargando productos..." />;
@@ -847,7 +929,7 @@ function ProductosPanel({
       <div className="mb-4">
         <h2 className="font-fredoka text-3xl text-uva">Productos</h2>
         <p className="text-sm text-uva/65">
-          Administra la merch visible en la tienda.
+          Administrá la merch visible en la tienda.
         </p>
       </div>
 
@@ -860,7 +942,7 @@ function ProductosPanel({
           Nuevo producto
         </Link>
 
-        <AdminSearchBox
+        <BuscadorAdmin
           value={busquedaProducto}
           onChange={(value) => {
             setBusquedaProducto(value);
@@ -871,17 +953,36 @@ function ProductosPanel({
         />
       </div>
 
-      <AdminFilterHeading className="mb-2">Categorias</AdminFilterHeading>
+      <TituloFiltroAdmin className="mb-2">Visibilidad</TituloFiltroAdmin>
 
       <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
-        <FilterPill
+        {estadosProducto.map((estado) => (
+          <PildoraFiltro
+            key={estado.key}
+            active={estadoProducto === estado.key}
+            onClick={() => {
+              setEstadoProducto(estado.key);
+              setProductoVariantesAbiertas(null);
+            }}
+            color={estado.color}
+            icon={estado.icon}
+          >
+            {estado.label} ({estado.count})
+          </PildoraFiltro>
+        ))}
+      </div>
+
+      <TituloFiltroAdmin className="mb-2">Categorías</TituloFiltroAdmin>
+
+      <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
+        <PildoraFiltro
           active={!categoriaProducto}
           onClick={() => setCategoriaProducto("")}
         >
           Todas
-        </FilterPill>
+        </PildoraFiltro>
         {categoriasProducto.map((categoria) => (
-          <FilterPill
+          <PildoraFiltro
             key={categoria.value}
             active={categoriaProducto === categoria.value}
             onClick={() => {
@@ -895,7 +996,7 @@ function ProductosPanel({
           >
             {categoria.label}
             {categoria.count !== undefined ? ` (${categoria.count})` : ""}
-          </FilterPill>
+          </PildoraFiltro>
         ))}
       </div>
 
@@ -905,7 +1006,7 @@ function ProductosPanel({
             <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
               <th className="px-3 py-4">Foto</th>
               <th className="p-3">Nombre</th>
-              <th className="p-3">Categoria</th>
+              <th className="p-3">Categoría</th>
               <th className="p-3">Precio</th>
               <th className="p-3">Stock</th>
               <th className="p-3">Estado</th>
@@ -996,15 +1097,13 @@ function ProductosPanel({
                     </td>
 
                     <td className="p-3">
-                      {producto.activo !== false ? (
-                        <span className="rounded-full bg-menta/40 px-3 py-1 text-xs font-bold text-uva">
-                          Activo
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-fucsia/15 px-3 py-1 text-xs font-bold text-fucsia">
-                          Inactivo
-                        </span>
-                      )}
+                      <ProductVisibilityToggle
+                        active={producto.activo !== false}
+                        loading={actualizandoProducto === producto._id}
+                        onClick={() =>
+                          onToggleActivo(producto._id, producto.activo === false)
+                        }
+                      />
                     </td>
 
                     <td className="p-3">
@@ -1038,7 +1137,7 @@ function ProductosPanel({
         )}
 
         {productos.length > 0 && productosFiltrados.length === 0 && (
-          <EmptyPanel icon={ShoppingBasket} text="No hay productos con esa busqueda." />
+          <EmptyPanel icon={ShoppingBasket} text="No hay productos con esa búsqueda." />
         )}
       </div>
     </section>
@@ -1062,6 +1161,34 @@ function CategoryBadge({ categoria }) {
   );
 }
 
+function ProductVisibilityToggle({ active, loading, onClick }) {
+  const Icon = loading ? Loader2 : active ? Eye : EyeOff;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className={`inline-flex min-w-32 items-center justify-center gap-2 rounded-full border px-3 py-2 text-xs font-extrabold transition disabled:cursor-wait disabled:opacity-70 ${
+        active
+          ? "border-menta/70 bg-menta/35 text-uva hover:bg-menta/55"
+          : "border-uva/15 bg-crema text-uva/65 hover:bg-uva/10 hover:text-uva"
+      }`}
+      title={active ? "Ocultar de la tienda" : "Mostrar en la tienda"}
+      aria-label={active ? "Ocultar producto de la tienda" : "Mostrar producto en la tienda"}
+    >
+      <span
+        className={`flex h-6 w-6 items-center justify-center rounded-full ${
+          active ? "bg-menta text-uva" : "bg-white text-uva/65"
+        }`}
+      >
+        <Icon size={14} className={loading ? "animate-spin" : ""} />
+      </span>
+      {active ? "Visible" : "Oculto"}
+    </button>
+  );
+}
+
 function EnviosPanel({ form, setForm, cargando, guardando, onSubmit }) {
   function handleChange(event) {
     const { name, value } = event.target;
@@ -1069,15 +1196,15 @@ function EnviosPanel({ form, setForm, cargando, guardando, onSubmit }) {
   }
 
   if (cargando) {
-    return <EmptyPanel icon={Truck} text="Cargando configuracion de envios..." />;
+    return <EmptyPanel icon={Truck} text="Cargando configuración de envíos..." />;
   }
 
   return (
     <section className="max-w-4xl rounded-3xl border border-uva/10 bg-white p-6 shadow-xl">
       <div className="mb-6">
-        <h2 className="font-fredoka text-3xl text-uva">Envios</h2>
+        <h2 className="font-fredoka text-3xl text-uva">Envíos</h2>
         <p className="text-sm text-uva/65">
-          Define costos por zona y monto minimo para envio gratis.
+          Definí costos por zona y monto mínimo para envío gratis.
         </p>
       </div>
 
@@ -1102,13 +1229,13 @@ function EnviosPanel({ form, setForm, cargando, guardando, onSubmit }) {
             onChange={handleChange}
           />
           <InputEnvio
-            label="Resto del pais"
+            label="Resto del país"
             name="resto_pais"
             value={form.resto_pais}
             onChange={handleChange}
           />
           <InputEnvio
-            label="Envio gratis desde"
+            label="Envío gratis desde"
             name="envioGratisDesde"
             value={form.envioGratisDesde}
             onChange={handleChange}

@@ -1,6 +1,6 @@
 import { Search, X } from "lucide-react";
 
-export default function AdminSearchBox({
+export default function BuscadorAdmin({
   value,
   onChange,
   placeholder = "Buscar",
@@ -24,7 +24,7 @@ export default function AdminSearchBox({
           type="button"
           onClick={() => onChange("")}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/80 text-uva transition hover:bg-rosa/35"
-          aria-label="Limpiar busqueda"
+          aria-label="Limpiar búsqueda"
         >
           <X size={14} />
         </button>

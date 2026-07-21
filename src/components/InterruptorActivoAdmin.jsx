@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from "lucide-react";
 
-export default function AdminActiveToggle({
+export default function InterruptorActivoAdmin({
   active,
   onClick,
   activeLabel = "Activo",

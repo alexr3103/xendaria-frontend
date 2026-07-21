@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
+import Alert from "../../components/Alertas.jsx";
 
 import {
   Eye,
@@ -12,8 +13,8 @@ import {
 
 import FilterPanelAdmin from "../../layouts/FilterPanelAdmin.jsx";  
 import { categorias } from "../../components/CategoriasFiltros.jsx";
-import AdminSortableHeader from "../../components/AdminSortableHeader.jsx";
-import AdminSegmentedTabs from "../../components/AdminSegmentedTabs.jsx";
+import EncabezadoOrdenableAdmin from "../../components/EncabezadoOrdenableAdmin.jsx";
+import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -46,6 +47,7 @@ export default function PuntosAdmin() {
   const [puntos, setPuntos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
 
   // FILTROS
   const [buscar, setBuscar] = useState("");
@@ -62,6 +64,7 @@ export default function PuntosAdmin() {
     try {
       setCargando(true);
       setError(null);
+      setMensaje(null);
 
       const query = new URLSearchParams();
 
@@ -99,6 +102,7 @@ export default function PuntosAdmin() {
     if (!confirmar) return;
 
     try {
+      setMensaje(null);
       const token = localStorage.getItem("token");
       const res = await fetch(`${API}/api/puntos/${id}`, {
         method: "DELETE",
@@ -110,9 +114,12 @@ export default function PuntosAdmin() {
 
       if (res.ok) {
         setPuntos((prev) => prev.filter((p) => p._id !== id));
+        setMensaje({ variant: "success", text: "Punto eliminado correctamente." });
+      } else {
+        setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
       }
     } catch {
-      alert("Error eliminando el punto");
+      setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
     }
   }
 
@@ -173,12 +180,12 @@ export default function PuntosAdmin() {
           {tab === "inactivos" ? "Puntos inactivos" : "Puntos activos"}
         </h2>
         <p className="text-sm text-uva/65">
-          Administra los lugares que vera el usuario en el mapa, filtros y detalle.
+          Administrá los lugares que verá el usuario en el mapa, filtros y detalle.
         </p>
       </div>
 
       <div className="mb-6 border-b border-uva/10 pb-4">
-        <AdminSegmentedTabs
+        <PestanasAdmin
           tabs={[
             {
               key: "activos",
@@ -226,6 +233,12 @@ export default function PuntosAdmin() {
         crearTo="/admin/puntos/nuevopunto"
       />
 
+      {mensaje && (
+        <div className="mb-4">
+          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+        </div>
+      )}
+
       {/* Loader */}
       {cargando && (
         <p className="text-center text-morado text-lg">Cargando puntos...</p>
@@ -233,7 +246,9 @@ export default function PuntosAdmin() {
 
       {/* Error */}
       {error && (
-        <p className="text-center text-red-500 font-semibold">{error}</p>
+        <div className="mb-4">
+          <Alert variant="error">{error}</Alert>
+        </div>
       )}
 
       {/* TABLA */}
@@ -244,23 +259,23 @@ export default function PuntosAdmin() {
             <thead>
               <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
                 <th className="px-3 py-4">
-                  <AdminSortableHeader
+                  <EncabezadoOrdenableAdmin
                     active={ordenPuntos.campo === "nombre"}
                     direction={ordenPuntos.direccion}
                     onClick={() => cambiarOrdenPuntos("nombre")}
                   >
                     Nombre
-                  </AdminSortableHeader>
+                  </EncabezadoOrdenableAdmin>
                 </th>
                 <th className="p-3">Categoría</th>
                 <th className="p-3">
-                  <AdminSortableHeader
+                  <EncabezadoOrdenableAdmin
                     active={ordenPuntos.campo === "direccion"}
                     direction={ordenPuntos.direccion}
                     onClick={() => cambiarOrdenPuntos("direccion")}
                   >
                     Dirección
-                  </AdminSortableHeader>
+                  </EncabezadoOrdenableAdmin>
                 </th>
                 <th className="px-3 py-4">Coordenadas</th>
                 <th className="px-3 py-4">Insignia</th>

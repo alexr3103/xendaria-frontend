@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import AdminSearchBox from "../../components/AdminSearchBox.jsx";
-import AdminFilterHeading from "../../components/AdminFilterHeading.jsx";
-import FilterPill from "../../components/FilterPill.jsx";
-import AdminSegmentedTabs from "../../components/AdminSegmentedTabs.jsx";
+import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
+import TituloFiltroAdmin from "../../components/TituloFiltroAdmin.jsx";
+import PildoraFiltro from "../../components/PildoraFiltro.jsx";
+import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 import { categorias as categoriasPuntos } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 
@@ -268,7 +268,7 @@ export default function RutasAdmin() {
     if (puntosSeleccionados.length < 3) {
       setMensaje({
         variant: "error",
-        text: "La ruta necesita minimo 3 puntos existentes.",
+        text: "La ruta necesita mínimo 3 puntos existentes.",
       });
       return;
     }
@@ -321,7 +321,7 @@ export default function RutasAdmin() {
   }
 
   async function eliminarRuta(idRuta) {
-    const confirmar = window.confirm("Seguro que queres eliminar esta ruta?");
+    const confirmar = window.confirm("¿Seguro que querés eliminar esta ruta?");
     if (!confirmar) return;
 
     const token = getToken();
@@ -347,10 +347,10 @@ export default function RutasAdmin() {
   }
 
   return (
-    <AdminStyle title="Gestion de Rutas">
+    <AdminStyle title="Gestión de rutas">
       <div className="mb-6 flex flex-col gap-4 border-b border-uva/10 pb-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <AdminSegmentedTabs
+          <PestanasAdmin
             tabs={[
               {
                 key: "activas",
@@ -435,7 +435,7 @@ export default function RutasAdmin() {
                 </label>
 
                 <label className="grid gap-1">
-                  <span className="text-sm font-bold text-uva">Categoria</span>
+                  <span className="text-sm font-bold text-uva">Categoría</span>
                   <select
                     value={form.categoria}
                     onChange={(event) =>
@@ -453,14 +453,14 @@ export default function RutasAdmin() {
               </div>
 
               <label className="grid gap-1">
-                <span className="text-sm font-bold text-uva">Descripcion</span>
+                <span className="text-sm font-bold text-uva">Descripción</span>
                 <textarea
                   value={form.descripcion}
                   onChange={(event) =>
                     actualizarForm("descripcion", event.target.value)
                   }
                   className={`${inputClass} min-h-28 resize-y`}
-                  placeholder="Una breve descripcion de la experiencia."
+                  placeholder="Una breve descripción de la experiencia."
                 />
               </label>
 
@@ -481,12 +481,12 @@ export default function RutasAdmin() {
                         : "bg-fucsia/10 text-fucsia"
                     }`}
                   >
-                    {puntosSeleccionados.length}/3 minimo
+                    {puntosSeleccionados.length}/3 mínimo
                   </span>
                 </div>
 
                 {puntosSeleccionados.length === 0 ? (
-                  <EmptyPanel text="Agrega puntos desde el buscador de la derecha." />
+                  <EmptyPanel text="Agregá puntos desde el buscador de la derecha." />
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-2">
                     {puntosSeleccionados.map((punto) => (
@@ -536,12 +536,12 @@ export default function RutasAdmin() {
             <div className="mb-4">
               <h2 className="font-fredoka text-2xl text-uva">Puntos del mapa</h2>
               <p className="text-sm text-uva/65">
-                Busca y agrega solo puntos publicos existentes.
+                Buscá y agregá solo puntos públicos existentes.
               </p>
             </div>
 
             <div className="grid gap-3">
-              <AdminSearchBox
+              <BuscadorAdmin
                 value={busquedaPunto}
                 onChange={setBusquedaPunto}
                 placeholder="Buscar punto"
@@ -549,14 +549,14 @@ export default function RutasAdmin() {
               />
 
               <div className="flex gap-2 overflow-x-auto pb-1">
-                <FilterPill
+                <PildoraFiltro
                   active={!categoriaPunto}
                   onClick={() => setCategoriaPunto("")}
                 >
                   Todas
-                </FilterPill>
+                </PildoraFiltro>
                 {categoriasFiltroPuntos.map(([key, categoria]) => (
-                  <FilterPill
+                  <PildoraFiltro
                     key={key}
                     active={categoriaPunto === key}
                     onClick={() => setCategoriaPunto(key)}
@@ -564,7 +564,7 @@ export default function RutasAdmin() {
                     icon={categoria.icon}
                   >
                     {categoria.label}
-                  </FilterPill>
+                  </PildoraFiltro>
                 ))}
               </div>
             </div>
@@ -596,7 +596,7 @@ export default function RutasAdmin() {
                 {tab === "inactivas" ? "Rutas inactivas" : "Rutas activas"}
               </h2>
               <p className="text-sm text-uva/65">
-                Administra lo que vera el usuario en la seccion de rutas.
+                Administrá lo que verá el usuario en la sección de rutas.
               </p>
             </div>
 
@@ -613,7 +613,7 @@ export default function RutasAdmin() {
                 Nueva ruta
               </button>
 
-              <AdminSearchBox
+              <BuscadorAdmin
                 value={busquedaRuta}
                 onChange={setBusquedaRuta}
                 placeholder="Buscar ruta"
@@ -621,17 +621,17 @@ export default function RutasAdmin() {
               />
             </div>
 
-            <AdminFilterHeading>Categorias</AdminFilterHeading>
+            <TituloFiltroAdmin>Categorías</TituloFiltroAdmin>
 
             <div className="flex gap-2 overflow-x-auto pb-1">
-              <FilterPill
+              <PildoraFiltro
                 active={!categoriaRutaFiltro}
                 onClick={() => setCategoriaRutaFiltro("")}
               >
                 Todas
-              </FilterPill>
+              </PildoraFiltro>
               {categoriasRutas.map((categoria) => (
-                <FilterPill
+                <PildoraFiltro
                   key={categoria}
                   active={categoriaRutaFiltro === categoria}
                   onClick={() =>
@@ -642,7 +642,7 @@ export default function RutasAdmin() {
                   color={CATEGORIAS_RUTAS_COLOR[categoria]}
                 >
                   {CATEGORIAS_RUTAS_LABELS[categoria] || categoria}
-                </FilterPill>
+                </PildoraFiltro>
               ))}
             </div>
           </div>
@@ -650,9 +650,9 @@ export default function RutasAdmin() {
           {cargando ? (
             <EmptyPanel text="Cargando rutas..." />
           ) : rutas.length === 0 ? (
-            <EmptyPanel text="Todavia no hay rutas recomendadas." />
+            <EmptyPanel text="Todavía no hay rutas recomendadas." />
           ) : rutasFiltradas.length === 0 ? (
-            <EmptyPanel text="No hay rutas con esa busqueda." />
+            <EmptyPanel text="No hay rutas con esa búsqueda." />
           ) : (
             <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
               {rutasFiltradas.map((ruta) => (
@@ -733,7 +733,7 @@ function SelectedPoint({ punto, onRemove }) {
       <span className="min-w-0 flex-1">
         <span className="block truncate font-bold text-uva">{punto.nombre}</span>
         <span className="block truncate text-xs text-uva/60">
-          {categoria?.label || punto.categoria || "Categoria"}
+          {categoria?.label || punto.categoria || "Categoría"}
         </span>
       </span>
       <button
@@ -762,7 +762,7 @@ function AvailablePoint({ punto, onAdd }) {
       <span className="min-w-0 flex-1">
         <span className="block truncate font-bold text-uva">{punto.nombre}</span>
         <span className="block truncate text-xs text-uva/60">
-          {categoria?.label || punto.categoria || "Categoria"}
+          {categoria?.label || punto.categoria || "Categoría"}
         </span>
       </span>
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-morado/10 text-morado">

@@ -4,13 +4,13 @@ import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
 const ERROR_CONTENT = {
   401: {
     title: "Sesion requerida",
-    message: "Necesitas iniciar sesion para acceder a esta seccion.",
+    message: "Necesitás iniciar sesión para acceder a esta sección.",
     actionLabel: "Ir al login",
     actionTo: "/login",
   },
   403: {
     title: "Acceso no permitido",
-    message: "Tu usuario no tiene permisos para realizar esta accion.",
+    message: "Tu usuario no tiene permisos para realizar esta acción.",
     actionLabel: "Volver al inicio",
     actionTo: "/home",
   },
@@ -32,7 +32,7 @@ export default function ErrorPage() {
 
   const content = ERROR_CONTENT[code] || {
     title: "Error inesperado",
-    message: "No pudimos completar la accion solicitada.",
+    message: "No pudimos completar la acción solicitada.",
     actionLabel: "Volver al inicio",
     actionTo: "/home",
   };

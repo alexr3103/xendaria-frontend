@@ -6,7 +6,7 @@ import Register from "./views/users/Registro.jsx";
 import Home from "./views/users/Home.jsx";
 import Carga from "./components/PantallaCarga.jsx";
 import Splash from "./components/Splash.jsx";
-import RequireAdmin from "./components/RequireAdmin.jsx";
+import ProteccionAdmin from "./components/ProteccionAdmin.jsx";
 import Proximamente from "./layouts/Proximamente.jsx";
 import NotFound from "./layouts/404.jsx";
 import ErrorPage from "./layouts/Error.jsx";
@@ -71,7 +71,7 @@ export default function App() {
         <Route path="/404" element={<NotFound />} />
         <Route path="/error/:code" element={<ErrorPage />} />
         <Route path="*" element={<NotFound />} />
-        <Route element={<RequireAdmin />}>
+        <Route element={<ProteccionAdmin />}>
           <Route path="/admin" element={<DashboardAdmin />} />
           <Route path="/admin/dashboard" element={<DashboardAdmin />} />
           <Route path="/admin/puntos" element={<PuntosAdmin />} />

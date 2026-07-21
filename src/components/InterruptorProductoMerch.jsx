@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from "lucide-react";
 
-export default function MerchActiveToggle({ active, onClick }) {
+export default function InterruptorProductoMerch({ active, onClick }) {
   const Icon = active ? Eye : EyeOff;
 
   return (

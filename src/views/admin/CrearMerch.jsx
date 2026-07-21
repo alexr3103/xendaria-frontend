@@ -11,16 +11,16 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import MerchGalleryInput from "../../components/MerchGalleryInput.jsx";
-import MerchActiveToggle from "../../components/MerchActiveToggle.jsx";
+import CampoGaleriaMerch from "../../components/CampoGaleriaMerch.jsx";
+import InterruptorProductoMerch from "../../components/InterruptorProductoMerch.jsx";
 import {
-  AdminEditorForm,
-  AdminEditorPage,
-  AdminField,
-  AdminFlatSection,
-  AdminSectionTitle,
-  adminInputClass,
-} from "../../components/AdminEditor.jsx";
+  FormularioEditorAdmin,
+  PaginaEditorAdmin,
+  CampoAdmin,
+  SeccionPlanaAdmin,
+  TituloSeccionAdmin,
+  claseInputAdmin,
+} from "../../components/EditorAdmin.jsx";
 import {
   MERCH_CATEGORY_OPTIONS,
   MERCH_COLOR_OPTIONS,
@@ -128,7 +128,7 @@ export default function CrearMerch() {
 
   async function subirImagenMerch(file) {
     if (!file.type.startsWith("image/")) {
-      setError("Solo se pueden subir imagenes.");
+      setError("Solo se pueden subir imágenes.");
       return;
     }
 
@@ -216,7 +216,7 @@ export default function CrearMerch() {
       imagenesTemporalesRef.current = [];
       navigate("/admin/merch");
     } catch (err) {
-      setError(err.message || "No se pudieron limpiar las imagenes subidas");
+      setError(err.message || "No se pudieron limpiar las imágenes subidas");
     }
   }
 
@@ -227,7 +227,7 @@ export default function CrearMerch() {
       setOk("");
 
       if (!producto.imagenes.length) {
-        setError("Tenes que subir al menos una imagen del producto.");
+        setError("Tenés que subir al menos una imagen del producto.");
         return;
       }
 
@@ -298,7 +298,7 @@ export default function CrearMerch() {
 
   return (
     <AdminStyle title="Nuevo producto">
-      <AdminEditorPage
+      <PaginaEditorAdmin
         title="Nuevo producto"
         actions={
           <>
@@ -314,7 +314,7 @@ export default function CrearMerch() {
             <button
               type="button"
               onClick={cancelarCreacion}
-              className="ml-4 flex items-center justify-center gap-2 rounded-full bg-fucsia px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-fucsia/85"
+              className="flex items-center justify-center gap-2 rounded-full bg-fucsia px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-fucsia/85"
             >
               <X size={18} />
               Cancelar
@@ -327,60 +327,60 @@ export default function CrearMerch() {
           {ok && <Alert variant="success">{ok}</Alert>}
         </div>
 
-        <AdminEditorForm
+        <FormularioEditorAdmin
           onSubmit={(event) => {
             event.preventDefault();
             guardarProducto();
           }}
         >
           <section className="space-y-9 pb-4">
-            <AdminSectionTitle
+            <TituloSeccionAdmin
               icon={Package}
               title="Datos principales"
-              subtitle="Lo basico que identifica al producto en la tienda."
+              subtitle="Lo básico que identifica al producto en la tienda."
             />
 
             <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(260px,1.35fr)_220px_160px_180px]">
-              <AdminField label="Nombre del producto">
+              <CampoAdmin label="Nombre del producto">
                 <input
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   value={producto.nombre}
                   onChange={(event) =>
                     setProducto({ ...producto, nombre: event.target.value })
                   }
                 />
-              </AdminField>
+              </CampoAdmin>
 
-              <AdminField label="Categoria">
+              <CampoAdmin label="Categoría">
                 <select
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   value={producto.categoria}
                   onChange={(event) =>
                     setProducto({ ...producto, categoria: event.target.value })
                   }
                 >
-                  <option value="">Seleccionar categoria</option>
+                  <option value="">Seleccionar categoría</option>
                   {MERCH_CATEGORY_OPTIONS.map((categoria) => (
                     <option key={categoria.value} value={categoria.value}>
                       {categoria.label}
                     </option>
                   ))}
                 </select>
-              </AdminField>
+              </CampoAdmin>
 
-              <AdminField label="Precio">
+              <CampoAdmin label="Precio">
                 <input
                   type="number"
-                  className={adminInputClass}
+                  className={claseInputAdmin}
                   value={producto.precio}
                   onChange={(event) =>
                     setProducto({ ...producto, precio: event.target.value })
                   }
                 />
-              </AdminField>
+              </CampoAdmin>
 
               <div className="flex items-end">
-                <MerchActiveToggle
+                <InterruptorProductoMerch
                   active={producto.activo !== false}
                   onClick={() =>
                     setProducto({ ...producto, activo: producto.activo === false })
@@ -389,39 +389,39 @@ export default function CrearMerch() {
               </div>
             </div>
 
-            <AdminField label="Descripcion">
+            <CampoAdmin label="Descripción">
               <textarea
-                className={`${adminInputClass} min-h-36 resize-y`}
+                className={`${claseInputAdmin} min-h-36 resize-y`}
                 value={producto.descripcion}
                 onChange={(event) =>
                   setProducto({ ...producto, descripcion: event.target.value })
                 }
               />
-            </AdminField>
+            </CampoAdmin>
           </section>
 
-          <AdminFlatSection
-            title="Imagenes"
+          <SeccionPlanaAdmin
+            title="Imágenes"
             description="La primera imagen se usa como imagen principal del producto."
             icon={Image}
           >
             {producto.imagenes.length === 0 && (
               <p className="text-sm font-semibold text-fucsia">
-                Tenes que dejar al menos una imagen cargada.
+                Tenés que dejar al menos una imagen cargada.
               </p>
             )}
 
-            <MerchGalleryInput
+            <CampoGaleriaMerch
               imagenes={producto.imagenes}
               subiendo={subiendoImagen}
               onDelete={eliminarImagen}
               onUpload={subirImagenMerch}
             />
-          </AdminFlatSection>
+          </SeccionPlanaAdmin>
 
-          <AdminFlatSection
+          <SeccionPlanaAdmin
             title="Variantes"
-            description="Combinaciones de color, talle, diseno y stock."
+            description="Combinaciones de color, talle, diseño y stock."
             icon={Shapes}
           >
             <div className="flex justify-end">
@@ -451,7 +451,7 @@ export default function CrearMerch() {
                 ))}
               </div>
             )}
-          </AdminFlatSection>
+          </SeccionPlanaAdmin>
 
           <div className="mt-16 flex flex-wrap items-center justify-end gap-3 border-t border-uva/10 pt-8">
             <button
@@ -472,8 +472,8 @@ export default function CrearMerch() {
               {guardando ? "Guardando..." : "Guardar"}
             </button>
           </div>
-        </AdminEditorForm>
-      </AdminEditorPage>
+        </FormularioEditorAdmin>
+      </PaginaEditorAdmin>
     </AdminStyle>
   );
 }
@@ -487,7 +487,7 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
             {variante.esNueva ? "Nueva variante" : "Variante"}
           </h4>
           <p className="text-xs font-semibold text-uva/45">
-            Color, talle, diseno y stock.
+            Color, talle, diseño y stock.
           </p>
         </div>
 
@@ -557,22 +557,22 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
           </p>
         </div>
 
-        <AdminField label="Diseno">
+        <CampoAdmin label="Diseño">
           <input
-            className={adminInputClass}
+            className={claseInputAdmin}
             value={variante.diseno || ""}
             onChange={(event) => onChange(index, "diseno", event.target.value)}
           />
-        </AdminField>
+        </CampoAdmin>
 
-        <AdminField label="Stock">
+        <CampoAdmin label="Stock">
           <input
             type="number"
-            className={adminInputClass}
+            className={claseInputAdmin}
             value={variante.stock ?? ""}
             onChange={(event) => onChange(index, "stock", event.target.value)}
           />
-        </AdminField>
+        </CampoAdmin>
       </div>
     </article>
   );

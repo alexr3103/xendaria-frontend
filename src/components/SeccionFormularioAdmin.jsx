@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
-export default function AdminFormSection({
+export default function SeccionFormularioAdmin({
   title,
   description,
   icon: Icon,

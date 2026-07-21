@@ -1,7 +1,7 @@
-export default function ConfirmModal({
+export default function ModalConfirmacion({
   open,
-  title = "Confirmar accion",
-  message = "Queres continuar?",
+  title = "Confirmar acción",
+  message = "¿Querés continuar?",
   confirmText = "Aceptar",
   cancelText = "Cancelar",
   danger = false,

@@ -18,22 +18,22 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import ImageUploader from "../../components/ImageUploader.jsx";
+import SubidorImagen from "../../components/SubidorImagen.jsx";
 import MultimediaAdmin from "../../components/MultimediaAdmin.jsx";
 import HistoriasAdmin from "../../components/HistoriasAdmin.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import {
-  UserDetailPreviewCard,
-  UserPreviewCard,
-} from "../../components/AdminPuntoPreview.jsx";
+  TarjetaDetalleUsuario,
+  TarjetaVistaUsuario,
+} from "../../components/VistaPreviaPuntoAdmin.jsx";
 import {
-  AdminEditorForm,
-  AdminField as Field,
-  AdminFlatSection as FlatSection,
-  AdminSectionTitle as SectionTitle,
-  adminInputClass as inputClass,
-} from "../../components/AdminEditor.jsx";
-import AdminActiveToggle from "../../components/AdminActiveToggle.jsx";
+  FormularioEditorAdmin,
+  CampoAdmin as Field,
+  SeccionPlanaAdmin as FlatSection,
+  TituloSeccionAdmin as SectionTitle,
+  claseInputAdmin as inputClass,
+} from "../../components/EditorAdmin.jsx";
+import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -174,7 +174,7 @@ export default function EditarPunto() {
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
         mostrarMensajeArriba({
           variant: "error",
-          text: "Latitud y longitud deben ser numeros validos.",
+          text: "Latitud y longitud deben ser números válidos.",
         });
         return;
       }
@@ -210,7 +210,7 @@ export default function EditarPunto() {
           localStorage.removeItem("usuario");
           mostrarMensajeArriba({
             variant: "error",
-            text: "Tu sesion expiro. Inicia sesion nuevamente para guardar cambios.",
+            text: "Tu sesión expiró. Iniciá sesión nuevamente para guardar cambios.",
           });
           setTimeout(() => navigate("/login", { replace: true }), 1800);
           return;
@@ -232,7 +232,7 @@ export default function EditarPunto() {
   }
 
   async function eliminarPunto() {
-    if (!confirm("Seguro que queres eliminar este punto?")) return;
+    if (!confirm("¿Seguro que querés eliminar este punto?")) return;
 
     try {
       const res = await fetch(`${API}/api/puntos/${id}`, {
@@ -288,7 +288,7 @@ export default function EditarPunto() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setMensaje({ variant: "error", text: "Solo se pueden subir imagenes." });
+      setMensaje({ variant: "error", text: "Solo se pueden subir imágenes." });
       return;
     }
 
@@ -330,7 +330,7 @@ export default function EditarPunto() {
       <AdminStyle title="Editar punto">
         <div className="flex min-h-[55vh] items-center justify-center text-morado">
           <Loader2 className="mr-2 animate-spin" size={22} />
-          <span className="font-bold">Cargando informacion...</span>
+          <span className="font-bold">Cargando información...</span>
         </div>
       </AdminStyle>
     );
@@ -350,7 +350,7 @@ export default function EditarPunto() {
         <div className="mb-10 flex flex-wrap items-start justify-between gap-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-uva/45">
-              Panel de edicion
+              Panel de edición
             </p>
             <h2 className="font-fredoka text-3xl leading-none text-morado">
               {punto.nombre || "Punto sin nombre"}
@@ -378,7 +378,7 @@ export default function EditarPunto() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="ml-4 flex items-center justify-center gap-2 rounded-full bg-uva px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-uva/90"
+              className="flex items-center justify-center gap-2 rounded-full bg-uva px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-uva/90"
             >
               <Undo2 size={18} />
               Volver
@@ -388,14 +388,8 @@ export default function EditarPunto() {
 
         {mensaje && <Alert variant={mensaje.variant}>{mensaje.text}</Alert>}
 
-        <div
-          className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start"
-          style={{
-            gridTemplateColumns: "minmax(0, 1040px) clamp(240px, 22vw, 340px)",
-            columnGap: "clamp(20px, 2vw, 32px)",
-          }}
-        >
-          <AdminEditorForm
+        <div className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] 2xl:grid-cols-[minmax(0,1040px)_340px]">
+          <FormularioEditorAdmin
             className="min-w-0 max-w-none"
             onSubmit={(event) => {
               event.preventDefault();
@@ -406,7 +400,7 @@ export default function EditarPunto() {
               <SectionTitle
                 icon={Info}
                 title="Datos principales"
-                subtitle="Lo basico que identifica al punto en mapa y listados."
+                subtitle="Lo básico que identifica al punto en mapa y listados."
               />
 
               <div className="grid min-w-0 gap-4 lg:grid-cols-2">
@@ -418,7 +412,7 @@ export default function EditarPunto() {
                   />
                 </Field>
 
-                <Field label="Direccion">
+                <Field label="Dirección">
                   <input
                     className={inputClass}
                     value={punto.direccion || ""}
@@ -428,7 +422,7 @@ export default function EditarPunto() {
               </div>
 
               <div>
-                <Field label="Categorias">
+                <Field label="Categorías">
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(categorias)
                       .filter(([key]) => key !== "propios")
@@ -464,7 +458,7 @@ export default function EditarPunto() {
 
               <Field label="Estado del punto">
                 <div className="max-w-xs">
-                  <AdminActiveToggle
+                  <InterruptorActivoAdmin
                     active={punto.activo !== false}
                     activeLabel="Punto activo"
                     inactiveLabel="Punto inactivo"
@@ -479,7 +473,7 @@ export default function EditarPunto() {
               description="Resumen visible en el modal y texto extendido del detalle."
               icon={FileText}
             >
-              <Field label="Descripcion breve">
+              <Field label="Descripción breve">
                 <textarea
                   className={`${inputClass} min-h-28 resize-y`}
                   value={punto.descripcion || ""}
@@ -487,7 +481,7 @@ export default function EditarPunto() {
                 />
               </Field>
 
-              <Field label="Descripcion completa">
+              <Field label="Descripción completa">
                 <textarea
                   className={`${inputClass} min-h-40 resize-y`}
                   value={punto.descripcion_completa || ""}
@@ -499,8 +493,8 @@ export default function EditarPunto() {
             </FlatSection>
 
             <FlatSection
-              title="Imagenes"
-              description="Foto principal, insignia y galeria si el punto ya tiene fotos."
+              title="Imágenes"
+              description="Foto principal, insignia y galería si el punto ya tiene fotos."
               icon={Images}
             >
               <div className="grid min-w-0 gap-6 lg:grid-cols-2">
@@ -533,7 +527,7 @@ export default function EditarPunto() {
             </FlatSection>
 
             <FlatSection
-              title="Ubicacion y enlace"
+              title="Ubicación y enlace"
               description="Coordenadas GeoJSON y sitio externo si existe."
               icon={MapPinned}
             >
@@ -567,7 +561,7 @@ export default function EditarPunto() {
 
             <FlatSection
               title={`Historias desbloqueables (${(punto.historias || []).length}/3)`}
-              description="Curiosidades o leyendas que acompanan al lugar."
+              description="Curiosidades o leyendas que acompañan al lugar."
               icon={BookOpen}
             >
               <HistoriasAdmin
@@ -604,11 +598,11 @@ export default function EditarPunto() {
                 {guardando ? "Guardando..." : "Guardar"}
               </button>
             </div>
-          </AdminEditorForm>
+          </FormularioEditorAdmin>
 
-          <aside className="sticky top-5 min-w-0 self-start space-y-8 pr-1">
-            <UserPreviewCard punto={punto} />
-            <UserDetailPreviewCard punto={punto} />
+          <aside className="min-w-0 self-start space-y-8 pr-1 xl:sticky xl:top-5">
+            <TarjetaVistaUsuario punto={punto} />
+            <TarjetaDetalleUsuario punto={punto} />
           </aside>
         </div>
       </div>
@@ -652,7 +646,7 @@ function ImageField({ title, helper, tipo, value, onChange, circular = false, id
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <ImageUploader
+            <SubidorImagen
               tipo={tipo}
               label={`Subir ${title.toLowerCase()}`}
               value={value}
@@ -699,7 +693,7 @@ function GaleriaFotos({ fotos, eliminandoFoto, subiendoFoto, onDelete, onUpload 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Camera size={20} className="text-morado" />
-          <h4 className="font-fredoka text-xl text-uva">Galeria del punto</h4>
+          <h4 className="font-fredoka text-xl text-uva">Galería del punto</h4>
         </div>
         <span className="text-xs font-bold uppercase tracking-wide text-uva/45">
           {fotos.length} fotos

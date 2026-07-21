@@ -15,11 +15,12 @@ import {
   Trash2,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
+import Alert from "../../components/Alertas.jsx";
 import MapaAdmin from "../../components/Mapa_admin.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
-import XendariaModal from "../../components/XendariaModal.jsx";
-import AdminActiveToggle from "../../components/AdminActiveToggle.jsx";
-import FilterPill from "../../components/FilterPill.jsx";
+import ModalXendaria from "../../components/ModalXendaria.jsx";
+import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
+import PildoraFiltro from "../../components/PildoraFiltro.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 
 const CATEGORIAS_RUTAS_LABELS = {
@@ -71,6 +72,7 @@ export default function MapaAdminWrapper() {
   const [duplicadoActualIndex, setDuplicadoActualIndex] = useState(0);
   const [errorFusionDuplicados, setErrorFusionDuplicados] = useState("");
   const [movimientoPendiente, setMovimientoPendiente] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
   const resolverMovimientoRef = useRef(null);
 
   const puntosFiltrados = useMemo(() => {
@@ -240,6 +242,7 @@ export default function MapaAdminWrapper() {
 
   async function handleGuardar() {
     try {
+      setMensaje(null);
       const { _id, ...datos } = puntoSeleccionado;
 
       const method = modoNuevo ? "POST" : "PATCH";
@@ -261,23 +264,33 @@ export default function MapaAdminWrapper() {
       await Promise.all([cargarPuntos(), cargarRutas()]);
       setPuntoSeleccionado(null);
       setModoNuevo(false);
+      setMensaje({ variant: "success", text: "Punto guardado correctamente." });
     } catch {
-      alert("No se pudo guardar el punto");
+      setMensaje({ variant: "error", text: "No se pudo guardar el punto." });
     }
   }
 
   async function eliminarPunto() {
-    if (!confirm("Seguro que queres eliminar este punto?")) return;
+    if (!confirm("¿Seguro que querés eliminar este punto?")) return;
 
-    const res = await fetch(`${API}/api/puntos/${puntoSeleccionado._id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      setMensaje(null);
+      const res = await fetch(`${API}/api/puntos/${puntoSeleccionado._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (!res.ok) return alert("Error eliminando");
+      if (!res.ok) {
+        setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+        return;
+      }
 
-    await cargarPuntos();
-    setPuntoSeleccionado(null);
+      await cargarPuntos();
+      setPuntoSeleccionado(null);
+      setMensaje({ variant: "success", text: "Punto eliminado correctamente." });
+    } catch {
+      setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+    }
   }
 
   function abrirModalDuplicados() {
@@ -326,6 +339,12 @@ export default function MapaAdminWrapper() {
 
   return (
     <AdminStyle title="Mapa">
+      {mensaje && (
+        <div className="mb-4">
+          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+        </div>
+      )}
+
       <div className="grid gap-5 xl:grid-cols-[340px_1fr]">
         <aside className="rounded-3xl border border-uva/10 bg-white p-4 shadow-xl">
           <div className="mb-4 grid grid-cols-2 rounded-2xl bg-crema p-1">
@@ -469,7 +488,7 @@ function DuplicadosFusionModal({
   const puedeSiguiente = index < total - 1 && !loading;
 
   return (
-    <XendariaModal
+    <ModalXendaria
       open={open}
       onClose={onClose}
       headerClassName="bg-uva px-5 pb-5 pt-6 text-crema sm:px-7"
@@ -629,7 +648,7 @@ function DuplicadosFusionModal({
           </div>
 
           <div className="mt-4 rounded-2xl border border-uva/10 bg-white/65 p-4 text-sm leading-relaxed text-uva/75">
-            Al fusionar, Xendaria conserva un solo punto, suma sus categorias y mueve las
+            Al fusionar, Xendaria conserva un solo punto, suma sus categorías y mueve las
             referencias de rutas, favoritos, visitas y calificaciones al registro principal.
           </div>
 
@@ -638,7 +657,7 @@ function DuplicadosFusionModal({
               {error}
             </div>
           )}
-    </XendariaModal>
+    </ModalXendaria>
   );
 }
 
@@ -649,7 +668,7 @@ function ConfirmarMovimientoPuntoModal({
   onConfirm,
 }) {
   return (
-    <XendariaModal
+    <ModalXendaria
       open={open}
       onClose={onCancel}
       maxWidth="max-w-md"
@@ -663,7 +682,7 @@ function ConfirmarMovimientoPuntoModal({
           </span>
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-crema/70">
-              Confirmar ubicacion
+              Confirmar ubicación
             </p>
             <h3 className="font-fredoka text-2xl leading-none">
               Movimiento grande
@@ -697,7 +716,7 @@ function ConfirmarMovimientoPuntoModal({
           : ""}
         . Revisalo antes de confirmar para no cambiarlo por error.
       </p>
-    </XendariaModal>
+    </ModalXendaria>
   );
 }
 
@@ -757,19 +776,19 @@ function PuntosPanel({
           Filtros
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
-          <FilterPill active={categoria === "todas"} onClick={() => setCategoria("todas")}>
+          <PildoraFiltro active={categoria === "todas"} onClick={() => setCategoria("todas")}>
             Todas
-          </FilterPill>
-          <FilterPill
+          </PildoraFiltro>
+          <PildoraFiltro
             active={categoria === "inactivos"}
             onClick={() => setCategoria(categoria === "inactivos" ? "todas" : "inactivos")}
             color="#D1D1D1"
             icon={EyeOff}
           >
             Inactivos ({inactivosCount})
-          </FilterPill>
+          </PildoraFiltro>
           {categoriasDisponibles.map(([key, cat]) => (
-            <FilterPill
+            <PildoraFiltro
               key={key}
               active={categoria === key}
               onClick={() => setCategoria(key)}
@@ -777,7 +796,7 @@ function PuntosPanel({
               icon={cat.icon}
             >
               {cat.label}
-            </FilterPill>
+            </PildoraFiltro>
           ))}
         </div>
       </div>
@@ -788,7 +807,7 @@ function PuntosPanel({
             {duplicadosCount} grupo{duplicadosCount === 1 ? "" : "s"} duplicado{duplicadosCount === 1 ? "" : "s"}
           </p>
           <p className="mb-3 text-xs text-uva/60">
-            Se pueden fusionar en un solo punto con varias categorias.
+            Se pueden fusionar en un solo punto con varias categorías.
           </p>
           <button
             type="button"
@@ -839,7 +858,7 @@ function PuntosPanel({
               <p className="truncate text-sm text-uva/60">
                 {getCategoriasPunto(p)
                   .map((key) => categorias[key]?.label || key)
-                  .join(", ") || "Sin categoria"}
+                  .join(", ") || "Sin categoría"}
               </p>
             </button>
           );
@@ -880,21 +899,21 @@ function RutasPanel({
       <div className="mb-4">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-uva/50">
           <ListFilter size={14} />
-          Categorias
+          Categorías
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
-          <FilterPill active={categoria === "todas"} onClick={() => setCategoria("todas")}>
+          <PildoraFiltro active={categoria === "todas"} onClick={() => setCategoria("todas")}>
             Todas
-          </FilterPill>
+          </PildoraFiltro>
           {categoriasDisponibles.map((key) => (
-            <FilterPill
+            <PildoraFiltro
               key={key}
               active={categoria === key}
               onClick={() => setCategoria(key)}
               color={CATEGORIAS_RUTAS_COLOR[key]}
             >
               {CATEGORIAS_RUTAS_LABELS[key] || key}
-            </FilterPill>
+            </PildoraFiltro>
           ))}
         </div>
       </div>
@@ -986,7 +1005,7 @@ function PuntoPanel({
           />
         </Field>
 
-        <Field label="Categoria">
+        <Field label="Categoría">
           <div className="flex flex-wrap gap-2">
             {Object.entries(categorias)
               .filter(([key]) => key !== "propios")
@@ -1034,7 +1053,7 @@ function PuntoPanel({
           </div>
         </Field>
 
-        <Field label="Direccion">
+        <Field label="Dirección">
           <input
             className="w-full min-w-0 rounded-xl border border-uva/20 bg-crema p-3 text-uva"
             value={puntoSeleccionado.direccion || ""}
@@ -1042,7 +1061,7 @@ function PuntoPanel({
           />
         </Field>
 
-        <Field label="Descripcion breve">
+        <Field label="Descripción breve">
           <textarea
             className="h-28 w-full min-w-0 resize-none rounded-xl border border-uva/20 bg-crema p-3 text-uva"
             value={puntoSeleccionado.descripcion || ""}
@@ -1067,12 +1086,12 @@ function PuntoPanel({
             />
           </div>
           <p className="mt-1 text-xs font-semibold text-uva/55">
-            Tambien podes arrastrar el pin seleccionado en el mapa.
+            También podés arrastrar el pin seleccionado en el mapa.
           </p>
         </Field>
 
         <Field label="Estado">
-          <AdminActiveToggle
+          <InterruptorActivoAdmin
             active={puntoSeleccionado.activo !== false}
             activeLabel="Punto activo"
             inactiveLabel="Punto inactivo"
