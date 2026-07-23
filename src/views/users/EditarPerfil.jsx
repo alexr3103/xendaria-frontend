@@ -14,12 +14,18 @@ import {
   resolveAvatarSrc,
 } from "../../lib/avatarOptions.js";
 
+const DESCRIPCION_MAX_LENGTH = 150;
+
 function getUsuarioLocal() {
   try {
     return JSON.parse(localStorage.getItem("usuario") || "null");
   } catch {
     return null;
   }
+}
+
+function esFotoGoogle(value = "") {
+  return /googleusercontent\.com|ggpht\.com/i.test(String(value));
 }
 
 async function getErrorMessage(res) {
@@ -41,6 +47,8 @@ export default function EditarPerfil() {
   const [form, setForm] = useState({
     nombre: usuarioLS?.nombre || "",
     foto: usuarioLS?.foto || "",
+    fotoGoogle: usuarioLS?.fotoGoogle || "",
+    descripcion: usuarioLS?.descripcion || "",
     categoriaFavorita: usuarioLS?.configuracion?.categoriaFavorita || "",
     configuracion: usuarioLS?.configuracion || {},
   });
@@ -62,6 +70,11 @@ export default function EditarPerfil() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+        if (res.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
+
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
 
         const data = await res.json();
@@ -70,6 +83,8 @@ export default function EditarPerfil() {
         setForm({
           nombre: data.nombre || "",
           foto: data.foto || "",
+          fotoGoogle: data.fotoGoogle || "",
+          descripcion: data.descripcion || "",
           categoriaFavorita: data.configuracion?.categoriaFavorita || "",
           configuracion: data.configuracion || {},
         });
@@ -100,6 +115,9 @@ export default function EditarPerfil() {
     setForm((actual) => ({ ...actual, categoriaFavorita: categoria }));
   }
 
+  const fotoGoogleDisponible =
+    form.fotoGoogle || (esFotoGoogle(form.foto) ? form.foto : "");
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -121,12 +139,19 @@ export default function EditarPerfil() {
         body: JSON.stringify({
           nombre: form.nombre.trim(),
           foto: form.foto.trim(),
+          fotoGoogle: fotoGoogleDisponible,
+          descripcion: form.descripcion.trim().slice(0, DESCRIPCION_MAX_LENGTH),
           configuracion: {
             ...form.configuracion,
             categoriaFavorita: form.categoriaFavorita,
           },
         }),
       });
+
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
 
       if (!res.ok) throw new Error(await getErrorMessage(res));
 
@@ -143,6 +168,7 @@ export default function EditarPerfil() {
           token: usuarioAnterior.token,
         })
       );
+      window.dispatchEvent(new Event("xendaria:configuracion-actualizada"));
 
       navigate("/perfil");
     } catch (err) {
@@ -153,14 +179,14 @@ export default function EditarPerfil() {
   }
 
   return (
-    <div className="min-h-screen bg-crema pb-28">
+    <div className="min-h-screen overflow-x-hidden bg-crema pb-28">
       <div className="sticky top-0 z-50">
         <Header disableFilter />
       </div>
 
       <main className="mx-auto w-full max-w-xl px-4 pt-8">
         <div className="relative rounded-3xl border border-uva/10 bg-white px-5 pb-6 pt-6 shadow-lg">
-          <div className="absolute right-0 top-0 z-20 translate-x-1/2 -translate-y-1/2">
+          <div className="absolute right-0 top-0 z-20 translate-x-[30%] -translate-y-[30%] sm:translate-x-1/2 sm:-translate-y-1/2">
             <BotonCerrar onClick={() => navigate("/perfil")} />
           </div>
 
@@ -200,6 +226,31 @@ export default function EditarPerfil() {
                   </span>
                   <div className="-mx-1 overflow-x-auto pb-1">
                     <div className="flex min-w-max gap-3 px-1">
+                      {fotoGoogleDisponible && (
+                          <button
+                          type="button"
+                          onClick={() => seleccionarAvatar(fotoGoogleDisponible)}
+                          className="flex w-20 shrink-0 flex-col items-center gap-1"
+                          aria-pressed={form.foto === fotoGoogleDisponible}
+                        >
+                          <img
+                            src={fotoGoogleDisponible}
+                            alt="Foto de perfil de Google"
+                            onError={(event) => {
+                              event.currentTarget.src = getFallbackAvatar();
+                            }}
+                            className={`h-16 w-16 rounded-full border-4 object-cover transition ${
+                              form.foto === fotoGoogleDisponible
+                                ? "border-rosa scale-105 shadow-md"
+                                : "border-crema"
+                            }`}
+                          />
+                          <span className="w-full truncate text-center text-[11px] font-bold text-uva">
+                            Google
+                          </span>
+                        </button>
+                      )}
+
                       {DEFAULT_AVATARS.map((avatar) => {
                         const selected = form.foto === avatar.value;
 
@@ -239,13 +290,20 @@ export default function EditarPerfil() {
                   required
                 />
 
-                <TextField
-                  label="Foto por URL personalizada"
-                  name="foto"
-                  value={form.foto}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                />
+                <label className="flex flex-col text-sm font-semibold text-uva">
+                  Descripción corta
+                  <textarea
+                    name="descripcion"
+                    value={form.descripcion}
+                    onChange={handleChange}
+                    maxLength={DESCRIPCION_MAX_LENGTH}
+                    placeholder="Contá algo breve sobre tu forma de explorar."
+                    className="mt-1 min-h-24 w-full resize-y rounded-xl border border-gray-300 bg-white p-3 text-sm font-semibold text-uva outline-none transition placeholder:text-uva/35 focus:ring-2 focus:ring-morado/60"
+                  />
+                  <span className="mt-1 text-xs font-semibold text-uva/50">
+                    {form.descripcion.length}/{DESCRIPCION_MAX_LENGTH} caracteres
+                  </span>
+                </label>
 
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-semibold text-uva">

@@ -18,6 +18,10 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
 import CargadorMapa from "../../components/CargadorMapa.jsx";
+import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
+import BotonAccionUsuario from "../../components/BotonAccionUsuario.jsx";
+import BotonCerrar from "../../components/BotonCerrar.jsx";
+import PildoraFiltro from "../../components/PildoraFiltro.jsx";
 import useGeolocation from "../../hooks/geo.js";
 import xendariaMapStyle from "../../map/xendariaMapStyle.js";
 import cargafail from "../../assets/cargafail.png";
@@ -40,6 +44,15 @@ const CATEGORIAS_RUTAS_STYLE = {
   curiosidades_leyendas: "bg-lila/30 text-uva border-lila/60",
   verde_aire_libre: "bg-menta/25 text-uva border-menta/50",
   sabores_comercios: "bg-vainilla/60 text-uva border-vainilla",
+};
+
+const CATEGORIAS_RUTAS_COLOR = {
+  imperdibles: "#F28FA0",
+  historia_patrimonio: "#D1D1D1",
+  arte_cultura: "#A0CDFF",
+  curiosidades_leyendas: "#C69BFF",
+  verde_aire_libre: "#83FFC4",
+  sabores_comercios: "#FFF7A8",
 };
 
 function getToken() {
@@ -395,36 +408,24 @@ export default function Rutas() {
         <CargadorMapa text="Cargando rutas..." className="top-24 z-[999]" />
       ) : (
         <main className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6 lg:px-8">
-          <section className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-morado/12 text-morado shadow-sm ring-1 ring-morado/10">
-                <Share2 size={24} />
-              </span>
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-wide text-uva/60">
-                  Rutas recomendadas
-                </p>
-                <h1 className="truncate font-fredoka text-3xl leading-tight text-morado sm:text-4xl">
-                  Recorridos
-                </h1>
-                <p className="mt-1 max-w-[260px] text-xs leading-snug text-uva/70 sm:max-w-xl sm:text-sm">
-                  Mira el recorrido completo, elegi una version corta o larga, y
-                  empezala desde el mapa principal.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => cargarRutas({ silencioso: true })}
-              disabled={refreshing}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-morado shadow-md ring-1 ring-uva/10 active:scale-95 disabled:opacity-60"
-              aria-label="Actualizar rutas"
-              title="Actualizar rutas"
-            >
-              <RefreshCw size={20} className={refreshing ? "animate-spin" : ""} />
-            </button>
-          </section>
+          <EncabezadoVistaUsuario
+            icon={Share2}
+            etiqueta="Rutas recomendadas"
+            titulo="Recorridos"
+            descripcion="Mira el recorrido completo, elegi una version corta o larga, y empezala desde el mapa principal."
+            action={
+              <BotonAccionUsuario
+                onClick={() => cargarRutas({ silencioso: true })}
+                disabled={refreshing}
+                aria-label="Actualizar rutas"
+                title="Actualizar rutas"
+                icon={RefreshCw}
+                iconClassName={refreshing ? "animate-spin" : ""}
+              >
+                Actualizar
+              </BotonAccionUsuario>
+            }
+          />
 
           {mensaje && (
             <div className="mt-4">
@@ -458,20 +459,21 @@ export default function Rutas() {
             </div>
 
             <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-              <Chip
+              <PildoraFiltro
                 active={categoriaActiva === "todas"}
                 onClick={() => setCategoriaActiva("todas")}
               >
                 Todas
-              </Chip>
+              </PildoraFiltro>
               {categorias.map((categoria) => (
-                <Chip
+                <PildoraFiltro
                   key={categoria}
                   active={categoriaActiva === categoria}
                   onClick={() => setCategoriaActiva(categoria)}
+                  color={CATEGORIAS_RUTAS_COLOR[categoria]}
                 >
                   {CATEGORIAS_RUTAS_LABELS[categoria] || categoria}
-                </Chip>
+                </PildoraFiltro>
               ))}
             </div>
 
@@ -529,20 +531,6 @@ export default function Rutas() {
 
       <Navbar active="rutas" />
     </div>
-  );
-}
-
-function Chip({ active, onClick, children }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${
-        active ? "bg-uva text-crema shadow" : "bg-white text-uva"
-      }`}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -698,19 +686,13 @@ function RutaDetalle({
     pausada && progresoDeModo && !progresoDeModo.versionDesactualizada;
 
   return (
-    <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-uva/30 px-3 py-4 backdrop-blur-sm">
-      <article className="relative max-h-[90dvh] w-full max-w-3xl overflow-hidden rounded-[32px] bg-crema shadow-2xl border border-uva/10">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-fucsia text-white shadow-lg"
-          aria-label="Cerrar"
-          title="Cerrar"
-        >
-          <X size={22} />
-        </button>
+    <div className="fixed inset-0 z-[1200] flex items-center justify-center overflow-x-hidden bg-uva/30 px-3 py-4 backdrop-blur-sm">
+      <article className="relative max-h-[90dvh] w-full max-w-3xl overflow-visible rounded-[32px] border border-uva/10 bg-crema shadow-2xl">
+        <div className="absolute right-1 top-1 z-30 translate-x-[30%] -translate-y-[30%] sm:right-0 sm:top-0 sm:translate-x-1/2 sm:-translate-y-1/2">
+          <BotonCerrar onClick={onClose} ariaLabel="Cerrar detalle de ruta" />
+        </div>
 
-        <div className="max-h-[90dvh] overflow-y-auto pb-5">
+        <div className="max-h-[90dvh] overflow-y-auto overflow-x-hidden rounded-[32px] pb-5">
           <RutaMapPreview puntos={puntos} coords={coords} />
 
           <div className="px-4 pt-5 sm:px-6">

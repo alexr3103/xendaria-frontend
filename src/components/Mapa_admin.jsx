@@ -22,13 +22,6 @@ const RUTA_CATEGORY_COLORS = {
   sabores_comercios: "#FFF7A8",
 };
 
-function getCategoriaPrincipal(punto = {}) {
-  return (
-    getCategoriasPunto(punto).find((categoria) => categoriasInfo[categoria]) ||
-    "propios"
-  );
-}
-
 function getCategoriasPunto(punto = {}) {
   const valores = [
     ...(Array.isArray(punto.categorias) ? punto.categorias : []),
@@ -136,7 +129,6 @@ export default function MapaAdmin({
   rutas = [],
   modo = "puntos",
   onSelectPunto,
-  onSelectRuta,
   onPuntoCoordsChange,
   onConfirmarMovimientoLargo,
   onListo,

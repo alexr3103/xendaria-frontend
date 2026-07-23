@@ -515,8 +515,7 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
                   type="button"
                   title={color.nombre}
                   onClick={() => onChange(index, "color", color.nombre)}
-                  style={{ backgroundColor: color.hex }}
-                  className={`h-8 w-8 rounded-full border-2 shadow-sm transition ${
+                  className={`${color.swatchClassName} h-8 w-8 rounded-full border-2 shadow-sm transition ${
                     seleccionado
                       ? "scale-110 border-morado"
                       : "border-uva/20 hover:border-morado/60"

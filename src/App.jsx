@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 
 import Login from "./views/users/Login.jsx";
 import Register from "./views/users/Registro.jsx";
@@ -19,6 +19,10 @@ import EditarPunto from "./views/admin/EditarPunto.jsx";
 import RutasAdmin from "./views/admin/RutasAdmin.jsx";
 import Perfil from "./views/users/Perfil.jsx";
 import EditarPerfil from "./views/users/EditarPerfil.jsx";
+import Configuraciones from "./views/users/Configuraciones.jsx";
+import Comunidad from "./views/users/Comunidad.jsx";
+import PerfilPublico from "./views/users/PerfilPublico.jsx";
+import AlbumInsignias from "./views/users/AlbumInsignias.jsx";
 import Ranking from "./views/users/Ranking.jsx";
 import Rutas from "./views/users/Rutas.jsx";
 import Merch from "./views/users/Merch.jsx";
@@ -59,18 +63,24 @@ export default function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/rutas" element={<Rutas />} />
+        <Route path="/comunidad" element={<Comunidad />} />
         <Route path="/merch" element={<Merch />} />
         <Route path="/merch/:id" element={<DetalleMerch />} />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/exito" element={<PagoExitoso />} />
+        <Route path="/checkout/success" element={<PagoExitoso />} />
+        <Route path="/checkout/aprobado" element={<PagoExitoso />} />
         <Route path="/checkout/pendiente" element={<PagoPendiente />} />
+        <Route path="/checkout/pending" element={<PagoPendiente />} />
         <Route path="/checkout/error" element={<PagoFallido />} />
+        <Route path="/checkout/failure" element={<PagoFallido />} />
+        <Route path="/checkout/fallo" element={<PagoFallido />} />
+        <Route path="/checkout/fallido" element={<PagoFallido />} />
         <Route path="/punto/:id" element={<PuntoDetalle />} />
         <Route path="/proximamente" element={<Proximamente />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/error/:code" element={<ErrorPage />} />
-        <Route path="*" element={<NotFound />} />
         <Route element={<ProteccionAdmin />}>
           <Route path="/admin" element={<DashboardAdmin />} />
           <Route path="/admin/dashboard" element={<DashboardAdmin />} />
@@ -87,7 +97,12 @@ export default function App() {
           <Route path="/admin/puntos/:id" element={<EditarPunto />} />
         </Route>
         <Route path="/perfil" element={<Perfil />} />
+        <Route path="/perfil/insignias" element={<AlbumInsignias />} />
+        <Route path="/perfil/:id/insignias" element={<AlbumInsignias />} />
+        <Route path="/perfil/:id" element={<PerfilPublico />} />
         <Route path="/perfil/editar" element={<EditarPerfil />} />
+        <Route path="/perfil/configuracion" element={<Configuraciones />} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
         
 
       </Routes>

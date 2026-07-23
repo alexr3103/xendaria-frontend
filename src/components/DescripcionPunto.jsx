@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import BotonCerrar from "./BotonCerrar";
+import { normalizarConfiguracionUsuario } from "../lib/configuracionUsuario";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -22,6 +23,17 @@ function getCategoriasPunto(punto = {}) {
 
   return [...new Set(valores.filter(Boolean))];
 }
+
+function getConfiguracionUsuarioLocal() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    return normalizarConfiguracionUsuario(usuario?.configuracion);
+  } catch {
+    return normalizarConfiguracionUsuario();
+  }
+}
+
+const RADIO_DESBLOQUEO_VISITA_METROS = 100;
 
 export default function DescripcionPunto({
   punto,
@@ -40,7 +52,11 @@ export default function DescripcionPunto({
   const [errorVista, setErrorVista] = useState("");
   const [registrandoVisita, setRegistrandoVisita] = useState(false);
   const [errorVisita, setErrorVisita] = useState("");
+  const [mostrarCelebracionInsignia, setMostrarCelebracionInsignia] =
+    useState(false);
   const googleMapsKey = import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY;
+  const configuracionUsuario = getConfiguracionUsuarioLocal();
+  const vista360Habilitada = configuracionUsuario.vista360Habilitada !== false;
   const vistaVerificada = Boolean(vista360?.ultimaVerificacion);
   const vistaDisponible = Boolean(vista360?.disponible && googleMapsKey);
   const streetViewUrl = vistaDisponible
@@ -93,6 +109,7 @@ export default function DescripcionPunto({
   useEffect(() => {
     setVista360(punto.vista360 || null);
     setMostrarVistaLugar(false);
+    setMostrarCelebracionInsignia(false);
     setErrorVista("");
   }, [_id, punto.vista360]);
 
@@ -109,6 +126,9 @@ export default function DescripcionPunto({
 
       localStorage.setItem(`insignia-${_id}`, "true");
       setInsigniaObtenida(true);
+      if (punto.insignia) {
+        setMostrarCelebracionInsignia(true);
+      }
     } catch (error) {
       setErrorVisita(error.message || "No se pudo registrar la visita.");
     } finally {
@@ -120,18 +140,18 @@ export default function DescripcionPunto({
   let estaCerca = false;
   if (userCoords && lat && lon) {
     const dist = calcDistance(userCoords.lat, userCoords.lng, lat, lon);
-    estaCerca = dist <= 100;
+    estaCerca = dist <= RADIO_DESBLOQUEO_VISITA_METROS;
   }
 
-  //Categorías 
+  // Categorias
   const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
 
   return (
-    <div className="fixed inset-0 bg-morado/10 backdrop-blur-sm flex items-end sm:items-center justify-center px-3 sm:px-4 pt-4 pb-3 sm:py-6 z-[9999]">
+    <div className="fixed inset-0 bg-morado/10 backdrop-blur-sm flex items-end sm:items-center justify-center overflow-x-hidden px-3 sm:px-4 pt-4 pb-3 sm:py-6 z-[9999]">
       <div className="relative w-full max-w-[430px] max-h-[calc(100dvh-1rem)]">
 
         {!mostrarVistaLugar && (
-          <div className="absolute right-2 top-[62px] z-[9999] translate-x-1/2 -translate-y-1/2 sm:right-3 sm:top-[67px]">
+          <div className="absolute right-1 top-[62px] z-[9999] translate-x-[30%] -translate-y-1/2 sm:right-3 sm:top-[67px] sm:translate-x-1/2">
             <BotonCerrar onClick={onClose} />
           </div>
         )}
@@ -274,35 +294,37 @@ export default function DescripcionPunto({
             </button>
           )}
           {/* Vista previa del lugar */}
-          <button
-            type="button"
-            disabled={consultandoVista || (vistaVerificada && !vista360?.disponible)}
-            onClick={abrirVistaLugar}
-            aria-label={
-              !vistaVerificada || vistaDisponible
-                ? `Abrir vista 360 de ${nombre}`
-                : `No hay vista 360 disponible para ${nombre}`
-            }
-            className={`
-              w-full py-3 rounded-[16px] font-semibold text-base flex items-center justify-center gap-2 shadow mb-4
-              ${
+          {vista360Habilitada && (
+            <button
+              type="button"
+              disabled={consultandoVista || (vistaVerificada && !vista360?.disponible)}
+              onClick={abrirVistaLugar}
+              aria-label={
                 !vistaVerificada || vistaDisponible
-                  ? "bg-menta text-uva hover:bg-menta/80"
-                  : "bg-gris/10 text-gris/60 cursor-not-allowed"
+                  ? `Abrir vista 360 de ${nombre}`
+                  : `No hay vista 360 disponible para ${nombre}`
               }
-            `}
-          >
-            {consultandoVista ? (
-              <Loader2 size={19} className="animate-spin" />
-            ) : (
-              <Rotate3D size={19} />
-            )}
-            {consultandoVista
-              ? "Buscando vista del lugar..."
-              : vistaVerificada && !vista360?.disponible
-                ? "Vista del lugar no disponible"
-                : "Vista del lugar"}
-          </button>
+              className={`
+                w-full py-3 rounded-[16px] font-semibold text-base flex items-center justify-center gap-2 shadow mb-4
+                ${
+                  !vistaVerificada || vistaDisponible
+                    ? "bg-menta text-uva hover:bg-menta/80"
+                    : "bg-gris/10 text-gris/60 cursor-not-allowed"
+                }
+              `}
+            >
+              {consultandoVista ? (
+                <Loader2 size={19} className="animate-spin" />
+              ) : (
+                <Rotate3D size={19} />
+              )}
+              {consultandoVista
+                ? "Buscando vista del lugar..."
+                : vistaVerificada && !vista360?.disponible
+                  ? "Vista del lugar no disponible"
+                  : "Vista del lugar"}
+            </button>
+          )}
           {errorVista && (
             <p role="alert" className="text-sm text-fucsia mb-4 text-center">
               {errorVista}
@@ -356,6 +378,48 @@ export default function DescripcionPunto({
           )}
         </div>
       </div>
+
+      {mostrarCelebracionInsignia && punto.insignia && (
+        <div
+          className="fixed inset-0 z-[10020] flex items-center justify-center overflow-hidden bg-uva/55 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Insignia desbloqueada en ${nombre}`}
+        >
+          <section className="insignia-unlock-pop relative w-full max-w-[360px] rounded-[32px] bg-crema px-5 pb-6 pt-7 text-center shadow-2xl ring-1 ring-uva/10">
+            <p className="text-xs font-bold uppercase tracking-wide text-fucsia">
+              Insignia desbloqueada
+            </p>
+
+            <div className="mx-auto mt-4 flex h-44 w-44 items-center justify-center rounded-full bg-white shadow-inner ring-4 ring-rosa/70">
+              <img
+                src={punto.insignia}
+                alt={`Insignia de ${nombre}`}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = cargafail;
+                }}
+                className="insignia-unlock-spin h-36 w-36 rounded-full object-cover shadow-2xl"
+              />
+            </div>
+
+            <h2 className="mt-5 font-fredoka text-2xl font-semibold leading-tight text-morado">
+              {nombre}
+            </h2>
+            <p className="mx-auto mt-2 max-w-[260px] text-sm font-semibold leading-relaxed text-uva/70">
+              Sumaste esta insignia a tu álbum. Ya queda guardada en tu perfil.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setMostrarCelebracionInsignia(false)}
+              className="mt-5 w-full rounded-2xl bg-morado px-5 py-3 font-bold text-crema shadow-md transition active:scale-95"
+            >
+              ¡Genial!
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

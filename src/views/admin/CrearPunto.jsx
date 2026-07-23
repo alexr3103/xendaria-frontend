@@ -191,9 +191,9 @@ export default function CrearPunto() {
           {ok && <Alert variant="success">{ok}</Alert>}
         </div>
 
-        <div className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] 2xl:grid-cols-[minmax(0,1040px)_340px]">
+        <div className="mt-8 flex w-full max-w-[1180px] min-w-0 flex-col items-start gap-6 xl:flex-row">
           <FormularioEditorAdmin
-            className="min-w-0 max-w-none"
+            className="w-full min-w-0 xl:max-w-[830px] xl:flex-none"
             onSubmit={(event) => {
               event.preventDefault();
               guardarPunto();
@@ -389,7 +389,7 @@ export default function CrearPunto() {
           </div>
           </FormularioEditorAdmin>
 
-          <aside className="min-w-0 self-start space-y-8 pr-1 xl:sticky xl:top-5">
+          <aside className="w-full min-w-0 self-start space-y-8 xl:sticky xl:top-5 xl:w-80 xl:flex-none">
             <TarjetaVistaUsuario punto={punto} />
             <TarjetaDetalleUsuario punto={punto} />
           </aside>

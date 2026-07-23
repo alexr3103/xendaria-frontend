@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Filter, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Filter, ShoppingBasket } from "lucide-react";
 import logoMini from "../assets/logo-mini.png";
 import FilterPanel from "./FilterPanel";
+import useCantidadCarrito from "../hooks/useCantidadCarrito.js";
 
 export default function Header({
   categorias,
@@ -12,57 +13,8 @@ export default function Header({
   showCart = false,
 }) {
   const [open, setOpen] = useState(false);
-  const [cantidadCarrito, setCantidadCarrito] = useState(0);
-
-  const location = useLocation();
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_URL;
-
-  const cargarCantidadCarrito = useCallback(async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token || !showCart) {
-      setCantidadCarrito(0);
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API}/api/carrito`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        setCantidadCarrito(0);
-        return;
-      }
-
-      const data = await res.json();
-      const items = data?.items ?? [];
-      const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0);
-
-      setCantidadCarrito(totalItems);
-    } catch {
-      setCantidadCarrito(0);
-    }
-  }, [API, showCart]);
-
-  useEffect(() => {
-    cargarCantidadCarrito();
-  }, [cargarCantidadCarrito, location.pathname]);
-
-  useEffect(() => {
-    function actualizarBadge() {
-      cargarCantidadCarrito();
-    }
-
-    window.addEventListener("carrito-actualizado", actualizarBadge);
-
-    return () => {
-      window.removeEventListener("carrito-actualizado", actualizarBadge);
-    };
-  }, [cargarCantidadCarrito]);
+  const cantidadCarrito = useCantidadCarrito({ activo: showCart });
 
   return (
     <>
@@ -74,7 +26,9 @@ export default function Header({
             alt="Xendaria logo"
             className="w-10 h-10 rounded-xl"
           />
-          <h1 className="font-fredoka text-xl tracking-wide">Xendaria</h1>
+          <h1 className="font-fredoka text-xl font-semibold tracking-wide">
+            Xendaria
+          </h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -93,10 +47,10 @@ export default function Header({
               title="Ver carrito"
               aria-label="Ver carrito"
             >
-              <ShoppingCart size={24} className="text-crema" />
+              <ShoppingBasket size={24} className="text-crema" />
 
               {cantidadCarrito > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-fucsia px-1 text-[11px] font-bold leading-none text-white">
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-fucsia px-1 text-[9px] font-bold leading-none text-white">
                   {cantidadCarrito}
                 </span>
               )}
@@ -105,11 +59,14 @@ export default function Header({
 
           {!disableFilter && (
             <button
+              type="button"
               onClick={() => setOpen(!open)}
               className="
                 p-2 rounded-lg transition
                 hover:bg-crema/10
               "
+              title="Filtrar puntos"
+              aria-label="Filtrar puntos"
             >
               <Filter
                 size={26}

@@ -519,21 +519,24 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
         key: "pagada",
         label: "Pagadas",
         count: ordenes.filter((orden) => orden.estado === "pagada").length,
-        color: "#83FFC4",
+        claseActiva: "border-menta bg-menta text-uva shadow",
+        claseInactiva: "border-menta bg-menta/40 text-uva shadow-sm hover:bg-menta/60",
         icon: CreditCard,
       },
       {
         key: "procesando",
         label: "Procesando",
         count: ordenes.filter((orden) => orden.estado === "procesando").length,
-        color: "#AA63E0",
+        claseActiva: "border-morado bg-morado text-crema shadow",
+        claseInactiva: "border-morado bg-morado/20 text-uva shadow-sm hover:bg-morado/30",
         icon: Package,
       },
       {
         key: "enviada",
         label: "Enviadas",
         count: ordenes.filter((orden) => orden.estado === "enviada").length,
-        color: "#F28FA0",
+        claseActiva: "border-rosa bg-rosa text-uva shadow",
+        claseInactiva: "border-rosa bg-rosa/45 text-uva shadow-sm hover:bg-rosa/65",
         icon: Send,
       },
     ],
@@ -608,7 +611,8 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
                 setFiltro(item.key);
                 setOrdenExpandida(null);
               }}
-              color={item.color}
+              claseActiva={item.claseActiva}
+              claseInactiva={item.claseInactiva}
               icon={item.icon}
             >
               {item.label} ({item.count})
@@ -843,14 +847,16 @@ function ProductosPanel({
         key: "visibles",
         label: "Visibles",
         count: productos.filter((producto) => producto.activo !== false).length,
-        color: "#83FFC4",
+        claseActiva: "border-menta bg-menta text-uva shadow",
+        claseInactiva: "border-menta bg-menta/40 text-uva shadow-sm hover:bg-menta/60",
         icon: Eye,
       },
       {
         key: "ocultos",
         label: "Ocultos",
         count: productos.filter((producto) => producto.activo === false).length,
-        color: "#D1D1D1",
+        claseActiva: "border-grisaceo bg-grisaceo text-uva shadow",
+        claseInactiva: "border-grisaceo bg-grisaceo/45 text-uva shadow-sm hover:bg-grisaceo/65",
         icon: EyeOff,
       },
     ],
@@ -964,7 +970,8 @@ function ProductosPanel({
               setEstadoProducto(estado.key);
               setProductoVariantesAbiertas(null);
             }}
-            color={estado.color}
+            claseActiva={estado.claseActiva}
+            claseInactiva={estado.claseInactiva}
             icon={estado.icon}
           >
             {estado.label} ({estado.count})
@@ -991,7 +998,8 @@ function ProductosPanel({
               );
               setProductoVariantesAbiertas(null);
             }}
-            color={categoria.color}
+            claseActiva={categoria.claseActiva}
+            claseInactiva={categoria.claseInactiva}
             icon={Tag}
           >
             {categoria.label}
@@ -1149,11 +1157,7 @@ function CategoryBadge({ categoria }) {
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-extrabold text-uva"
-      style={{
-        backgroundColor: `${info.color}66`,
-        borderColor: info.color,
-      }}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-extrabold ${info.claseBadge}`}
     >
       <Tag size={13} />
       {info.label}
@@ -1287,7 +1291,7 @@ function DetailRow({ label, value }) {
 function EmptyPanel({ icon: Icon, text }) {
   return (
     <div className="rounded-2xl border border-dashed border-uva/15 bg-white/70 px-4 py-8 text-center text-sm font-semibold text-uva/65">
-      <Icon className="mx-auto mb-2 text-morado" size={24} />
+      {Icon && <Icon className="mx-auto mb-2 text-morado" size={24} />}
       {text}
     </div>
   );

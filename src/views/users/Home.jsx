@@ -17,6 +17,7 @@ import {
   Plus,
   Search,
   Share2,
+  X,
   XCircle,
 } from "lucide-react";
 import { categorias as categoriasInfo } from "../../components/CategoriasFiltros.jsx";
@@ -228,12 +229,26 @@ export default function Home() {
   const [rutaEnCurso, setRutaEnCurso] = useState(null);
   const [rutaCompletados, setRutaCompletados] = useState([]);
   const [guardandoRuta, setGuardandoRuta] = useState(false);
+  const [esperandoGeoInicial, setEsperandoGeoInicial] = useState(true);
 
   // login
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
   }, [navigate]);
+
+  useEffect(() => {
+    if (coords) {
+      setEsperandoGeoInicial(false);
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => {
+      setEsperandoGeoInicial(false);
+    }, 12000);
+
+    return () => clearTimeout(timeout);
+  }, [coords]);
 
   useEffect(() => {
     if (!rutaDesdeRutas?.ruta) return;
@@ -352,9 +367,17 @@ export default function Home() {
     };
   }, [API]);
 
-  // categorÃ­a que se estÃ¡ usando
+  // Categoria que se esta usando
   const categoriaActiva = filtro ? categoriasInfo[filtro] : null;
   const IconoCategoriaActiva = categoriaActiva?.icon;
+  const mostrarCargandoGeo =
+    esperandoGeoInicial &&
+    !coords &&
+    !puntoSeleccionado &&
+    !destino &&
+    !rutaEnCurso &&
+    !modalPuntoPropio &&
+    !ajustandoUbicacion;
   const rutaCompletadosSet = useMemo(
     () => new Set(rutaCompletados),
     [rutaCompletados]
@@ -938,15 +961,16 @@ export default function Home() {
             {/* Cerrar */}
             <button
               onClick={() => setFiltro(null)}
-              className="font-bold text-uva ml-1"
+              className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-uva"
+              aria-label="Quitar filtro"
             >
-              âœ•
+              <X size={16} />
             </button>
           </div>
         </div>
       )}
 
-      {/* BOTÃ“N CANCELAR NAVEGACIÃ“N */}
+      {/* Boton cancelar navegacion */}
       {destino && !rutaEnCurso && (
         <button
           onClick={() => setDestino(null)}
@@ -966,7 +990,7 @@ export default function Home() {
           "
         >
           <XCircle size={20} className="text-crema" />
-          Cancelar navegaciÃ³n
+          Cancelar navegacion
         </button>
       )}
 
@@ -996,7 +1020,18 @@ export default function Home() {
       )}
 
       {cargandoMapa && (
-        <CargadorMapa text="Buscando lugares cerca..." className="top-24 z-[999]" />
+        <CargadorMapa
+          text={
+            mostrarCargandoGeo
+              ? "Buscando ubicacion..."
+              : "Buscando puntos..."
+          }
+          className="top-24 z-[999]"
+        />
+      )}
+
+      {!cargandoMapa && mostrarCargandoGeo && (
+        <CargadorMapa text="Buscando ubicacion..." className="top-24 z-[999]" />
       )}
 
       {rutaEnCurso && (
@@ -1012,7 +1047,7 @@ export default function Home() {
         />
       )}
 
-      {/* DESCRIPCIÃ“N DEL PUNTO */}
+      {/* Descripcion del punto */}
       {puntoSeleccionado && (
         <DescripcionPunto
           punto={puntoSeleccionado}
@@ -1034,7 +1069,7 @@ export default function Home() {
         <button
           type="button"
           onClick={abrirModalPuntoPropio}
-          className="absolute right-4 bottom-[92px] z-[900] w-14 h-14 rounded-full bg-morado text-crema shadow-xl flex items-center justify-center active:scale-95 transition"
+          className="absolute right-4 bottom-[calc(118px+env(safe-area-inset-bottom))] z-[900] w-14 h-14 rounded-full bg-morado text-crema shadow-xl flex items-center justify-center active:scale-95 transition"
           aria-label="Agregar punto propio"
           title="Agregar punto propio"
         >
@@ -1050,7 +1085,7 @@ export default function Home() {
           <button
             type="button"
             onClick={volverAMiUbicacion}
-            className="absolute right-4 bottom-[160px] z-[900] w-12 h-12 rounded-full bg-crema text-morado shadow-xl border border-uva/10 flex items-center justify-center active:scale-95 transition"
+            className="absolute right-4 bottom-[calc(186px+env(safe-area-inset-bottom))] z-[900] w-12 h-12 rounded-full bg-crema text-morado shadow-xl border border-uva/10 flex items-center justify-center active:scale-95 transition"
             aria-label="Volver a mi ubicacion"
             title="Volver a mi ubicacion"
           >
@@ -1097,10 +1132,10 @@ export default function Home() {
 
       {modalPuntoPropio && (
         <div
-          className="absolute inset-0 z-[1100] pointer-events-none bg-uva/10 backdrop-blur-[1px] flex items-center justify-center px-3 py-4"
+          className="absolute inset-0 z-[1100] pointer-events-none flex items-center justify-center overflow-x-hidden bg-uva/10 px-3 py-4 backdrop-blur-[1px]"
         >
           <div className="relative pointer-events-auto w-full max-w-md">
-            <div className="absolute right-0 top-0 z-20 translate-x-1/2 -translate-y-1/2">
+            <div className="absolute right-1 top-1 z-20 translate-x-[30%] -translate-y-[30%] sm:right-0 sm:top-0 sm:translate-x-1/2 sm:-translate-y-1/2">
               <BotonCerrar onClick={cerrarModalPuntoPropio} />
             </div>
           <form

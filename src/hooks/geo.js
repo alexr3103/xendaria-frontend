@@ -1,4 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import { normalizarConfiguracionUsuario } from "../lib/configuracionUsuario.js";
+
+function permiteUbicacionLocal() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    return normalizarConfiguracionUsuario(usuario?.configuracion).permitirUbicacion !== false;
+  } catch {
+    return true;
+  }
+}
 
 function distanceMeters(a, b) {
   const R = 6371000;
@@ -24,10 +34,31 @@ export default function useGeolocation(options = {}) {
   } = options;
 
   const [coords, setCoords] = useState(null);
+  const [permiteUbicacion, setPermiteUbicacion] = useState(permiteUbicacionLocal);
   const lastCoordsRef = useRef(null);
   const lastAcceptTsRef = useRef(0);
 
   useEffect(() => {
+    const sincronizarPreferencia = () => {
+      setPermiteUbicacion(permiteUbicacionLocal());
+    };
+
+    window.addEventListener("storage", sincronizarPreferencia);
+    window.addEventListener("xendaria:configuracion-actualizada", sincronizarPreferencia);
+
+    return () => {
+      window.removeEventListener("storage", sincronizarPreferencia);
+      window.removeEventListener("xendaria:configuracion-actualizada", sincronizarPreferencia);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!permiteUbicacion) {
+      lastCoordsRef.current = null;
+      lastAcceptTsRef.current = 0;
+      setCoords(null);
+      return;
+    }
 
     if (!("geolocation" in navigator)) {
       return;
@@ -77,7 +108,7 @@ export default function useGeolocation(options = {}) {
 
     const id = navigator.geolocation.watchPosition(onSuccess, onError, opts);
     return () => navigator.geolocation.clearWatch(id);
-  }, [distanceThresholdMeters, minIntervalMs]);
+  }, [distanceThresholdMeters, minIntervalMs, permiteUbicacion]);
 
   return { coords };
 }

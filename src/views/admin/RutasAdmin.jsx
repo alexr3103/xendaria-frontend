@@ -18,6 +18,7 @@ import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
 import TituloFiltroAdmin from "../../components/TituloFiltroAdmin.jsx";
 import PildoraFiltro from "../../components/PildoraFiltro.jsx";
 import PestanasAdmin from "../../components/PestanasAdmin.jsx";
+import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import { categorias as categoriasPuntos } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 
@@ -100,7 +101,9 @@ export default function RutasAdmin() {
   const [cargando, setCargando] = useState(true);
   const [cargandoPuntos, setCargandoPuntos] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
+  const [rutaAEliminar, setRutaAEliminar] = useState(null);
 
   const seleccionadosIds = useMemo(
     () => new Set(puntosSeleccionados.map((punto) => getId(punto))),
@@ -320,9 +323,8 @@ export default function RutasAdmin() {
     }
   }
 
-  async function eliminarRuta(idRuta) {
-    const confirmar = window.confirm("¿Seguro que querés eliminar esta ruta?");
-    if (!confirmar) return;
+  async function eliminarRuta() {
+    if (!rutaAEliminar || eliminando) return;
 
     const token = getToken();
     if (!token) {
@@ -331,18 +333,25 @@ export default function RutasAdmin() {
     }
 
     try {
-      await fetchJSON(`${API}/api/rutas/${idRuta}`, {
+      setEliminando(true);
+      await fetchJSON(`${API}/api/rutas/${rutaAEliminar._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      setRutas((actuales) => actuales.filter((ruta) => ruta._id !== idRuta));
-      if (editandoId === idRuta) limpiarForm();
+      setRutas((actuales) =>
+        actuales.filter((ruta) => ruta._id !== rutaAEliminar._id)
+      );
+      if (editandoId === rutaAEliminar._id) limpiarForm();
+      setRutaAEliminar(null);
       setMensaje({ variant: "success", text: "Ruta eliminada." });
     } catch (error) {
+      setRutaAEliminar(null);
       setMensaje({
         variant: "error",
         text: error.message || "No se pudo eliminar la ruta.",
       });
+    } finally {
+      setEliminando(false);
     }
   }
 
@@ -660,13 +669,26 @@ export default function RutasAdmin() {
                   key={ruta._id}
                   ruta={ruta}
                   onEdit={() => editarRuta(ruta)}
-                  onDelete={() => eliminarRuta(ruta._id)}
+                  onDelete={() => setRutaAEliminar(ruta)}
                 />
               ))}
             </div>
           )}
         </section>
       )}
+
+      <ModalConfirmacion
+        open={Boolean(rutaAEliminar)}
+        title="Eliminar ruta"
+        message={`Se va a eliminar "${
+          rutaAEliminar?.nombre || "esta ruta"
+        }". Esta acción no se puede deshacer.`}
+        confirmText={eliminando ? "Eliminando..." : "Eliminar"}
+        cancelText="Cancelar"
+        danger
+        onConfirm={eliminarRuta}
+        onCancel={() => (eliminando ? null : setRutaAEliminar(null))}
+      />
     </AdminStyle>
   );
 }

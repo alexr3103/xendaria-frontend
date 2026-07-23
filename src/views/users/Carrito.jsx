@@ -1,9 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Minus,
+  Plus,
+  ShoppingBasket,
+  Trash2,
+} from "lucide-react";
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
-import BotonCerrar from "../../components/BotonCerrar.jsx";
+import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
+
+const formatoPrecio = new Intl.NumberFormat("es-AR");
+
+function precio(valor = 0) {
+  return `$${formatoPrecio.format(Number(valor || 0))}`;
+}
 
 function renderVariante(variante) {
   if (!variante) return "";
@@ -14,31 +27,7 @@ function renderVariante(variante) {
     variante.diseno ? `Diseño: ${variante.diseno}` : null,
   ].filter(Boolean);
 
-  return partes.join(" | ");
-}
-
-function calcularCostoEnvio(config, provincia, subtotal) {
-  if (!provincia || !config) return null;
-  if (subtotal >= config.envioGratisDesde) return 0;
-
-  if (provincia === "capital_federal") return config.costos.capital_federal;
-  if (provincia === "conurbano_buenos_aires") {
-    return config.costos.conurbano_buenos_aires;
-  }
-  if (provincia === "buenos_aires") return config.costos.buenos_aires;
-
-  return config.costos.resto_pais;
-}
-
-function labelProvincia(provincia) {
-  const labels = {
-    capital_federal: "Capital Federal",
-    conurbano_buenos_aires: "GCBA",
-    buenos_aires: "Buenos Aires",
-    resto_pais: "Resto del país",
-  };
-
-  return labels[provincia] || provincia;
+  return partes.join(" · ");
 }
 
 export default function Carrito() {
@@ -47,21 +36,17 @@ export default function Carrito() {
   const token = localStorage.getItem("token");
 
   const [carrito, setCarrito] = useState(null);
-  const [configEnvios, setConfigEnvios] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [actualizando, setActualizando] = useState(false);
-
-  const [mostrarEnvio, setMostrarEnvio] = useState(false);
-  const [provinciaEnvio, setProvinciaEnvio] = useState("");
 
   useEffect(() => {
     if (!mensaje) return;
 
     const timer = setTimeout(() => {
       setMensaje("");
-    }, 1500);
+    }, 1800);
 
     return () => clearTimeout(timer);
   }, [mensaje]);
@@ -76,14 +61,11 @@ export default function Carrito() {
       try {
         setError("");
 
-        const [resCarrito, resEnvios] = await Promise.all([
-          fetch(`${API}/api/carrito`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch(`${API}/api/envios`),
-        ]);
+        const resCarrito = await fetch(`${API}/api/carrito`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (resCarrito.status === 401) {
           localStorage.removeItem("token");
@@ -96,12 +78,7 @@ export default function Carrito() {
           throw new Error("No se pudo cargar el carrito");
         }
 
-        if (!resEnvios.ok) {
-          throw new Error("No se pudo cargar la configuración de envíos");
-        }
-
         const dataCarrito = await resCarrito.json();
-        const dataEnvios = await resEnvios.json();
 
         setCarrito(
           dataCarrito || {
@@ -110,7 +87,6 @@ export default function Carrito() {
           }
         );
 
-        setConfigEnvios(dataEnvios);
       } catch (err) {
         setError(err.message || "No se pudo cargar el carrito");
       } finally {
@@ -122,7 +98,7 @@ export default function Carrito() {
   }, [API, navigate, token]);
 
   async function cambiarCantidad(item, nuevaCantidad) {
-    if (nuevaCantidad < 1) return;
+    if (nuevaCantidad < 1 || actualizando) return;
 
     try {
       setMensaje("");
@@ -174,6 +150,8 @@ export default function Carrito() {
   }
 
   async function eliminarItem(item) {
+    if (actualizando) return;
+
     try {
       setMensaje("");
       setActualizando(true);
@@ -221,23 +199,21 @@ export default function Carrito() {
 
   const items = carrito?.items ?? [];
   const subtotal = carrito?.total ?? 0;
-
-  const costoEnvioEstimado = useMemo(() => {
-    return calcularCostoEnvio(configEnvios, provinciaEnvio, subtotal);
-  }, [configEnvios, provinciaEnvio, subtotal]);
+  const totalItems = items.reduce((acc, item) => acc + Number(item.cantidad || 0), 0);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-crema flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-morado border-t-transparent rounded-full"></div>
+      <div className="flex min-h-screen items-center justify-center bg-crema text-morado">
+        <Loader2 className="mr-2 animate-spin" size={24} />
+        <span className="font-bold">Cargando carrito...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-crema flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-uva/10 text-center text-uva">
+      <div className="flex min-h-screen items-center justify-center bg-crema px-4">
+        <div className="rounded-3xl border border-uva/10 bg-white p-6 text-center font-bold text-uva shadow-sm">
           {error}
         </div>
       </div>
@@ -247,234 +223,189 @@ export default function Carrito() {
   return (
     <div className="min-h-screen bg-crema pb-28">
       <div className="sticky top-0 z-50">
-        <Header disableFilter={true} showCart={true} />
+        <Header disableFilter showCart />
       </div>
 
       {mensaje && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[999] w-[calc(100%-2rem)] max-w-sm">
-          <div className="bg-white border border-uva/10 text-uva rounded-2xl px-4 py-3 text-sm shadow-[0_10px_30px_rgba(0,0,0,0.12)] text-center">
+        <div className="fixed left-1/2 top-20 z-[999] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2">
+          <div className="rounded-2xl border border-fucsia/25 bg-white px-4 py-3 text-center text-sm font-bold text-fucsia shadow-xl">
             {mensaje}
           </div>
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-3xl font-fredoka text-uva">Tu carrito</h2>
-          <BotonCerrar onClick={() => navigate("/merch")} />
+      <main className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6">
+        <div className="mb-5">
+          <EncabezadoVistaUsuario
+            icon={ShoppingBasket}
+            etiqueta="Tienda oficial"
+            titulo="Carrito"
+            descripcion={
+              items.length > 0
+                ? `${totalItems} producto${totalItems === 1 ? "" : "s"} reservado${totalItems === 1 ? "" : "s"} para tu compra.`
+                : "Guardá productos y continuá tu compra desde acá."
+            }
+            action={
+              <button
+                type="button"
+                onClick={() => navigate("/merch")}
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-rosa px-4 text-sm font-extrabold text-white shadow-md transition active:scale-[0.98]"
+              >
+                <ArrowLeft size={17} />
+                Tienda
+              </button>
+            }
+          />
         </div>
 
         {items.length === 0 ? (
-          <div className="bg-white rounded-3xl shadow-sm border border-uva/10 p-8 text-center">
-            <p className="text-gris mb-2 font-semibold">Tu carrito está vacío</p>
-            <p className="text-sm text-gris mb-4">
-              Explorá la merch para agregar productos a tu compra.
+          <section className="rounded-3xl border border-uva/10 bg-white px-6 py-12 text-center shadow-sm">
+            <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-morado/10 text-morado">
+              <ShoppingBasket size={31} />
+            </span>
+            <h3 className="font-fredoka text-2xl text-uva">
+              Tu carrito está vacío
+            </h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm font-semibold text-uva/60">
+              Explorá la tienda y agregá productos para continuar la compra.
             </p>
             <button
+              type="button"
               onClick={() => navigate("/merch")}
-              className="bg-morado text-white font-bold px-5 py-3 rounded-2xl hover:bg-uva transition"
+              className="mt-5 rounded-2xl bg-morado px-5 py-3 font-extrabold text-crema shadow-md"
             >
-              Ver merch
+              Ver tienda
             </button>
-          </div>
+          </section>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-            <div className="flex flex-col gap-4">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <section className="divide-y divide-uva/12">
               {items.map((item, index) => (
-                <div
+                <ItemCarrito
                   key={`${item.idProducto}-${index}-${renderVariante(item.variante)}`}
-                  className="bg-white rounded-3xl shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-uva/10 p-4"
-                >
-                  <div className="flex gap-4 items-start">
-                    <img
-                      src={item.imagen}
-                      alt={item.nombre}
-                      className="w-24 h-24 rounded-2xl object-cover bg-crema"
-                    />
-
-                    <div className="flex-1">
-                      <h3 className="font-fredoka text-lg text-uva">
-                        {item.nombre}
-                      </h3>
-
-                      {item.variante && (
-                        <p className="text-sm text-gris mt-1">
-                          {renderVariante(item.variante)}
-                        </p>
-                      )}
-
-                      <p className="text-morado font-bold mt-2">
-                        ${item.precioUnitario?.toLocaleString("es-AR")}
-                      </p>
-
-                      <div className="flex items-center gap-3 mt-4">
-                        <button
-                          type="button"
-                          disabled={actualizando}
-                          onClick={() => cambiarCantidad(item, item.cantidad - 1)}
-                          className="w-10 h-10 rounded-xl border border-uva/20 bg-white text-uva text-xl font-bold flex items-center justify-center disabled:opacity-50"
-                        >
-                          -
-                        </button>
-
-                        <div className="min-w-[42px] text-center text-lg font-bold text-uva">
-                          {item.cantidad}
-                        </div>
-
-                        <button
-                          type="button"
-                          disabled={actualizando}
-                          onClick={() => cambiarCantidad(item, item.cantidad + 1)}
-                          className="w-10 h-10 rounded-xl border border-uva/20 bg-white text-uva text-xl font-bold flex items-center justify-center disabled:opacity-50"
-                        >
-                          +
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={actualizando}
-                          onClick={() => eliminarItem(item)}
-                          className="ml-auto w-10 h-10 rounded-xl border border-uva/20 bg-white text-rosa hover:text-fucsia transition disabled:opacity-50 flex items-center justify-center"
-                          aria-label="Eliminar producto"
-                          title="Eliminar producto"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  item={item}
+                  actualizando={actualizando}
+                  onMenos={() => cambiarCantidad(item, item.cantidad - 1)}
+                  onMas={() => cambiarCantidad(item, item.cantidad + 1)}
+                  onEliminar={() => eliminarItem(item)}
+                />
               ))}
-            </div>
+            </section>
 
-            <aside className="bg-white rounded-3xl shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-uva/10 p-5 h-fit relative">
-              <h3 className="font-fredoka text-xl text-uva mb-4">
-                Resumen
-              </h3>
-
-              <div className="mb-4">
-                <p className="text-gris font-semibold mb-3">Productos</p>
-
-                <div className="flex flex-col gap-2">
-                  {items.map((item, index) => (
-                    <div
-                      key={`${item.idProducto}-resumen-${index}`}
-                      className="flex items-start justify-between gap-3 text-sm"
-                    >
-                      <span className="text-gris leading-snug">
-                        {item.cantidad} {item.nombre}
-                      </span>
-                      <span className="text-uva font-semibold whitespace-nowrap">
-                        ${item.subtotal?.toLocaleString("es-AR")}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-gris mb-3 pt-3 border-t border-uva/10">
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString("es-AR")}</span>
-              </div>
-
-              <div className="flex items-center justify-between text-gris mb-3">
-                <span>Envío</span>
-                <button
-                  type="button"
-                  onClick={() => setMostrarEnvio(true)}
-                  className="text-sm text-morado font-semibold hover:underline"
-                >
-                  Calcular envío
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between text-uva font-bold text-xl pt-4 border-t border-uva/10">
-                <span>Total estimado</span>
-                <span>${subtotal.toLocaleString("es-AR")}</span>
-              </div>
-
-              <p className="text-xs text-gris mt-3 leading-relaxed">
-                El costo de envío se calcula según la ubicación al momento de finalizar la compra.
-              </p>
-
-              <button
-                onClick={() => navigate("/checkout")}
-                className="w-full mt-6 bg-fucsia text-white font-bold py-3 rounded-2xl hover:bg-fucsia/85 transition"
-              >
-                Continuar compra
-              </button>
-
-              {mostrarEnvio && (
-                <div className="absolute inset-0 bg-black/10 rounded-3xl flex items-center justify-center p-4">
-                  <div className="w-full bg-white border border-uva/10 rounded-2xl shadow-xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-fredoka text-lg text-uva">
-                        Calcular envío
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={() => setMostrarEnvio(false)}
-                        className="text-uva font-bold text-lg"
-                      >
-                        ×
-                      </button>
-                    </div>
-
-                    <label className="block text-sm font-semibold text-uva mb-2">
-                      Provincia / zona
-                    </label>
-
-                    <select
-                      value={provinciaEnvio}
-                      onChange={(e) => setProvinciaEnvio(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-uva/20 outline-none text-uva"
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="capital_federal">Capital Federal</option>
-                      <option value="conurbano_buenos_aires">GCBA</option>
-                      <option value="buenos_aires">Buenos Aires</option>
-                      <option value="resto_pais">Resto del país</option>
-                    </select>
-
-                    {provinciaEnvio && costoEnvioEstimado !== null && (
-                      <div className="mt-4 bg-crema border border-uva/10 rounded-xl px-4 py-3">
-                        <p className="text-sm text-gris">
-                          Zona seleccionada:{" "}
-                          <span className="font-semibold text-uva">
-                            {labelProvincia(provinciaEnvio)}
-                          </span>
-                        </p>
-
-                        <p className="text-sm text-gris mt-2">
-                          Costo estimado:{" "}
-                          <span className="font-bold text-uva">
-                            {costoEnvioEstimado === 0
-                              ? "Envío gratis"
-                              : `$${costoEnvioEstimado.toLocaleString("es-AR")}`}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-
-                    {configEnvios?.envioGratisDesde ? (
-                      <p className="text-xs text-gris mt-4 leading-relaxed">
-                        Envío gratis en compras desde $
-                        {configEnvios.envioGratisDesde.toLocaleString("es-AR")}.
-                      </p>
-                    ) : (
-                      <p className="text-xs text-gris mt-4 leading-relaxed">
-                        Este valor es estimado y no se suma todavía al total del carrito.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </aside>
+            <ResumenCarrito
+              items={items}
+              subtotal={subtotal}
+              totalItems={totalItems}
+              onCheckout={() => navigate("/checkout")}
+            />
           </div>
         )}
       </main>
 
       <Navbar />
     </div>
+  );
+}
+
+function ItemCarrito({ item, actualizando, onMenos, onMas, onEliminar }) {
+  const varianteTexto = renderVariante(item.variante);
+
+  return (
+    <article className="py-3">
+      <div className="grid grid-cols-[58px_minmax(0,1fr)] gap-3 sm:grid-cols-[66px_minmax(0,1fr)]">
+        <img
+          src={item.imagen}
+          alt={item.nombre}
+          className="h-14 w-14 rounded-2xl bg-white object-cover shadow-sm ring-1 ring-uva/10 sm:h-16 sm:w-16"
+        />
+
+        <div className="min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="line-clamp-2 font-fredoka text-base leading-tight text-uva sm:text-lg">
+                {item.nombre}
+              </h3>
+              {varianteTexto && (
+                <p className="mt-1 line-clamp-1 text-xs font-bold text-uva/55">
+                  {varianteTexto}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              disabled={actualizando}
+              onClick={onEliminar}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fucsia/10 text-fucsia transition active:scale-95 disabled:opacity-45"
+              aria-label="Eliminar producto"
+              title="Eliminar producto"
+            >
+              <Trash2 size={17} />
+            </button>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <div className="flex items-center rounded-full border border-uva/10 bg-white/70 p-1">
+              <button
+                type="button"
+                disabled={actualizando || item.cantidad <= 1}
+                onClick={onMenos}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-uva disabled:opacity-35"
+              >
+                <Minus size={15} />
+              </button>
+              <span className="min-w-[34px] text-center font-fredoka text-lg text-uva">
+                {item.cantidad}
+              </span>
+              <button
+                type="button"
+                disabled={actualizando}
+                onClick={onMas}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-uva disabled:opacity-35"
+              >
+                <Plus size={15} />
+              </button>
+            </div>
+
+            <div className="min-w-[88px] shrink-0 text-right">
+              <p className="whitespace-nowrap font-fredoka text-lg leading-none text-uva sm:text-xl">
+                {precio(item.subtotal)}
+              </p>
+              <p className="mt-1 whitespace-nowrap text-[11px] font-bold text-uva/45">
+                {precio(item.precioUnitario)} c/u
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ResumenCarrito({ subtotal, totalItems, onCheckout }) {
+  return (
+    <aside className="h-fit border-t border-uva/10 pt-4 lg:sticky lg:top-24">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-uva/50">
+            Total productos
+          </p>
+          <p className="mt-1 text-sm font-bold text-uva/60">
+            {totalItems} producto{totalItems === 1 ? "" : "s"}
+          </p>
+        </div>
+        <span className="font-fredoka text-3xl leading-none text-uva">
+          {precio(subtotal)}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onCheckout}
+        className="mt-4 flex h-12 w-full items-center justify-center rounded-2xl bg-menta px-5 py-3 font-extrabold text-uva shadow-md transition active:scale-[0.99]"
+      >
+        Continuar compra
+      </button>
+    </aside>
   );
 }

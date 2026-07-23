@@ -34,6 +34,7 @@ import {
   claseInputAdmin as inputClass,
 } from "../../components/EditorAdmin.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
+import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -66,6 +67,8 @@ export default function EditarPunto() {
   const [eliminandoFoto, setEliminandoFoto] = useState("");
   const [subiendoFotoGaleria, setSubiendoFotoGaleria] = useState(false);
   const [mensaje, setMensaje] = useState(null);
+  const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] =
+    useState(false);
 
   const categoriasActivas = useMemo(() => getCategoriasPunto(punto || {}), [punto]);
 
@@ -75,6 +78,11 @@ export default function EditarPunto() {
         const res = await fetch(`${API}/api/puntos/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (res.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
 
         if (!res.ok) throw new Error("Error al cargar punto");
 
@@ -100,7 +108,7 @@ export default function EditarPunto() {
     }
 
     obtenerPunto();
-  }, [API, id, token]);
+  }, [API, id, navigate, token]);
 
   function actualizarCampo(campo, valor) {
     setPunto((actual) => ({ ...actual, [campo]: valor }));
@@ -203,6 +211,11 @@ export default function EditarPunto() {
       });
 
       if (!res.ok) {
+        if (res.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
+
         const errorMessage = await getErrorMessage(res);
 
         if (res.status === 401) {
@@ -232,17 +245,21 @@ export default function EditarPunto() {
   }
 
   async function eliminarPunto() {
-    if (!confirm("¿Seguro que querés eliminar este punto?")) return;
-
     try {
       const res = await fetch(`${API}/api/puntos/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
+
       if (!res.ok) throw new Error();
       navigate("/admin/mapa");
     } catch {
+      setMostrarConfirmacionEliminar(false);
       setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
     }
   }
@@ -270,6 +287,11 @@ export default function EditarPunto() {
         },
         body: JSON.stringify({ idPunto: id, publicId }),
       });
+
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
 
       if (!res.ok) throw new Error();
 
@@ -311,6 +333,11 @@ export default function EditarPunto() {
         body: formData,
       });
       const data = await res.json();
+
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
 
       if (!res.ok) throw new Error(data.message || "No se pudo subir la foto.");
 
@@ -369,7 +396,7 @@ export default function EditarPunto() {
             </button>
             <button
               type="button"
-              onClick={eliminarPunto}
+              onClick={() => setMostrarConfirmacionEliminar(true)}
               className="flex items-center justify-center gap-2 rounded-full bg-fucsia px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-fucsia/85"
             >
               <Trash2 size={18} />
@@ -388,9 +415,9 @@ export default function EditarPunto() {
 
         {mensaje && <Alert variant={mensaje.variant}>{mensaje.text}</Alert>}
 
-        <div className="mt-8 grid w-full max-w-[1450px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] 2xl:grid-cols-[minmax(0,1040px)_340px]">
+        <div className="mt-8 flex w-full max-w-[1180px] min-w-0 flex-col items-start gap-6 xl:flex-row">
           <FormularioEditorAdmin
-            className="min-w-0 max-w-none"
+            className="w-full min-w-0 xl:max-w-[830px] xl:flex-none"
             onSubmit={(event) => {
               event.preventDefault();
               guardarCambios();
@@ -600,12 +627,25 @@ export default function EditarPunto() {
             </div>
           </FormularioEditorAdmin>
 
-          <aside className="min-w-0 self-start space-y-8 pr-1 xl:sticky xl:top-5">
+          <aside className="w-full min-w-0 self-start space-y-8 xl:sticky xl:top-5 xl:w-80 xl:flex-none">
             <TarjetaVistaUsuario punto={punto} />
             <TarjetaDetalleUsuario punto={punto} />
           </aside>
         </div>
       </div>
+
+      <ModalConfirmacion
+        open={mostrarConfirmacionEliminar}
+        title="Eliminar punto"
+        message={`Se va a eliminar "${
+          punto?.nombre || "este punto"
+        }". Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
+        onConfirm={eliminarPunto}
+        onCancel={() => setMostrarConfirmacionEliminar(false)}
+      />
     </AdminStyle>
   );
 }

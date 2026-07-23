@@ -18,12 +18,12 @@ export default function ModalXendaria({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-uva/35 px-3 py-6 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden bg-uva/35 px-3 py-6 backdrop-blur-sm">
       <section
         className={`relative flex max-h-[92vh] w-full ${maxWidth} flex-col overflow-visible rounded-3xl border border-uva/10 bg-crema shadow-2xl ${className}`}
       >
         {showClose && onClose && (
-          <div className="absolute right-0 top-0 z-30 translate-x-1/2 -translate-y-1/2">
+          <div className="absolute right-1 top-1 z-30 translate-x-[30%] -translate-y-[30%] sm:right-0 sm:top-0 sm:translate-x-1/2 sm:-translate-y-1/2">
             <BotonCerrar
               onClick={onClose}
               className={closeClassName}

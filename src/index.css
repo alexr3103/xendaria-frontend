@@ -28,5 +28,51 @@
   .font-fredoka {
     font-family: "Fredoka", sans-serif !important;
   }
-}
 
+  @keyframes insignia-unlock-spin {
+    0% {
+      opacity: 0;
+      transform: perspective(720px) rotateY(-78deg) scale(0.78);
+    }
+    42% {
+      opacity: 1;
+      transform: perspective(720px) rotateY(18deg) scale(1.08);
+    }
+    78% {
+      transform: perspective(720px) rotateY(360deg) scale(1.02);
+    }
+    100% {
+      opacity: 1;
+      transform: perspective(720px) rotateY(360deg) scale(1);
+    }
+  }
+
+  @keyframes insignia-unlock-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .insignia-unlock-spin {
+    animation: insignia-unlock-spin 1.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    backface-visibility: visible;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+
+  .insignia-unlock-pop {
+    animation: insignia-unlock-pop 0.28s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .insignia-unlock-spin,
+    .insignia-unlock-pop {
+      animation: none;
+    }
+  }
+}

@@ -41,7 +41,7 @@ export function TituloSeccionAdmin({ icon: Icon, title, subtitle }) {
   return (
     <div className="flex items-start gap-3">
       <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-morado/10 text-morado">
-        <Icon size={20} />
+        {Icon && <Icon size={20} />}
       </span>
       <div>
         <h3 className="font-fredoka text-2xl leading-none text-uva sm:text-[1.65rem]">{title}</h3>

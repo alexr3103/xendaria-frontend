@@ -11,6 +11,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const PIN_FALLBACK_COLOR = categoriasInfo.propios?.color || "#FF8BC6";
 const PIN_EN_AJUSTE_COLOR = "#8B8B8B";
+const RADIO_PUNTOS_CERCANOS_KM = 1.5;
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -19,13 +20,6 @@ function getCategoriasPunto(punto = {}) {
   ];
 
   return [...new Set(valores.filter(Boolean))];
-}
-
-function getCategoriaPrincipal(punto = {}) {
-  return (
-    getCategoriasPunto(punto).find((categoria) => categoriasInfo[categoria]) ||
-    "propios"
-  );
 }
 
 function getColoresCategorias(punto = {}) {
@@ -235,6 +229,7 @@ export default function MapaUsuario({
       el.style.backgroundSize = "contain";
       el.style.backgroundRepeat = "no-repeat";
       el.style.cursor = "pointer";
+      el.style.zIndex = "20";
 
       pintarPinPorCategorias(
         el,
@@ -250,15 +245,10 @@ export default function MapaUsuario({
     });
   }
 
-  // ---------------------------
-  // 🔥 ACÁ EL ÚNICO CAMBIO
-  // ---------------------------
   useEffect(() => {
     if (!coords || !mapRef.current) return;
 
     const { lat, lng } = coords;
-    const radioKm = 1;
-
     const puntosCercanos = puntosRef.current.filter((p) => {
       const puntoLat = Number(p.lat);
       const puntoLon = Number(p.lon);
@@ -267,7 +257,9 @@ export default function MapaUsuario({
         return false;
       }
 
-      return getDistance(lat, lng, puntoLat, puntoLon) <= radioKm;
+      return (
+        getDistance(lat, lng, puntoLat, puntoLon) <= RADIO_PUNTOS_CERCANOS_KM
+      );
     });
 
     const propiosValidos = puntosPropios.filter((p) => {
@@ -291,7 +283,7 @@ export default function MapaUsuario({
 
     renderMarkers(result);
 
-    // 🔥 FIX FINAL: ahora muestra desde el inicio
+    // Muestra los puntos desde el inicio cuando ya hay ubicacion.
     if (onListo && !yaNotifique) {
       onListo();
       setYaNotifique(true);
@@ -308,18 +300,19 @@ export default function MapaUsuario({
     if (!userMarkerRef.current) {
       const wrap = document.createElement("div");
       wrap.className = "relative flex items-center justify-center";
-      wrap.style.width = "38px";
-      wrap.style.height = "38px";
+      wrap.style.width = "32px";
+      wrap.style.height = "32px";
       wrap.style.pointerEvents = "none";
+      wrap.style.zIndex = "1";
 
       const aura = document.createElement("div");
       aura.className =
-        "absolute w-14 h-14 rounded-full bg-morado/20 animate-[ping_3s_linear_infinite]";
+        "absolute w-11 h-11 rounded-full bg-morado/15 animate-[ping_3s_linear_infinite]";
       aura.style.pointerEvents = "none";
 
       const icon = document.createElement("div");
-      icon.style.width = "38px";
-      icon.style.height = "38px";
+      icon.style.width = "32px";
+      icon.style.height = "32px";
       icon.style.backgroundImage = `url(${pinHead})`;
       icon.style.backgroundSize = "contain";
       icon.style.pointerEvents = "none";

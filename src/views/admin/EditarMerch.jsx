@@ -75,6 +75,11 @@ export default function EditarMerch() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+        if (res.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
+
         if (!res.ok) {
           throw new Error("No se pudo cargar el producto");
         }
@@ -103,7 +108,7 @@ export default function EditarMerch() {
     }
 
     cargarProducto();
-  }, [API, id, token]);
+  }, [API, id, navigate, token]);
 
   useEffect(() => {
     return () => {
@@ -296,6 +301,11 @@ export default function EditarMerch() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 404) {
+          navigate("/404", { replace: true });
+          return;
+        }
+
         throw new Error(
           Array.isArray(data?.message)
             ? data.message.join(" ")
@@ -324,6 +334,11 @@ export default function EditarMerch() {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
 
       if (!res.ok) {
         throw new Error("No se pudo eliminar el producto");
@@ -603,8 +618,7 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
                   type="button"
                   title={color.nombre}
                   onClick={() => onChange(index, "color", color.nombre)}
-                  style={{ backgroundColor: color.hex }}
-                  className={`h-8 w-8 rounded-full border-2 shadow-sm transition ${
+                  className={`${color.swatchClassName} h-8 w-8 rounded-full border-2 shadow-sm transition ${
                     seleccionado
                       ? "scale-110 border-morado"
                       : "border-uva/20 hover:border-morado/60"

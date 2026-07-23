@@ -5,10 +5,11 @@ import {
   MapPin,
   Navigation,
   Rotate3D,
-  Star,
 } from "lucide-react";
-import { categorias } from "./CategoriasFiltros.jsx";
+
 import cargafail from "../assets/cargafail.png";
+import { categorias } from "./CategoriasFiltros.jsx";
+import VistaDetallePuntoUsuario from "./VistaDetallePuntoUsuario.jsx";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -24,17 +25,14 @@ function getInsigniaUrl(punto = {}) {
   return punto.insignia?.url || "";
 }
 
-function getImagenUrl(foto) {
-  if (typeof foto === "string") return foto;
-  return foto?.url || "";
-}
-
 export function TarjetaVistaUsuario({ punto }) {
-  const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
+  const categoriasPunto = getCategoriasPunto(punto).filter(
+    (categoria) => categorias[categoria]
+  );
   const insigniaUrl = getInsigniaUrl(punto);
 
   return (
-    <section className="mx-auto w-full max-w-[340px] xl:ml-0">
+    <section className="mx-auto w-full max-w-[320px] xl:ml-0">
       <div className="mb-3 flex items-center gap-2 text-uva">
         <BadgeCheck size={20} className="text-morado" />
         <h3 className="font-fredoka text-2xl">Vista previa usuario</h3>
@@ -147,88 +145,22 @@ export function TarjetaVistaUsuario({ punto }) {
 }
 
 export function TarjetaDetalleUsuario({ punto }) {
-  const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
-  const imagenDetalle = punto.foto || getImagenUrl(punto.fotos?.[0]) || cargafail;
-  const historiasCount = (punto.historias || []).length;
-  const multimediaCount = (punto.multimedia || []).length;
-
   return (
-    <section className="mx-auto w-full max-w-[340px] xl:ml-0">
+    <section className="mx-auto w-full max-w-[320px] xl:ml-0">
       <div className="mb-3 flex items-center gap-2 text-uva">
         <FileText size={20} className="text-morado" />
         <h3 className="font-fredoka text-2xl">Vista detalle usuario</h3>
       </div>
 
-      <div className="overflow-hidden rounded-[34px] border border-uva/10 bg-crema shadow-xl">
-        <div className="relative h-40 overflow-hidden">
-          <img
-            src={imagenDetalle}
-            alt={punto.nombre || "Detalle del punto"}
-            className="h-full w-full object-cover"
-            onError={(event) => {
-              event.currentTarget.src = cargafail;
-            }}
-          />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-uva/85 to-transparent px-4 pb-4 pt-12">
-            <h4 className="font-fredoka text-2xl leading-tight text-crema">
-              {punto.nombre || "Nombre del punto"}
-            </h4>
-          </div>
-        </div>
-
-        <div className="space-y-5 p-5">
-          <div className="flex flex-wrap gap-2">
-            {categoriasPunto.map((categoriaKey) => {
-              const categoria = categorias[categoriaKey];
-              const Icon = categoria.icon;
-
-              return (
-                <span
-                  key={categoriaKey}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold text-uva"
-                  style={{ backgroundColor: categoria.color || "#F4EFFF" }}
-                >
-                  {Icon && <Icon size={15} />}
-                  {categoria.label || categoriaKey}
-                </span>
-              );
-            })}
-          </div>
-
-          <div className="flex items-start gap-2 text-fucsia">
-            <MapPin size={20} className="mt-0.5 shrink-0" />
-            <span className="text-sm font-bold leading-snug">
-              {punto.direccion || "Dirección del punto"}
-            </span>
-          </div>
-
-          <div className="rounded-3xl bg-menta/65 p-4">
-            <h5 className="font-fredoka text-lg text-uva">Historia</h5>
-            <p className="mt-1 line-clamp-5 text-sm leading-relaxed text-gris">
-              {punto.descripcion_completa ||
-                punto.descripcion ||
-                "Texto completo visible cuando el usuario desbloquea el detalle."}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-2xl bg-white/75 px-2 py-3">
-              <p className="font-fredoka text-xl text-morado">{historiasCount}</p>
-              <p className="text-[11px] font-bold text-uva/65">Historias</p>
-            </div>
-            <div className="rounded-2xl bg-white/75 px-2 py-3">
-              <p className="font-fredoka text-xl text-morado">{multimediaCount}</p>
-              <p className="text-[11px] font-bold text-uva/65">Media</p>
-            </div>
-            <div className="rounded-2xl bg-white/75 px-2 py-3">
-              <div className="flex items-center justify-center gap-1 text-fucsia">
-                <Star size={17} fill="currentColor" />
-                <span className="font-fredoka text-xl">0</span>
-              </div>
-              <p className="text-[11px] font-bold text-uva/65">Rating</p>
-            </div>
-          </div>
-        </div>
+      <div className="h-[720px] overflow-y-auto overflow-x-hidden rounded-[34px] border border-uva/10 bg-crema shadow-xl">
+        <VistaDetallePuntoUsuario
+          punto={punto}
+          preview
+          esFavorito={false}
+          resumenCalificacion={{ promedioEstrellas: 0, totalCalificaciones: 0 }}
+          onToggleFavorito={() => {}}
+          onClose={() => {}}
+        />
       </div>
     </section>
   );

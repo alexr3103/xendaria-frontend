@@ -4,7 +4,37 @@ import Alert from "../../components/Alertas.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link } from "react-router-dom";
 
-const API = import.meta.env.VITE_API_URL;   
+const API = import.meta.env.VITE_API_URL;
+const PASSWORD_INFO =
+  "La contraseña debe tener al menos 6 caracteres, un número, una mayúscula y un caracter especial.";
+
+function validarRegistro(form) {
+  const nombre = form.nombre.trim();
+  const email = form.email.trim();
+
+  if (!nombre) return "Ingresá tu nombre completo.";
+  if (!email) return "Ingresá tu correo electrónico.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return "Ingresá un correo electrónico válido.";
+  }
+  if (form.password.length < 6) {
+    return "La contraseña debe tener al menos 6 caracteres.";
+  }
+  if (!/[0-9]/.test(form.password)) {
+    return "La contraseña debe tener al menos un número.";
+  }
+  if (!/[A-Z]/.test(form.password)) {
+    return "La contraseña debe tener al menos una mayúscula.";
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(form.password)) {
+    return "La contraseña debe tener al menos un caracter especial.";
+  }
+  if (form.password !== form.passwordConfirm) {
+    return "Las contraseñas deben coincidir.";
+  }
+
+  return "";
+}
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -25,13 +55,24 @@ export default function Register() {
     e.preventDefault();
     setErr("");
     setOk("");
+
+    const errorValidacion = validarRegistro(form);
+    if (errorValidacion) {
+      setErr(errorValidacion);
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch(`${API}/api/usuarios/register`, {  
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          nombre: form.nombre.trim(),
+          email: form.email.trim(),
+        }),
       });
 
       const data = await res.json();
@@ -71,6 +112,8 @@ export default function Register() {
           name="nombre"
           value={form.nombre}
           onChange={handleChange}
+          placeholder="Ej: Juan Pérez"
+          autoComplete="name"
           required
         />
 
@@ -80,9 +123,12 @@ export default function Register() {
           type="email"
           value={form.email}
           onChange={handleChange}
+          placeholder="Ej: juanperez@email.com"
           required
           autoComplete="email"
         />
+
+        <Alert variant="info">{PASSWORD_INFO}</Alert>
 
         <TextField
           label="Contraseña"

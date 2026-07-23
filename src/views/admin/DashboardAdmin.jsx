@@ -472,7 +472,7 @@ function PriorityCard({ label, value, detail, icon: Icon, to, color }) {
       <span
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-uva ${color}`}
       >
-        <Icon size={22} />
+        {Icon && <Icon size={22} />}
       </span>
       <span className="min-w-0 text-center">
         <span className="block font-fredoka text-morado" style={BIG_NUMBER}>
@@ -598,7 +598,7 @@ function CompactList({ icon: Icon, title, items, emptyText, renderItem }) {
     <div className="min-w-0">
       <div className="mb-3 flex items-center gap-2 text-uva">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-morado/15 text-morado">
-          <Icon size={18} />
+          {Icon && <Icon size={18} />}
         </span>
         <h3 className="font-fredoka text-2xl leading-none">{title}</h3>
       </div>
@@ -613,7 +613,7 @@ function SectionTitle({ icon: Icon, title, subtitle }) {
   return (
     <div className="flex items-start gap-3">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-morado/15 text-morado">
-        <Icon size={21} />
+        {Icon && <Icon size={21} />}
       </span>
       <div>
         <h3 className="font-fredoka text-3xl leading-none text-uva">{title}</h3>
