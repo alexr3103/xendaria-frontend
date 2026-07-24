@@ -36,6 +36,7 @@ import MerchAdmin from "./views/admin/MerchAdmin.jsx";
 import CrearMerch from "./views/admin/CrearMerch.jsx";
 import EditarMerch from "./views/admin/EditarMerch.jsx";
 import DashboardAdmin from "./views/admin/DashboardAdmin.jsx";
+import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 
 export default function App() {
   const [step, setStep] = useState("loading");
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="/admin/usuarios" element={<UsuariosAdmin />} />
           <Route path="/admin/rutas" element={<RutasAdmin />} />
           <Route path="/admin/merch" element={<MerchAdmin />} />
+          <Route path="/admin/comercios" element={<ComerciosAdmin />} />
           <Route path="/admin/merch/nuevo" element={<CrearMerch />} />
           <Route path="/admin/merch/editar/:id" element={<EditarMerch />} />
           <Route path="/admin/envios" element={<MerchAdmin initialTab="envios" />} />

@@ -12,6 +12,7 @@ import {
   Music2,
   Share2,
   ShoppingBasket,
+  Store,
   UserRound,
 } from "lucide-react";
 
@@ -81,6 +82,10 @@ export default function AdminLayout({ children, title }) {
 
           <AdminLink to="/admin/merch" icon={<ShoppingBasket size={20} />}>
             Merch
+          </AdminLink>
+
+          <AdminLink to="/admin/comercios" icon={<Store size={20} />}>
+            Comercios
           </AdminLink>
 
         </nav>
