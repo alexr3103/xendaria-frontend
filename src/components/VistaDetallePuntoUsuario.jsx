@@ -6,6 +6,7 @@ import BotonCerrar from "./BotonCerrar";
 import { categorias } from "./CategoriasFiltros";
 import HistoriasPunto from "./HistoriasPunto";
 import MultimediaPunto from "./MultimediaPunto";
+import RecompensaComercio from "./RecompensaComercio.jsx";
 import cargafail from "../assets/cargafail.png";
 
 function getCategoriasPunto(punto = {}) {
@@ -37,6 +38,7 @@ export default function VistaDetallePuntoUsuario({
   const categoriasPunto = getCategoriasPunto(punto).filter(
     (categoria) => categorias[categoria]
   );
+  const esComercio = categoriasPunto.includes("comercios");
   const descripcionDetalle =
     punto.descripcion_completa || punto.descripcion || "";
   const descripcionEsLarga = descripcionDetalle.length > 260;
@@ -144,6 +146,14 @@ export default function VistaDetallePuntoUsuario({
             </div>
           )}
         </section>
+
+        {esComercio && (
+          <RecompensaComercio
+            idPunto={punto._id}
+            preview={preview}
+            recompensaPreview={punto.recompensaComercio}
+          />
+        )}
 
         <HistoriasPunto historias={punto.historias || []} />
 

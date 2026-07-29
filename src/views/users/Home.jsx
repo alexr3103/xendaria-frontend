@@ -11,11 +11,12 @@ import {
   Check,
   CheckCircle2,
   Flag,
+  Info,
   Loader2,
   LocateFixed,
+  MapPin,
   Pause,
   Plus,
-  Search,
   Share2,
   X,
   XCircle,
@@ -24,6 +25,7 @@ import { categorias as categoriasInfo } from "../../components/CategoriasFiltros
 
 const CATEGORIA_DEFAULT = "propios";
 const FOTO_KEY_DEFAULT = "propios";
+const CATEGORIA_COMERCIOS = "comercios";
 
 const imagenesPuntoPropio = import.meta.glob(
   "../../assets/puntos-propios/*.{png,jpg,jpeg,webp,svg}",
@@ -213,6 +215,7 @@ export default function Home() {
   const [puntoPropioCoords, setPuntoPropioCoords] = useState(null);
   const [direccionBusqueda, setDireccionBusqueda] = useState("");
   const [buscandoDireccion, setBuscandoDireccion] = useState(false);
+  const [direccionCalculada, setDireccionCalculada] = useState(false);
   const [guardandoPuntoPropio, setGuardandoPuntoPropio] = useState(false);
   const [mensajePuntoPropio, setMensajePuntoPropio] = useState(null);
   const [puntosPropios, setPuntosPropios] = useState([]);
@@ -222,6 +225,7 @@ export default function Home() {
   const [coordsAntesAjuste, setCoordsAntesAjuste] = useState(null);
   const [ubicacionConfirmadaAntesAjuste, setUbicacionConfirmadaAntesAjuste] =
     useState(false);
+  const [ajusteDesdeDireccion, setAjusteDesdeDireccion] = useState(false);
   const [recenterManualToken, setRecenterManualToken] = useState(0);
   const [puntoEnFoco, setPuntoEnFoco] = useState(null);
   const [puntosPropiosCargados, setPuntosPropiosCargados] = useState(false);
@@ -230,6 +234,7 @@ export default function Home() {
   const [rutaCompletados, setRutaCompletados] = useState([]);
   const [guardandoRuta, setGuardandoRuta] = useState(false);
   const [esperandoGeoInicial, setEsperandoGeoInicial] = useState(true);
+  const finalizarCargaMapa = useCallback(() => setCargandoMapa(false), []);
 
   // login
   useEffect(() => {
@@ -284,12 +289,13 @@ export default function Home() {
                 p.categoria,
               ])
               .filter(Boolean),
+            CATEGORIA_COMERCIOS,
             "propios",
           ]),
         ];
         setCategorias(cats);
       })
-      .catch(() => setCategorias(["propios"]));
+      .catch(() => setCategorias([CATEGORIA_COMERCIOS, "propios"]));
   }, [API]);
 
   useEffect(() => {
@@ -608,9 +614,11 @@ export default function Home() {
     setPuntoPropioEditando(null);
     setPuntoPropioForm(PUNTO_PROPIO_INICIAL);
     setDireccionBusqueda("");
+    setDireccionCalculada(false);
     setMensajePuntoPropio(null);
     setUbicacionConfirmada(false);
     setAjustandoUbicacion(false);
+    setAjusteDesdeDireccion(false);
     setPuntoPropioCoords(
       coords
         ? {
@@ -634,9 +642,11 @@ export default function Home() {
       fotoKey: punto.fotoKey || punto.categoria || FOTO_KEY_DEFAULT,
     });
     setDireccionBusqueda(punto.direccion || "");
+    setDireccionCalculada(true);
     setMensajePuntoPropio(null);
     setUbicacionConfirmada(true);
     setAjustandoUbicacion(false);
+    setAjusteDesdeDireccion(false);
     setPuntoPropioCoords({
       lat: Number(punto.lat),
       lng: Number(punto.lon),
@@ -648,9 +658,11 @@ export default function Home() {
     setModalPuntoPropio(false);
     setPuntoPropioEditando(null);
     setPuntoPropioCoords(null);
+    setDireccionCalculada(false);
     setMensajePuntoPropio(null);
     setUbicacionConfirmada(false);
     setAjustandoUbicacion(false);
+    setAjusteDesdeDireccion(false);
     setCoordsAntesAjuste(null);
   }
 
@@ -666,6 +678,7 @@ export default function Home() {
     setCoordsAntesAjuste(puntoPropioCoords);
     setUbicacionConfirmadaAntesAjuste(ubicacionConfirmada);
     setUbicacionConfirmada(false);
+    setAjusteDesdeDireccion(false);
     setMensajePuntoPropio(null);
     setModalPuntoPropio(false);
     setAjustandoUbicacion(true);
@@ -673,14 +686,25 @@ export default function Home() {
 
   function confirmarAjusteUbicacion() {
     setUbicacionConfirmada(true);
+    setDireccionCalculada(true);
     setAjustandoUbicacion(false);
+    setAjusteDesdeDireccion(false);
+    setMensajePuntoPropio({
+      variant: "success",
+      text: "Ubicación lista. Ya podés guardar el punto.",
+    });
     setModalPuntoPropio(true);
   }
 
   function cancelarAjusteUbicacion() {
-    setPuntoPropioCoords(coordsAntesAjuste);
-    setUbicacionConfirmada(ubicacionConfirmadaAntesAjuste);
+    if (ajusteDesdeDireccion) {
+      setUbicacionConfirmada(false);
+    } else {
+      setPuntoPropioCoords(coordsAntesAjuste);
+      setUbicacionConfirmada(ubicacionConfirmadaAntesAjuste);
+    }
     setAjustandoUbicacion(false);
+    setAjusteDesdeDireccion(false);
     setModalPuntoPropio(true);
   }
 
@@ -697,6 +721,7 @@ export default function Home() {
     }
 
     setBuscandoDireccion(true);
+    setDireccionCalculada(false);
     setMensajePuntoPropio(null);
 
     try {
@@ -720,24 +745,35 @@ export default function Home() {
       const feature = data.features?.[0];
 
       if (!feature) {
+        setDireccionCalculada(false);
         setMensajePuntoPropio({
           variant: "error",
-          text: "No se encontro esa direccion.",
+          text: "No encontramos esa dirección. Revisala e intentá nuevamente.",
         });
         return;
       }
 
       const [lng, lat] = feature.center;
+      const direccionEncontrada = feature.place_name || query;
+
+      setCoordsAntesAjuste(puntoPropioCoords);
+      setUbicacionConfirmadaAntesAjuste(ubicacionConfirmada);
       setPuntoPropioCoords({ lat, lng });
       setUbicacionConfirmada(false);
+      setDireccionCalculada(true);
+      setDireccionBusqueda(direccionEncontrada);
       setPuntoPropioForm((actual) => ({
         ...actual,
-        direccion: feature.place_name || query,
+        direccion: direccionEncontrada,
       }));
+      setAjusteDesdeDireccion(true);
+      setModalPuntoPropio(false);
+      setAjustandoUbicacion(true);
     } catch {
+      setDireccionCalculada(false);
       setMensajePuntoPropio({
         variant: "error",
-        text: "No se pudo buscar la direccion.",
+        text: "No pudimos calcular la ubicación. Intentá nuevamente.",
       });
     } finally {
       setBuscandoDireccion(false);
@@ -782,7 +818,7 @@ export default function Home() {
     if (!ubicacionConfirmada) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "Toca Ajustar y confirma la ubicacion desde el mapa.",
+        text: "Ubicá y confirmá el pin en el mapa antes de guardar.",
       });
       return;
     }
@@ -1009,7 +1045,7 @@ export default function Home() {
         puntoEnFoco={puntoEnFoco}
         recenterToken={recenterDesdeDetalle || recenterManualToken}
         destino={destinoMapa}
-        onListo={() => setCargandoMapa(false)}
+        onListo={finalizarCargaMapa}
       />
 
       {mensajeFocoPunto && (
@@ -1100,10 +1136,12 @@ export default function Home() {
               <LocateFixed size={24} className="text-morado shrink-0 mt-1" />
               <div>
                 <h2 className="font-fredoka text-xl text-uva">
-                  Ajustar ubicacion
+                  Confirmá la ubicación
                 </h2>
                 <p className="text-sm text-uva/70">
-                  Arrastra el pin hasta el lugar correcto.
+                  {ajusteDesdeDireccion
+                    ? "Calculamos este punto desde la dirección. Arrastrá el pin si hace falta."
+                    : "Arrastrá el pin hasta el lugar correcto."}
                 </p>
               </div>
             </div>
@@ -1150,9 +1188,17 @@ export default function Home() {
                 </h2>
                 <p className="text-sm text-uva/70">
                   {puntoPropioEditando
-                    ? "Actualiza los datos de tu punto."
-                    : "Quedara guardado solo en tu perfil."}
+                    ? "Actualizá los datos de tu punto."
+                    : "Quedará guardado solo en tu perfil."}
                 </p>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-2xl bg-crema px-3 py-3 text-uva">
+              <Info size={20} className="mt-0.5 shrink-0 text-morado" />
+              <p className="text-sm leading-relaxed">
+                Completá la dirección, ubicá el pin en el mapa y confirmá la
+                posición antes de guardar.
+              </p>
             </div>
 
             {mensajePuntoPropio && (
@@ -1189,11 +1235,13 @@ export default function Home() {
                 }
                 className="p-3 rounded-xl bg-crema text-uva border border-uva/20 outline-none focus:border-morado"
               >
-                {Object.entries(categoriasInfo).map(([value, categoria]) => (
-                  <option key={value} value={value}>
-                    {categoria.label}
-                  </option>
-                ))}
+                {Object.entries(categoriasInfo)
+                  .filter(([value]) => value !== CATEGORIA_COMERCIOS)
+                  .map(([value, categoria]) => (
+                    <option key={value} value={value}>
+                      {categoria.label}
+                    </option>
+                  ))}
               </select>
             </label>
 
@@ -1275,7 +1323,7 @@ export default function Home() {
 
             <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-uva/80">
-                Direccion
+                Dirección
               </span>
               <div className="flex gap-2">
                 <input
@@ -1286,35 +1334,65 @@ export default function Home() {
                       ...actual,
                       direccion: event.target.value,
                     }));
+                    setPuntoPropioCoords(null);
+                    setDireccionCalculada(false);
                     setUbicacionConfirmada(false);
                   }}
-                  placeholder="Buscar direccion"
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      buscarDireccionPuntoPropio();
+                    }
+                  }}
+                  placeholder="Ej. Av. Corrientes 1234"
                   className="min-w-0 flex-1 p-3 rounded-xl bg-crema text-uva border border-uva/20 outline-none focus:border-morado"
                 />
                 <button
                   type="button"
                   onClick={buscarDireccionPuntoPropio}
-                  disabled={buscandoDireccion}
-                  className="w-12 rounded-xl bg-uva text-crema flex items-center justify-center disabled:opacity-60"
-                  aria-label="Buscar direccion"
+                  disabled={buscandoDireccion || !direccionBusqueda.trim()}
+                  className="min-w-[92px] rounded-xl bg-uva px-3 text-crema flex items-center justify-center gap-2 font-bold disabled:opacity-50"
+                  aria-label="Calcular ubicación desde la dirección"
                 >
                   {buscandoDireccion ? (
                     <Loader2 size={20} className="animate-spin" />
                   ) : (
-                    <Search size={20} />
+                    <MapPin size={19} />
                   )}
+                  <span>{buscandoDireccion ? "Ubicando" : "Ubicar"}</span>
                 </button>
+              </div>
+
+              <div aria-live="polite">
+                {buscandoDireccion && (
+                  <div
+                    role="status"
+                    className="flex items-center gap-2 rounded-xl bg-morado/10 px-3 py-2 text-sm font-semibold text-uva"
+                  >
+                    <Loader2 size={17} className="shrink-0 animate-spin text-morado" />
+                    Calculando latitud y longitud automáticamente...
+                  </div>
+                )}
+
+                {!buscandoDireccion &&
+                  direccionCalculada &&
+                  !ubicacionConfirmada && (
+                    <div className="flex items-center gap-2 rounded-xl bg-menta/25 px-3 py-2 text-sm font-semibold text-uva">
+                      <CheckCircle2 size={17} className="shrink-0 text-uva" />
+                      Coordenadas calculadas. Revisá el pin en el mapa.
+                    </div>
+                  )}
               </div>
             </div>
 
             <div className="rounded-2xl bg-crema border border-uva/10 p-3 flex items-center gap-3">
               <LocateFixed size={22} className="text-morado shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-uva">Ubicacion</p>
+                <p className="text-sm font-bold text-uva">Ubicación del pin</p>
                 <p className="text-xs text-uva/65 truncate">
                   {puntoPropioCoords
                     ? `${puntoPropioCoords.lat.toFixed(6)}, ${puntoPropioCoords.lng.toFixed(6)}`
-                    : "Esperando ubicacion actual"}
+                    : "Ingresá una dirección para calcularla"}
                 </p>
                 <p
                   className={`mt-2 inline-flex max-w-full rounded-full px-3 py-1 text-xs font-bold leading-tight ${
@@ -1324,18 +1402,26 @@ export default function Home() {
                   }`}
                 >
                   {ubicacionConfirmada
-                    ? "Ubicacion confirmada"
-                    : "Toca ajustar y confirma desde el mapa"}
+                    ? "Ubicación confirmada"
+                    : "Falta confirmar el pin"}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={iniciarAjusteUbicacion}
-                className="bg-uva text-crema rounded-xl px-3 py-2 text-sm font-bold shrink-0"
+                disabled={!puntoPropioCoords}
+                className="bg-uva text-crema rounded-xl px-3 py-2 text-sm font-bold shrink-0 disabled:cursor-not-allowed disabled:opacity-45"
               >
-                Ajustar
+                {ubicacionConfirmada ? "Revisar" : "Ajustar"}
               </button>
             </div>
+
+            {!ubicacionConfirmada && (
+              <p className="flex items-center gap-2 text-sm font-semibold text-uva/70">
+                <Info size={17} className="shrink-0 text-morado" />
+                Confirmá la ubicación del pin para habilitar Guardar.
+              </p>
+            )}
 
             <div className="flex gap-2 pt-1">
               <button

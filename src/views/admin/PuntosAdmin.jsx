@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
-import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
+import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
 
 import {
   Eye,
@@ -51,6 +51,7 @@ export default function PuntosAdmin() {
   const [mensaje, setMensaje] = useState(null);
   const [puntoAEliminar, setPuntoAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState("");
 
   // FILTROS
   const [buscar, setBuscar] = useState("");
@@ -100,32 +101,34 @@ export default function PuntosAdmin() {
   }, [cargarPuntos]);
 
   // ELIMINAR
-  async function confirmarEliminarPunto() {
+  async function confirmarEliminarPunto(password) {
     if (!puntoAEliminar || eliminando) return;
 
     try {
       setEliminando(true);
       setMensaje(null);
+      setErrorEliminar("");
       const token = localStorage.getItem("token");
       const res = await fetch(`${API}/api/puntos/${puntoAEliminar._id}`, {
         method: "DELETE",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ password }),
       });
 
+      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         setPuntos((prev) => prev.filter((p) => p._id !== puntoAEliminar._id));
         setPuntoAEliminar(null);
         setMensaje({ variant: "success", text: "Punto eliminado correctamente." });
       } else {
-        setPuntoAEliminar(null);
-        setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+        setErrorEliminar(data.message || "No se pudo eliminar el punto.");
       }
     } catch {
-      setPuntoAEliminar(null);
-      setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+      setErrorEliminar("No se pudo eliminar el punto.");
     } finally {
       setEliminando(false);
     }
@@ -419,17 +422,17 @@ export default function PuntosAdmin() {
         </div>
       )}
 
-      <ModalConfirmacion
+      <ModalEliminarPunto
         open={Boolean(puntoAEliminar)}
-        title="Eliminar punto"
-        message={`Se va a eliminar "${
-          puntoAEliminar?.nombre || "este punto"
-        }". Esta acción no se puede deshacer.`}
-        confirmText={eliminando ? "Eliminando..." : "Eliminar"}
-        cancelText="Cancelar"
-        danger
+        nombre={puntoAEliminar?.nombre || "este punto"}
+        loading={eliminando}
+        error={errorEliminar}
         onConfirm={confirmarEliminarPunto}
-        onCancel={() => (eliminando ? null : setPuntoAEliminar(null))}
+        onCancel={() => {
+          if (eliminando) return;
+          setPuntoAEliminar(null);
+          setErrorEliminar("");
+        }}
       />
 
     </AdminStyle>

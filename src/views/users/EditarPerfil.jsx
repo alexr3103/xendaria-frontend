@@ -313,6 +313,7 @@ export default function EditarPerfil() {
                     <div className="flex min-w-max gap-3 px-1">
                       {Object.entries(categorias).map(([value, categoria]) => {
                         const imagen = getCategoriaImagen(value);
+                        const Icon = categoria.icon;
                         const selected = form.categoriaFavorita === value;
 
                         return (
@@ -336,6 +337,15 @@ export default function EditarPerfil() {
                                   alt=""
                                   className="h-full w-full object-cover"
                                 />
+                              )}
+                              {!imagen && Icon && (
+                                <span
+                                  className="flex h-full w-full items-center justify-center"
+                                  style={{ backgroundColor: categoria.color }}
+                                  aria-hidden="true"
+                                >
+                                  <Icon size={30} className="text-uva" />
+                                </span>
                               )}
                             </span>
                             <span className="w-full truncate text-center text-[11px] font-bold text-uva">

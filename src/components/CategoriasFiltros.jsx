@@ -7,6 +7,7 @@ import {
     FerrisWheel,
     Ghost,
     MapPinned,
+    Store,
 } from "lucide-react";
 
 //filtros nombre/color/icono
@@ -18,5 +19,6 @@ export const categorias = {
     espacios_verdes_privados: { label: "Jardines", color: "#B6FF83", icon: Leaf },
     lugares_de_esparcimiento: { label: "Recreación", color: "#A0CDFF", icon: FerrisWheel },
     curiosos: { label: "Curiosos", color: "#C69BFF", icon: Ghost },
+    comercios: { label: "Comercios", color: "#F7B267", icon: Store },
     propios: { label: "Propios", color: "#FF8BC6", icon: MapPinned },
 };

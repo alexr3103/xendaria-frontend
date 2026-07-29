@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Star,
+  TicketCheck,
   Trash2,
 } from "lucide-react";
 import Header from "../../layouts/Header.jsx";
@@ -219,6 +220,7 @@ export default function Perfil() {
   const [insignias, setInsignias] = useState([]);
   const [calificaciones, setCalificaciones] = useState([]);
   const [ordenes, setOrdenes] = useState([]);
+  const [beneficiosCanjeados, setBeneficiosCanjeados] = useState([]);
   const [titulosPerfil, setTitulosPerfil] = useState(null);
   const [comunidad, setComunidad] = useState({
     seguidoresCount: 0,
@@ -229,6 +231,7 @@ export default function Perfil() {
   const [verPropios, setVerPropios] = useState(false);
   const [verCalificados, setVerCalificados] = useState(false);
   const [verCompras, setVerCompras] = useState(false);
+  const [verBeneficios, setVerBeneficios] = useState(false);
   const [modalSobreApp, setModalSobreApp] = useState(false);
   const [modalSoporte, setModalSoporte] = useState(false);
   const [mensaje, setMensaje] = useState(null);
@@ -273,6 +276,7 @@ export default function Perfil() {
           insigniasResult,
           calificacionesResult,
           ordenesResult,
+          beneficiosResult,
           comunidadResult,
           titulosResult,
         ] = await Promise.allSettled([
@@ -285,6 +289,9 @@ export default function Perfil() {
             cargarInsigniasDesbloqueadas(API, perfilData),
             fetchJSON(`${API}/api/calificaciones/mias`, { headers }),
             fetchJSON(`${API}/api/ordenes/mis-ordenes`, { headers }),
+            fetchJSON(`${API}/api/comercios/recompensas/mis-canjes`, {
+              headers,
+            }),
             fetchJSON(`${API}/api/usuarios/comunidad`, { headers }),
             fetchJSON(`${API}/api/titulos/mios`, { headers }),
           ]);
@@ -336,6 +343,12 @@ export default function Perfil() {
         setOrdenes(
           ordenesResult.status === "fulfilled" && Array.isArray(ordenesResult.value)
             ? ordenesResult.value
+            : []
+        );
+        setBeneficiosCanjeados(
+          beneficiosResult.status === "fulfilled" &&
+            Array.isArray(beneficiosResult.value)
+            ? beneficiosResult.value
             : []
         );
         setComunidad(
@@ -733,6 +746,28 @@ export default function Perfil() {
               </ProfileToggle>
 
               <ProfileToggle
+                title="Beneficios canjeados"
+                icon={<TicketCheck className="text-morado" />}
+                open={verBeneficios}
+                onClick={() => setVerBeneficios((actual) => !actual)}
+              >
+                {beneficiosCanjeados.length === 0 ? (
+                  <p className="px-4 py-3 text-center text-sm text-uva">
+                    Todavía no canjeaste beneficios de comercios.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-uva/10">
+                    {beneficiosCanjeados.map((canje) => (
+                      <BeneficioCanjeadoItem
+                        key={getId(canje)}
+                        canje={canje}
+                      />
+                    ))}
+                  </div>
+                )}
+              </ProfileToggle>
+
+              <ProfileToggle
                 title="Visitados"
                 icon={<BadgeCheck className="text-fucsia" />}
                 open={verVisitados}
@@ -1113,6 +1148,28 @@ function CompraItem({ orden }) {
       <span className="shrink-0 text-right font-fredoka text-lg leading-none text-morado">
         {precioPerfil(orden.total)}
       </span>
+    </div>
+  );
+}
+
+function BeneficioCanjeadoItem({ canje }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 py-3">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-menta/55 text-uva shadow-sm">
+        <TicketCheck size={23} />
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <span className="block font-fredoka text-lg leading-tight text-morado">
+          {canje.beneficio || "Beneficio canjeado"}
+        </span>
+        <span className="mt-0.5 block truncate text-sm font-bold text-uva">
+          {canje.nombrePunto || "Comercio"}
+        </span>
+        <span className="mt-1 block text-xs font-semibold text-uva/60">
+          Canjeado el {formatFechaCompra(canje.canjeadaEn)}
+        </span>
+      </div>
     </div>
   );
 }

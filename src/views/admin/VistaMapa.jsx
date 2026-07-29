@@ -19,7 +19,7 @@ import Alert from "../../components/Alertas.jsx";
 import MapaAdmin from "../../components/Mapa_admin.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
 import ModalXendaria from "../../components/ModalXendaria.jsx";
-import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
+import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 import PildoraFiltro from "../../components/PildoraFiltro.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
@@ -77,6 +77,7 @@ export default function MapaAdminWrapper() {
   const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] =
     useState(false);
   const [eliminandoPunto, setEliminandoPunto] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState("");
   const resolverMovimientoRef = useRef(null);
 
   const puntosFiltrados = useMemo(() => {
@@ -274,19 +275,26 @@ export default function MapaAdminWrapper() {
     }
   }
 
-  async function eliminarPunto() {
+  async function eliminarPunto(password) {
     if (!puntoSeleccionado?._id || eliminandoPunto) return;
 
     try {
       setEliminandoPunto(true);
       setMensaje(null);
+      setErrorEliminar("");
       const res = await fetch(`${API}/api/puntos/${puntoSeleccionado._id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+        setErrorEliminar(data.message || "No se pudo eliminar el punto.");
         return;
       }
 
@@ -296,8 +304,7 @@ export default function MapaAdminWrapper() {
       setMostrarConfirmacionEliminar(false);
       setMensaje({ variant: "success", text: "Punto eliminado correctamente." });
     } catch {
-      setMostrarConfirmacionEliminar(false);
-      setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+      setErrorEliminar("No se pudo eliminar el punto.");
     } finally {
       setEliminandoPunto(false);
     }
@@ -460,19 +467,17 @@ export default function MapaAdminWrapper() {
         onConfirm={() => resolverMovimientoLargo(true)}
       />
 
-      <ModalConfirmacion
+      <ModalEliminarPunto
         open={mostrarConfirmacionEliminar}
-        title="Eliminar punto"
-        message={`Se va a eliminar "${
-          puntoSeleccionado?.nombre || "este punto"
-        }". Esta acción no se puede deshacer.`}
-        confirmText={eliminandoPunto ? "Eliminando..." : "Eliminar"}
-        cancelText="Cancelar"
-        danger
+        nombre={puntoSeleccionado?.nombre || "este punto"}
+        loading={eliminandoPunto}
+        error={errorEliminar}
         onConfirm={eliminarPunto}
-        onCancel={() =>
-          eliminandoPunto ? null : setMostrarConfirmacionEliminar(false)
-        }
+        onCancel={() => {
+          if (eliminandoPunto) return;
+          setMostrarConfirmacionEliminar(false);
+          setErrorEliminar("");
+        }}
       />
     </AdminStyle>
   );

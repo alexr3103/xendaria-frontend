@@ -35,6 +35,7 @@ export default function MultimediaAdmin({ punto, onChange }) {
   const token = localStorage.getItem("token");
   const [form, setForm] = useState(EMPTY_FORM);
   const [guardando, setGuardando] = useState(false);
+  const [eliminandoId, setEliminandoId] = useState(null);
   const [verificando, setVerificando] = useState(false);
   const [mensaje, setMensaje] = useState(null);
 
@@ -76,6 +77,9 @@ export default function MultimediaAdmin({ punto, onChange }) {
   }
 
   async function eliminarContenido(multimediaId) {
+    if (!multimediaId || eliminandoId) return;
+
+    setEliminandoId(String(multimediaId));
     setMensaje(null);
 
     try {
@@ -93,11 +97,14 @@ export default function MultimediaAdmin({ punto, onChange }) {
       onChange({
         ...punto,
         multimedia: (punto.multimedia || []).filter(
-          (contenido) => contenido._id !== multimediaId
+          (contenido) => String(contenido._id) !== String(multimediaId)
         ),
       });
+      setMensaje({ variant: "success", text: "Contenido multimedia eliminado." });
     } catch (error) {
       setMensaje({ variant: "error", text: error.message });
+    } finally {
+      setEliminandoId(null);
     }
   }
 
@@ -213,9 +220,17 @@ export default function MultimediaAdmin({ punto, onChange }) {
                 type="button"
                 title="Eliminar contenido"
                 onClick={() => eliminarContenido(contenido._id)}
-                className="p-2 text-fucsia hover:bg-fucsia/10 rounded-lg"
+                disabled={Boolean(eliminandoId)}
+                aria-label={`Eliminar ${
+                  contenido.titulo || config?.label || "contenido multimedia"
+                }`}
+                className="rounded-lg p-2 text-fucsia transition hover:bg-fucsia/10 disabled:cursor-wait disabled:opacity-50"
               >
-                <Trash2 size={18} />
+                {eliminandoId === String(contenido._id) ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Trash2 size={18} />
+                )}
               </button>
             </div>
           );

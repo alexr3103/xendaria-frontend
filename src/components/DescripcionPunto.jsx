@@ -54,6 +54,8 @@ export default function DescripcionPunto({
   const [errorVisita, setErrorVisita] = useState("");
   const [mostrarCelebracionInsignia, setMostrarCelebracionInsignia] =
     useState(false);
+  const [insigniaRecienDesbloqueada, setInsigniaRecienDesbloqueada] =
+    useState(false);
   const googleMapsKey = import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY;
   const configuracionUsuario = getConfiguracionUsuarioLocal();
   const vista360Habilitada = configuracionUsuario.vista360Habilitada !== false;
@@ -103,13 +105,14 @@ export default function DescripcionPunto({
 
   useEffect(() => {
     const saved = localStorage.getItem(`insignia-${_id}`);
-    if (saved === "true") setInsigniaObtenida(true);
+    setInsigniaObtenida(saved === "true");
   }, [_id]);
 
   useEffect(() => {
     setVista360(punto.vista360 || null);
     setMostrarVistaLugar(false);
     setMostrarCelebracionInsignia(false);
+    setInsigniaRecienDesbloqueada(false);
     setErrorVista("");
   }, [_id, punto.vista360]);
 
@@ -127,6 +130,7 @@ export default function DescripcionPunto({
       localStorage.setItem(`insignia-${_id}`, "true");
       setInsigniaObtenida(true);
       if (punto.insignia) {
+        setInsigniaRecienDesbloqueada(true);
         setMostrarCelebracionInsignia(true);
       }
     } catch (error) {
@@ -190,11 +194,22 @@ export default function DescripcionPunto({
               {nombre}
             </h1>
             {!esPuntoPropio && punto.insignia && insigniaObtenida && (
-              <img
-                src={punto.insignia}
-                alt="Insignia"
-                className="w-[65px] h-[65px] rounded-full shadow-md object-cover"
-              />
+              <button
+                type="button"
+                onClick={() => {
+                  setInsigniaRecienDesbloqueada(false);
+                  setMostrarCelebracionInsignia(true);
+                }}
+                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-morado/35"
+                aria-label={`Ver insignia conseguida en ${nombre}`}
+                title="Ver insignia conseguida"
+              >
+                <img
+                  src={punto.insignia}
+                  alt=""
+                  className="h-[65px] w-[65px] rounded-full object-cover shadow-md transition active:scale-95"
+                />
+              </button>
             )}
           </div>
           {/* Dirección */}
@@ -407,7 +422,9 @@ export default function DescripcionPunto({
               {nombre}
             </h2>
             <p className="mx-auto mt-2 max-w-[260px] text-sm font-semibold leading-relaxed text-uva/70">
-              Sumaste esta insignia a tu álbum. Ya queda guardada en tu perfil.
+              {insigniaRecienDesbloqueada
+                ? "Sumaste esta insignia a tu álbum. Ya queda guardada en tu perfil."
+                : "¡Ya has conseguido esta insignia! Sigue explorando para desbloquear más."}
             </p>
 
             <button

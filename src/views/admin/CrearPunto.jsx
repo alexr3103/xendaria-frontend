@@ -30,6 +30,8 @@ import {
   claseInputAdmin,
 } from "../../components/EditorAdmin.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
+import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
+import { recompensaComercioInicial } from "../../lib/recompensaComercio.js";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -59,12 +61,14 @@ export default function CrearPunto() {
     lat: "",
     lon: "",
     historias: [],
+    recompensaComercio: { ...recompensaComercioInicial },
   });
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [guardando, setGuardando] = useState(false);
 
   const categoriasActivas = useMemo(() => getCategoriasPunto(punto), [punto]);
+  const esComercio = categoriasActivas.includes("comercios");
 
   async function getErrorMessage(res) {
     try {
@@ -115,6 +119,18 @@ export default function CrearPunto() {
       }
 
       const categoriasNormalizadas = getCategoriasPunto(punto);
+      if (
+        esComercio &&
+        (!String(punto.recompensaComercio?.beneficio || "").trim() ||
+          !String(punto.recompensaComercio?.codigo || "").trim() ||
+          !String(punto.recompensaComercio?.venceEn || "").trim())
+      ) {
+        setError(
+          "Completá el beneficio, el código y el vencimiento de la recompensa."
+        );
+        return;
+      }
+
       const puntoParaGuardar = {
         ...punto,
         categoria: categoriasNormalizadas[0] || "",
@@ -125,6 +141,9 @@ export default function CrearPunto() {
           type: "Point",
           coordinates: [lon, lat],
         },
+        recompensaComercio: esComercio
+          ? punto.recompensaComercio
+          : null,
       };
 
       const res = await fetch(`${API}/api/puntos`, {
@@ -320,6 +339,15 @@ export default function CrearPunto() {
               />
             </div>
           </SeccionPlanaAdmin>
+
+          {esComercio && (
+            <RecompensaComercioAdmin
+              value={punto.recompensaComercio}
+              onChange={(recompensaComercio) =>
+                actualizarCampo("recompensaComercio", recompensaComercio)
+              }
+            />
+          )}
 
           <SeccionPlanaAdmin
             title="Ubicación y enlace"

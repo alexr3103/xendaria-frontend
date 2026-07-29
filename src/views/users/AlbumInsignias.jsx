@@ -285,6 +285,8 @@ function InsigniaCard({
   onToggle,
 }) {
   const desbloqueada = Boolean(insignia.desbloqueada);
+  const disponible = insignia.disponible !== false;
+  const bloqueadaNoDisponible = !desbloqueada && !disponible;
   const fecha = formatFecha(insignia.fechaObtencion);
 
   return (
@@ -300,16 +302,28 @@ function InsigniaCard({
         }
       }}
       className={`relative flex min-h-[150px] cursor-pointer flex-col items-center rounded-[22px] px-2 py-2 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-morado/30 ${
-        abierto ? "bg-crema/70" : ""
+        bloqueadaNoDisponible
+          ? "bg-fucsia/10"
+          : abierto
+            ? "bg-crema/70"
+            : ""
       }`}
       aria-label={`${insignia.nombre || "Insignia"} - ${
-        desbloqueada ? "ganada" : "bloqueada"
+        desbloqueada
+          ? "ganada"
+          : disponible
+            ? "bloqueada"
+            : "no disponible"
       }`}
     >
       <div className="relative">
         <div
           className={`h-16 w-16 rounded-full p-1 shadow-sm sm:h-20 sm:w-20 ${
-            desbloqueada ? "bg-rosa" : "bg-grisaceo"
+            desbloqueada
+              ? "bg-rosa"
+              : disponible
+                ? "bg-grisaceo"
+                : "bg-fucsia"
           }`}
         >
           <img
@@ -327,8 +341,16 @@ function InsigniaCard({
         </div>
 
         {!desbloqueada && (
-          <span className="absolute inset-0 flex items-center justify-center rounded-full bg-uva/20">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-uva text-white shadow-md">
+          <span
+            className={`absolute inset-0 flex items-center justify-center rounded-full ${
+              disponible ? "bg-uva/20" : "bg-fucsia/35"
+            }`}
+          >
+            <span
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-white shadow-md ${
+                disponible ? "bg-uva" : "bg-fucsia"
+              }`}
+            >
               <Lock size={16} />
             </span>
           </span>
@@ -338,11 +360,22 @@ function InsigniaCard({
       <p className="mt-2 line-clamp-2 font-fredoka text-sm leading-tight text-morado sm:text-base">
         {insignia.nombre || "Punto sin nombre"}
       </p>
+      {bloqueadaNoDisponible && (
+        <span className="mt-1 text-[10px] font-extrabold uppercase text-fucsia sm:text-xs">
+          (no disponible)
+        </span>
+      )}
 
       {abierto && (
         <div className="mt-2 space-y-1 text-[10px] font-bold leading-snug text-uva/65 sm:text-xs">
-          <p>{insignia.direccion || "Direccion no cargada"}</p>
+          <p>{insignia.direccion || "Dirección no cargada"}</p>
           {desbloqueada && fecha && <p>Ganada el {fecha}</p>}
+          {desbloqueada && !disponible && (
+            <p className="mx-auto mt-2 max-w-[220px] rounded-xl bg-fucsia/10 px-2 py-2 text-fucsia">
+              Esta insignia se encuentra inhabilitada, pero sigue siendo válida
+              para el ranking.
+            </p>
+          )}
         </div>
       )}
     </Motion.article>

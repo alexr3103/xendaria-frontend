@@ -6,12 +6,15 @@ import pinHead from "../assets/pin-user.png";
 import pointPin from "../assets/pin-point.png";
 import xendariaMapStyle from "../map/xendariaMapStyle";
 import { categorias as categoriasInfo } from "./CategoriasFiltros.jsx";
+import SelectorPuntosSuperpuestos from "./SelectorPuntosSuperpuestos.jsx";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const PIN_FALLBACK_COLOR = categoriasInfo.propios?.color || "#FF8BC6";
 const PIN_EN_AJUSTE_COLOR = "#8B8B8B";
 const RADIO_PUNTOS_CERCANOS_KM = 1.5;
+const CATEGORIA_COMERCIOS = "comercios";
+const DISTANCIA_SUPERPOSICION_KM = 0.035;
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -26,6 +29,14 @@ function getColoresCategorias(punto = {}) {
   return getCategoriasPunto(punto)
     .map((categoria) => categoriasInfo[categoria]?.color)
     .filter(Boolean);
+}
+
+function puntoTieneCategoria(punto, categoriaBuscada) {
+  const normalizada = String(categoriaBuscada || "").trim().toLowerCase();
+
+  return getCategoriasPunto(punto).some(
+    (categoria) => String(categoria).trim().toLowerCase() === normalizada
+  );
 }
 
 function getConicGradient(colors = []) {
@@ -105,10 +116,13 @@ export default function MapaUsuario({
   const draftMarkerRef = useRef(null);
   const puntosRef = useRef([]);
   const puntoEnFocoHastaRef = useRef(0);
+  const comerciosEncuadradosRef = useRef(false);
 
   const [rutaActiva, setRutaActiva] = useState(null);
   const [yaNotifique, setYaNotifique] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [puntosVersion, setPuntosVersion] = useState(0);
+  const [puntosSuperpuestos, setPuntosSuperpuestos] = useState([]);
 
   function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -181,6 +195,7 @@ export default function MapaUsuario({
             const parsed = JSON.parse(guardados);
             if (Array.isArray(parsed) && parsed.length > 0) {
               puntosRef.current = parsed;
+              setPuntosVersion((version) => version + 1);
             }
           } catch {
             localStorage.removeItem("puntos_xendaria");
@@ -192,6 +207,7 @@ export default function MapaUsuario({
 
         if (Array.isArray(data)) {
           puntosRef.current = data;
+          setPuntosVersion((version) => version + 1);
           localStorage.setItem("puntos_xendaria", JSON.stringify(data));
         }
         if (onListo) onListo(true);
@@ -210,34 +226,118 @@ export default function MapaUsuario({
       .querySelectorAll(".mapboxgl-marker.point-marker")
       .forEach((m) => m.remove());
 
-    puntos.forEach((p) => {
-      const lat = Number(p.lat);
-      const lon = Number(p.lon);
+    const puntosRenderizables = puntos
+      .map((punto) => ({
+        punto,
+        lat: Number(punto.lat),
+        lon: Number(punto.lon),
+      }))
+      .filter(
+        ({ lat, lon }) => Number.isFinite(lat) && Number.isFinite(lon)
+      );
 
-      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const gruposSuperpuestos = [];
 
+    puntosRenderizables.forEach((punto) => {
+      const grupoExistente = gruposSuperpuestos.find((grupo) =>
+        grupo.some(
+          (otroPunto) =>
+            getDistance(
+              punto.lat,
+              punto.lon,
+              otroPunto.lat,
+              otroPunto.lon
+            ) <= DISTANCIA_SUPERPOSICION_KM
+        )
+      );
+
+      if (grupoExistente) {
+        grupoExistente.push(punto);
+      } else {
+        gruposSuperpuestos.push([punto]);
+      }
+    });
+
+    gruposSuperpuestos.forEach((grupo) => {
+      const [{ punto: p, lat, lon }] = grupo;
+      const puntosDelGrupo = grupo.map(({ punto }) => punto);
+      const esGrupo = grupo.length > 1;
       const esPuntoPropio = p.origen === "usuario" || p.visibilidad === "privado";
-      const esPuntoEnAjuste =
-        puntoPropioEditandoId &&
-        String(p._id) === String(puntoPropioEditandoId);
+      const esPuntoEnAjuste = grupo.some(
+        ({ punto }) =>
+          puntoPropioEditandoId &&
+          String(punto._id) === String(puntoPropioEditandoId)
+      );
+      const puntoVisual = esGrupo
+        ? {
+            categorias: puntosDelGrupo.flatMap((punto) =>
+              getCategoriasPunto(punto)
+            ),
+          }
+        : p;
 
       const el = document.createElement("div");
-      const markerSize = esPuntoPropio ? 54 : 32;
+      const markerSize = esGrupo ? 48 : esPuntoPropio ? 40 : 32;
       el.className = "point-marker";
       el.style.width = `${markerSize}px`;
       el.style.height = `${markerSize}px`;
       el.style.backgroundSize = "contain";
       el.style.backgroundRepeat = "no-repeat";
       el.style.cursor = "pointer";
-      el.style.zIndex = "20";
+      el.style.zIndex = esGrupo || !esPuntoPropio ? "21" : "20";
+      el.title = esGrupo
+        ? `${grupo.length} puntos cercanos`
+        : p.nombre || "Punto del mapa";
+      el.tabIndex = 0;
+      el.setAttribute("role", "button");
+      el.setAttribute("aria-label", el.title);
 
       pintarPinPorCategorias(
         el,
-        p,
+        puntoVisual,
         esPuntoEnAjuste ? PIN_EN_AJUSTE_COLOR : null
       );
 
-      el.addEventListener("click", () => onSelectPunto && onSelectPunto(p));
+      if (esGrupo) {
+        const badge = document.createElement("span");
+        badge.textContent = String(grupo.length);
+        badge.setAttribute("aria-hidden", "true");
+        badge.style.position = "absolute";
+        badge.style.top = "-9px";
+        badge.style.right = "-10px";
+        badge.style.minWidth = "25px";
+        badge.style.height = "25px";
+        badge.style.padding = "0 6px";
+        badge.style.display = "flex";
+        badge.style.alignItems = "center";
+        badge.style.justifyContent = "center";
+        badge.style.borderRadius = "999px";
+        badge.style.border = "2px solid #FFF8F2";
+        badge.style.background = "#E5005A";
+        badge.style.color = "#FFFFFF";
+        badge.style.fontSize = "12px";
+        badge.style.fontWeight = "800";
+        badge.style.lineHeight = "1";
+        badge.style.boxShadow = "0 3px 8px rgba(74, 23, 63, 0.28)";
+        badge.style.pointerEvents = "none";
+        el.appendChild(badge);
+      }
+
+      const abrirPunto = () => {
+        if (esGrupo) {
+          setPuntosSuperpuestos(puntosDelGrupo);
+          return;
+        }
+        onSelectPunto?.(p);
+      };
+
+      el.addEventListener("click", abrirPunto);
+      el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          abrirPunto();
+        }
+      });
 
       new mapboxgl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([lon, lat])
@@ -246,17 +346,68 @@ export default function MapaUsuario({
   }
 
   useEffect(() => {
-    if (!coords || !mapRef.current) return;
+    if (!mapRef.current || !mapReady) return;
 
-    const { lat, lng } = coords;
-    const puntosCercanos = puntosRef.current.filter((p) => {
+    const filtroNormalizado = String(filtro || "").trim().toLowerCase();
+    const mostrarTodosComercios = filtroNormalizado === CATEGORIA_COMERCIOS;
+
+    const puntosConCoordenadas = puntosRef.current.filter((p) => {
       const puntoLat = Number(p.lat);
       const puntoLon = Number(p.lon);
 
-      if (!Number.isFinite(puntoLat) || !Number.isFinite(puntoLon)) {
-        return false;
+      return Number.isFinite(puntoLat) && Number.isFinite(puntoLon);
+    });
+
+    if (mostrarTodosComercios) {
+      const comercios = puntosConCoordenadas.filter((punto) =>
+        puntoTieneCategoria(punto, CATEGORIA_COMERCIOS)
+      );
+
+      renderMarkers(comercios);
+
+      if (comercios.length > 0 && !comerciosEncuadradosRef.current) {
+        const bounds = new mapboxgl.LngLatBounds();
+
+        comercios.forEach((comercio) => {
+          bounds.extend([Number(comercio.lon), Number(comercio.lat)]);
+        });
+
+        if (comercios.length === 1) {
+          mapRef.current.flyTo({
+            center: [Number(comercios[0].lon), Number(comercios[0].lat)],
+            zoom: 15,
+            speed: 1.1,
+            essential: true,
+          });
+        } else {
+          mapRef.current.fitBounds(bounds, {
+            padding: { top: 150, right: 48, bottom: 130, left: 48 },
+            maxZoom: 14,
+            duration: 900,
+          });
+        }
+
+        comerciosEncuadradosRef.current = true;
       }
 
+      if (onListo && !yaNotifique) {
+        onListo();
+        setYaNotifique(true);
+      }
+      return;
+    }
+
+    comerciosEncuadradosRef.current = false;
+
+    if (!coords) {
+      renderMarkers([]);
+      return;
+    }
+
+    const { lat, lng } = coords;
+    const puntosCercanos = puntosConCoordenadas.filter((p) => {
+      const puntoLat = Number(p.lat);
+      const puntoLon = Number(p.lon);
       return (
         getDistance(lat, lng, puntoLat, puntoLon) <= RADIO_PUNTOS_CERCANOS_KM
       );
@@ -272,12 +423,8 @@ export default function MapaUsuario({
     let result = [...puntosCercanos, ...propiosValidos];
 
     if (filtro) {
-      const filtroNormalizado = filtro.trim().toLowerCase();
       result = result.filter(
-        (p) =>
-          getCategoriasPunto(p).some(
-            (categoria) => categoria.trim().toLowerCase() === filtroNormalizado
-          )
+        (p) => puntoTieneCategoria(p, filtroNormalizado)
       );
     }
 
@@ -288,12 +435,25 @@ export default function MapaUsuario({
       onListo();
       setYaNotifique(true);
     }
-  }, [coords, filtro, puntosPropios, puntoPropioEditandoId]);
+  }, [
+    coords,
+    filtro,
+    mapReady,
+    puntosPropios,
+    puntoPropioEditandoId,
+    puntosVersion,
+    onListo,
+    yaNotifique,
+  ]);
 
   useEffect(() => {
     if (!coords || !mapRef.current || !mapReady) return;
 
     const { lat, lng } = coords;
+    const mostrarTodosComercios =
+      String(filtro || "").trim().toLowerCase() === CATEGORIA_COMERCIOS &&
+      !rutaActiva &&
+      !destino;
 
     if (onCoordsChange) onCoordsChange(coords);
 
@@ -327,7 +487,10 @@ export default function MapaUsuario({
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
 
-      if (Date.now() >= puntoEnFocoHastaRef.current) {
+      if (
+        !mostrarTodosComercios &&
+        Date.now() >= puntoEnFocoHastaRef.current
+      ) {
         mapRef.current.flyTo({
           center: [lng, lat],
           zoom: 15,
@@ -337,7 +500,10 @@ export default function MapaUsuario({
     } else {
       userMarkerRef.current.setLngLat([lng, lat]);
 
-      if (Date.now() >= puntoEnFocoHastaRef.current) {
+      if (
+        !mostrarTodosComercios &&
+        Date.now() >= puntoEnFocoHastaRef.current
+      ) {
         mapRef.current.easeTo({
           center: [lng, lat],
           zoom: rutaActiva ? 17 : 15,
@@ -345,7 +511,7 @@ export default function MapaUsuario({
         });
       }
     }
-  }, [coords, rutaActiva, mapReady]);
+  }, [coords, rutaActiva, mapReady, filtro, destino]);
 
   useEffect(() => {
     if (!recenterToken || !coords || !mapRef.current || !mapReady) return;
@@ -463,5 +629,17 @@ export default function MapaUsuario({
     }
   }, [destino, coords]);
 
-  return <div ref={mapContainer} className="absolute inset-0" />;
+  return (
+    <>
+      <div ref={mapContainer} className="absolute inset-0" />
+      <SelectorPuntosSuperpuestos
+        puntos={puntosSuperpuestos}
+        onClose={() => setPuntosSuperpuestos([])}
+        onSelect={(punto) => {
+          setPuntosSuperpuestos([]);
+          onSelectPunto?.(punto);
+        }}
+      />
+    </>
+  );
 }

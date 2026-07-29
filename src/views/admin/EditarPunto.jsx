@@ -35,6 +35,12 @@ import {
 } from "../../components/EditorAdmin.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
+import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
+import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
+import {
+  normalizarRecompensaComercio,
+  recompensaComercioInicial,
+} from "../../lib/recompensaComercio.js";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -55,6 +61,51 @@ function getImagenUrl(foto) {
   return foto?.url || "";
 }
 
+function normalizarPuntoFormulario(data = {}) {
+  const categoriasNormalizadas = getCategoriasPunto(data);
+
+  return {
+    ...data,
+    categoria: data.categoria || categoriasNormalizadas[0] || "",
+    categorias: categoriasNormalizadas,
+    lat: data.lat ?? "",
+    lon: data.lon ?? "",
+    historias: Array.isArray(data.historias) ? data.historias : [],
+    multimedia: Array.isArray(data.multimedia) ? data.multimedia : [],
+    fotos: Array.isArray(data.fotos) ? data.fotos : [],
+    activo: data.activo !== false,
+    recompensaComercio: normalizarRecompensaComercio(
+      data.recompensaComercio || recompensaComercioInicial
+    ),
+  };
+}
+
+function obtenerCamposObligatoriosFaltantes(punto = {}) {
+  const faltantes = [];
+
+  if (!String(punto.nombre || "").trim()) faltantes.push("nombre");
+  if (!String(punto.direccion || "").trim()) faltantes.push("dirección");
+  if (!String(punto.descripcion || "").trim()) {
+    faltantes.push("descripción breve");
+  }
+  if (getCategoriasPunto(punto).length === 0) faltantes.push("categoría");
+
+  const latVacia =
+    punto.lat === null ||
+    punto.lat === undefined ||
+    String(punto.lat).trim() === "" ||
+    !Number.isFinite(Number(punto.lat));
+  const lonVacia =
+    punto.lon === null ||
+    punto.lon === undefined ||
+    String(punto.lon).trim() === "" ||
+    !Number.isFinite(Number(punto.lon));
+
+  if (latVacia || lonVacia) faltantes.push("coordenadas");
+
+  return faltantes;
+}
+
 export default function EditarPunto() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -69,8 +120,16 @@ export default function EditarPunto() {
   const [mensaje, setMensaje] = useState(null);
   const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] =
     useState(false);
+  const [eliminandoPunto, setEliminandoPunto] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState("");
+  const [mostrarCamposObligatorios, setMostrarCamposObligatorios] =
+    useState(false);
+  const [camposObligatoriosFaltantes, setCamposObligatoriosFaltantes] =
+    useState([]);
+  const [restaurando, setRestaurando] = useState(false);
 
   const categoriasActivas = useMemo(() => getCategoriasPunto(punto || {}), [punto]);
+  const esComercio = categoriasActivas.includes("comercios");
 
   useEffect(() => {
     async function obtenerPunto() {
@@ -87,19 +146,28 @@ export default function EditarPunto() {
         if (!res.ok) throw new Error("Error al cargar punto");
 
         const data = await res.json();
-        const categoriasNormalizadas = getCategoriasPunto(data);
+        let recompensaComercio = { ...recompensaComercioInicial };
 
-        setPunto({
-          ...data,
-          categoria: data.categoria || categoriasNormalizadas[0] || "",
-          categorias: categoriasNormalizadas,
-          lat: data.lat ?? "",
-          lon: data.lon ?? "",
-          historias: Array.isArray(data.historias) ? data.historias : [],
-          multimedia: Array.isArray(data.multimedia) ? data.multimedia : [],
-          fotos: Array.isArray(data.fotos) ? data.fotos : [],
-          activo: data.activo !== false,
-        });
+        if (getCategoriasPunto(data).includes("comercios")) {
+          const recompensaRes = await fetch(
+            `${API}/api/comercios/recompensas/admin/puntos/${id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const recompensaData = await recompensaRes.json().catch(() => null);
+
+          if (recompensaRes.ok && recompensaData?.configuracion) {
+            recompensaComercio = normalizarRecompensaComercio(
+              recompensaData.configuracion
+            );
+          }
+        }
+
+        setPunto(
+          normalizarPuntoFormulario({
+            ...data,
+            recompensaComercio,
+          })
+        );
       } catch {
         setMensaje({ variant: "error", text: "No se pudo cargar el punto." });
       } finally {
@@ -129,8 +197,8 @@ export default function EditarPunto() {
       multimedia: [],
     }));
     setMensaje({
-      variant: "success",
-      text: "Campos limpiados en pantalla. Guardá para aplicar los cambios.",
+      variant: "info",
+      text: "Los campos se limpiaron solo en pantalla. Completá los datos obligatorios antes de guardar.",
     });
   }
 
@@ -173,6 +241,20 @@ export default function EditarPunto() {
 
   async function guardarCambios() {
     setMensaje(null);
+
+    const camposFaltantes = obtenerCamposObligatoriosFaltantes(punto);
+    if (camposFaltantes.length > 0) {
+      setCamposObligatoriosFaltantes(camposFaltantes);
+      setMostrarCamposObligatorios(true);
+      mostrarMensajeArriba({
+        variant: "error",
+        text: `No se puede guardar el punto. Falta completar: ${camposFaltantes.join(
+          ", "
+        )}.`,
+      });
+      return;
+    }
+
     setGuardando(true);
 
     try {
@@ -188,6 +270,19 @@ export default function EditarPunto() {
       }
 
       const categoriasNormalizadas = getCategoriasPunto(punto);
+      if (
+        esComercio &&
+        (!String(punto.recompensaComercio?.beneficio || "").trim() ||
+          !String(punto.recompensaComercio?.codigo || "").trim() ||
+          !String(punto.recompensaComercio?.venceEn || "").trim())
+      ) {
+        mostrarMensajeArriba({
+          variant: "error",
+          text: "Completá el beneficio, el código y el vencimiento de la recompensa.",
+        });
+        return;
+      }
+
       const { _id, ...dataSinId } = {
         ...punto,
         lat,
@@ -199,6 +294,9 @@ export default function EditarPunto() {
         categoria: categoriasNormalizadas[0] || "",
         categorias: categoriasNormalizadas,
         insignia: getInsigniaUrl(punto) || null,
+        recompensaComercio: esComercio
+          ? punto.recompensaComercio
+          : null,
       };
 
       const res = await fetch(`${API}/api/puntos/${id}`, {
@@ -244,10 +342,13 @@ export default function EditarPunto() {
     }
   }
 
-  async function eliminarPunto() {
+  async function deshacerCambiosInvalidos() {
+    if (restaurando) return;
+
+    setRestaurando(true);
+
     try {
       const res = await fetch(`${API}/api/puntos/${id}`, {
-        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -257,10 +358,62 @@ export default function EditarPunto() {
       }
 
       if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setPunto(normalizarPuntoFormulario(data));
+      setMostrarCamposObligatorios(false);
+      setCamposObligatoriosFaltantes([]);
+      mostrarMensajeArriba({
+        variant: "success",
+        text: "Se restauró la última versión guardada del punto.",
+      });
+    } catch {
+      mostrarMensajeArriba({
+        variant: "error",
+        text: "No se pudo restaurar la última versión guardada.",
+      });
+    } finally {
+      setRestaurando(false);
+    }
+  }
+
+  function continuarCompletando() {
+    setMostrarCamposObligatorios(false);
+    setTimeout(subirArriba, 0);
+  }
+
+  async function eliminarPunto(password) {
+    if (eliminandoPunto) return;
+
+    try {
+      setEliminandoPunto(true);
+      setErrorEliminar("");
+      const res = await fetch(`${API}/api/puntos/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 404) {
+        navigate("/404", { replace: true });
+        return;
+      }
+
+      if (!res.ok) {
+        setErrorEliminar(data.message || "No se pudo eliminar el punto.");
+        return;
+      }
+
       navigate("/admin/mapa");
     } catch {
-      setMostrarConfirmacionEliminar(false);
-      setMensaje({ variant: "error", text: "No se pudo eliminar el punto." });
+      setErrorEliminar("No se pudo eliminar el punto.");
+    } finally {
+      setEliminandoPunto(false);
     }
   }
 
@@ -553,6 +706,15 @@ export default function EditarPunto() {
               />
             </FlatSection>
 
+            {esComercio && (
+              <RecompensaComercioAdmin
+                value={punto.recompensaComercio}
+                onChange={(recompensaComercio) =>
+                  actualizarCampo("recompensaComercio", recompensaComercio)
+                }
+              />
+            )}
+
             <FlatSection
               title="Ubicación y enlace"
               description="Coordenadas GeoJSON y sitio externo si existe."
@@ -634,17 +796,29 @@ export default function EditarPunto() {
         </div>
       </div>
 
-      <ModalConfirmacion
+      <ModalEliminarPunto
         open={mostrarConfirmacionEliminar}
-        title="Eliminar punto"
-        message={`Se va a eliminar "${
-          punto?.nombre || "este punto"
-        }". Esta acción no se puede deshacer.`}
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-        danger
+        nombre={punto?.nombre || "este punto"}
+        loading={eliminandoPunto}
+        error={errorEliminar}
         onConfirm={eliminarPunto}
-        onCancel={() => setMostrarConfirmacionEliminar(false)}
+        onCancel={() => {
+          if (eliminandoPunto) return;
+          setMostrarConfirmacionEliminar(false);
+          setErrorEliminar("");
+        }}
+      />
+
+      <ModalConfirmacion
+        open={mostrarCamposObligatorios}
+        title="Faltan datos obligatorios"
+        message={`No se puede guardar el punto sin ${camposObligatoriosFaltantes.join(
+          ", "
+        )}. Podés deshacer los cambios o completar nuevamente los campos.`}
+        confirmText={restaurando ? "Restaurando..." : "Deshacer cambios"}
+        cancelText="Completar nuevamente"
+        onConfirm={deshacerCambiosInvalidos}
+        onCancel={continuarCompletando}
       />
     </AdminStyle>
   );

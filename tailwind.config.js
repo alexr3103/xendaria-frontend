@@ -16,6 +16,7 @@ export default {
         celeste: "#A0CDFF",
         lila: "#C69BFF",
         chicle: "#FF8BC6",
+        durazno: "#F7B267",
       },
       fontFamily: {
         fredoka: ['"Fredoka"', "sans-serif"],
