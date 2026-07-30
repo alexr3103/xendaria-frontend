@@ -343,8 +343,9 @@ export default function Home() {
   useEffect(() => {
     const usuario = getUsuarioLocal();
     const token = localStorage.getItem("token");
+    const usuarioId = usuario?.id || usuario?._id;
 
-    if (!usuario?.id || !token) {
+    if (!usuarioId || !token) {
       setPuntosPropiosCargados(true);
       return;
     }
@@ -352,10 +353,16 @@ export default function Home() {
     let activo = true;
     setPuntosPropiosCargados(false);
 
-    fetch(`${API}/api/usuarios/${usuario.id}/puntos-propios`, {
+    fetch(`${API}/api/usuarios/${usuarioId}/puntos-propios`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => (res.ok ? res.json() : []))
+      .then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          throw new Error(data?.message || "No se pudo guardar el punto propio.");
+        }
+        return res.json();
+      })
       .then((data) => {
         if (activo && Array.isArray(data)) {
           setPuntosPropios(data.map(normalizarPuntoPropio));
@@ -489,14 +496,15 @@ export default function Home() {
   async function registrarVisitaPunto(punto) {
     const usuario = getUsuarioLocal();
     const token = localStorage.getItem("token");
+    const usuarioId = usuario?.id || usuario?._id;
     const idPunto = getPuntoId(punto);
 
-    if (!usuario?.id || !token) {
+    if (!usuarioId  || !token) {
       navigate("/login");
       throw new Error("Tenes que iniciar sesion para registrar la visita.");
     }
 
-    const res = await fetch(`${API}/api/usuarios/${usuario.id}/visitados`, {
+    const res = await fetch(`${API}/api/usuarios/${usuarioId}/visitados`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -785,8 +793,9 @@ export default function Home() {
 
     const usuario = getUsuarioLocal();
     const token = localStorage.getItem("token");
+    const usuarioId = usuario?.id || usuario?._id;
 
-    if (!usuario?.id || !token) {
+    if (!usuarioId || !token) {
       navigate("/login");
       return;
     }
@@ -841,8 +850,8 @@ export default function Home() {
       const editando = Boolean(puntoPropioEditando?._id);
       const res = await fetch(
         editando
-          ? `${API}/api/usuarios/${usuario.id}/puntos-propios/${puntoPropioEditando._id}`
-          : `${API}/api/usuarios/${usuario.id}/puntos-propios`,
+          ? `${API}/api/usuarios/${usuarioId}/puntos-propios/${puntoPropioEditando._id}`
+          : `${API}/api/usuarios/${usuarioId}/puntos-propios`,
         {
         method: editando ? "PATCH" : "POST",
         headers: {

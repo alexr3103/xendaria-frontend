@@ -109,10 +109,12 @@ export default function MapaUsuario({
     maximumAge: 10000,
     timeout: 20000,
   });
+  console.log("coords usuario:", coords);
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
+  const ubicacionInicialCentradaRef = useRef(false);
   const draftMarkerRef = useRef(null);
   const puntosRef = useRef([]);
   const puntoEnFocoHastaRef = useRef(0);
@@ -136,8 +138,8 @@ export default function MapaUsuario({
     return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
   }
 
-  async function obtenerRuta(origen, destino) {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${origen.lng},${origen.lat};${destino.lon},${destino.lat}?geometries=geojson&steps=true&access_token=${mapboxgl.accessToken}`;
+  async function obtenerRuta(origen, destinoPunto) {
+    const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${origen.lng},${origen.lat};${destinoPunto.lon},${destinoPunto.lat}?geometries=geojson&steps=true&access_token=${mapboxgl.accessToken}`;
     const res = await fetch(url);
     const data = await res.json();
     return data.routes?.[0] || null;
@@ -262,7 +264,8 @@ export default function MapaUsuario({
       const [{ punto: p, lat, lon }] = grupo;
       const puntosDelGrupo = grupo.map(({ punto }) => punto);
       const esGrupo = grupo.length > 1;
-      const esPuntoPropio = p.origen === "usuario" || p.visibilidad === "privado";
+      const esPuntoPropio =
+        p.origen === "usuario" || p.visibilidad === "privado";
       const esPuntoEnAjuste = grupo.some(
         ({ punto }) =>
           puntoPropioEditandoId &&
@@ -423,14 +426,11 @@ export default function MapaUsuario({
     let result = [...puntosCercanos, ...propiosValidos];
 
     if (filtro) {
-      result = result.filter(
-        (p) => puntoTieneCategoria(p, filtroNormalizado)
-      );
+      result = result.filter((p) => puntoTieneCategoria(p, filtroNormalizado));
     }
 
     renderMarkers(result);
 
-    // Muestra los puntos desde el inicio cuando ya hay ubicacion.
     if (onListo && !yaNotifique) {
       onListo();
       setYaNotifique(true);
@@ -450,10 +450,6 @@ export default function MapaUsuario({
     if (!coords || !mapRef.current || !mapReady) return;
 
     const { lat, lng } = coords;
-    const mostrarTodosComercios =
-      String(filtro || "").trim().toLowerCase() === CATEGORIA_COMERCIOS &&
-      !rutaActiva &&
-      !destino;
 
     if (onCoordsChange) onCoordsChange(coords);
 
@@ -486,32 +482,37 @@ export default function MapaUsuario({
       })
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
-
-      if (
-        !mostrarTodosComercios &&
-        Date.now() >= puntoEnFocoHastaRef.current
-      ) {
-        mapRef.current.flyTo({
-          center: [lng, lat],
-          zoom: 15,
-          speed: 1.2,
-        });
-      }
     } else {
       userMarkerRef.current.setLngLat([lng, lat]);
-
-      if (
-        !mostrarTodosComercios &&
-        Date.now() >= puntoEnFocoHastaRef.current
-      ) {
-        mapRef.current.easeTo({
-          center: [lng, lat],
-          zoom: rutaActiva ? 17 : 15,
-          duration: 900,
-        });
-      }
     }
-  }, [coords, rutaActiva, mapReady, filtro, destino]);
+  }, [coords, mapReady, onCoordsChange]);
+
+  useEffect(() => {
+    console.log("auto center check", {
+      coords,
+      mapReady,
+      destino,
+      rutaActiva,
+      puntoEnFoco,
+      yaCentro: ubicacionInicialCentradaRef.current,
+      hayMapa: !!mapRef.current,
+    });
+
+    if (!coords || !mapRef.current || !mapReady) return;
+    if (ubicacionInicialCentradaRef.current) return;
+    if (destino || rutaActiva || puntoEnFoco) return;
+
+    ubicacionInicialCentradaRef.current = true;
+
+    console.log("centrando mapa en:", coords);
+
+    mapRef.current.flyTo({
+      center: [coords.lng, coords.lat],
+      zoom: 15,
+      speed: 1.2,
+      essential: true,
+    });
+  }, [coords, mapReady, destino, rutaActiva, puntoEnFoco]);
 
   useEffect(() => {
     if (!recenterToken || !coords || !mapRef.current || !mapReady) return;
@@ -578,12 +579,15 @@ export default function MapaUsuario({
 
       draftMarkerRef.current.on("dragend", () => {
         const next = draftMarkerRef.current.getLngLat();
-        onPuntoPropioCoordsChange?.({
-          lat: next.lat,
-          lng: next.lng,
-        }, {
-          confirmado: true,
-        });
+        onPuntoPropioCoordsChange?.(
+          {
+            lat: next.lat,
+            lng: next.lng,
+          },
+          {
+            confirmado: true,
+          }
+        );
       });
 
       map.flyTo({

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BadgeCheck,
@@ -36,7 +36,10 @@ function getUsuarioLocal() {
   }
 }
 
-async function getErrorMessage(res, fallback = "No se pudo guardar la configuración") {
+async function getErrorMessage(
+  res,
+  fallback = "No se pudo guardar la configuración"
+) {
   try {
     const data = await res.json();
     return data?.message || fallback;
@@ -52,9 +55,12 @@ export default function Configuraciones() {
   const token = localStorage.getItem("token");
   const usuarioId = usuarioLS?.id || usuarioLS?._id;
 
-  const [configuracion, setConfiguracion] = useState(normalizarConfiguracionUsuario());
+  const [configuracion, setConfiguracion] = useState(
+    normalizarConfiguracionUsuario()
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const firstLoadRef = useRef(true);
   const [borrandoHistorial, setBorrandoHistorial] = useState(false);
   const [confirmarBorrado, setConfirmarBorrado] = useState(false);
   const [confirmarUbicacion, setConfirmarUbicacion] = useState(false);
@@ -111,6 +117,22 @@ export default function Configuraciones() {
       activo = false;
     };
   }, [API, navigate, token, usuarioId]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!token || !usuarioId) return;
+
+    if (firstLoadRef.current) {
+      firstLoadRef.current = false;
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      guardarConfiguracionAutomatica(configuracion);
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [configuracion, loading, token, usuarioId]);
 
   function toggleConfig(key) {
     setConfiguracion((actual) => ({
@@ -230,7 +252,9 @@ export default function Configuraciones() {
       }
 
       if (!res.ok) {
-        throw new Error(await getErrorMessage(res, "No se pudo cambiar la contraseña"));
+        throw new Error(
+          await getErrorMessage(res, "No se pudo cambiar la contraseña")
+        );
       }
 
       const data = await res.json();
@@ -268,12 +292,11 @@ export default function Configuraciones() {
     window.dispatchEvent(new Event("xendaria:configuracion-actualizada"));
   }
 
-  async function guardarConfiguracion(event) {
-    event.preventDefault();
-    setSaving(true);
-    setMensaje(null);
-
+  async function guardarConfiguracionAutomatica(configSiguiente) {
     try {
+      setSaving(true);
+      setMensaje(null);
+
       const res = await fetch(`${API}/api/usuarios/${usuarioId}`, {
         method: "PATCH",
         headers: {
@@ -281,7 +304,7 @@ export default function Configuraciones() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          configuracion,
+          configuracion: configSiguiente,
         }),
       });
 
@@ -290,20 +313,19 @@ export default function Configuraciones() {
         return;
       }
 
-      if (!res.ok) throw new Error(await getErrorMessage(res));
+      const data = await res.json().catch(() => null);
 
-      const data = await res.json();
-      const usuarioActualizado = data.usuario || {};
+      if (!res.ok) {
+        throw new Error(data?.message || "No se pudo guardar la configuración");
+      }
+
+      const usuarioActualizado = data?.usuario || {};
       actualizarStorage(usuarioActualizado);
-      setConfiguracion(normalizarConfiguracionUsuario(usuarioActualizado.configuracion));
-      setMensaje({ variant: "success", text: "Configuración guardada correctamente." });
-      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setMensaje({
         variant: "error",
         text: error.message || "No se pudo guardar la configuración.",
       });
-      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSaving(false);
     }
@@ -325,7 +347,9 @@ export default function Configuraciones() {
       }
 
       if (!res.ok) {
-        throw new Error(await getErrorMessage(res, "No se pudo borrar el historial"));
+        throw new Error(
+          await getErrorMessage(res, "No se pudo borrar el historial")
+        );
       }
 
       const data = await res.json();
@@ -391,7 +415,7 @@ export default function Configuraciones() {
               Cargando configuración
             </div>
           ) : (
-            <form onSubmit={guardarConfiguracion} className="mt-6 flex flex-col gap-6">
+            <form className="mt-6 flex flex-col gap-6">
               <ConfigSection
                 icon={UserRound}
                 title="Perfil"
@@ -403,6 +427,7 @@ export default function Configuraciones() {
                   description="Permite que otros vean la información pública que habilites."
                   active={configuracion.perfilPublico}
                   onClick={() => toggleConfig("perfilPublico")}
+                  disabled={saving}
                 />
 
                 <ActionRow
@@ -419,6 +444,7 @@ export default function Configuraciones() {
                   description="Permite que otros vean tus últimas insignias ganadas."
                   active={configuracion.mostrarInsigniasPerfil}
                   onClick={() => toggleConfig("mostrarInsigniasPerfil")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -427,6 +453,7 @@ export default function Configuraciones() {
                   description="Permite que otras personas vean tus insignias ganadas y las que te faltan desbloquear."
                   active={configuracion.mostrarAlbumInsigniasPerfil}
                   onClick={() => toggleConfig("mostrarAlbumInsigniasPerfil")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -435,6 +462,7 @@ export default function Configuraciones() {
                   description="Solo muestra la cantidad total, no la lista de lugares visitados."
                   active={configuracion.mostrarContadorVisitados}
                   onClick={() => toggleConfig("mostrarContadorVisitados")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -443,6 +471,7 @@ export default function Configuraciones() {
                   description="Controla si otras personas ven tu categoría preferida."
                   active={configuracion.mostrarPreferenciaLugaresPerfil}
                   onClick={() => toggleConfig("mostrarPreferenciaLugaresPerfil")}
+                  disabled={saving}
                 />
               </ConfigSection>
 
@@ -457,6 +486,7 @@ export default function Configuraciones() {
                   description="Si lo apagás, Xendaria deja de pedir y actualizar tu ubicación."
                   active={configuracion.permitirUbicacion}
                   onClick={toggleUbicacion}
+                  disabled={saving}
                 />
 
                 {confirmarUbicacion && (
@@ -472,6 +502,7 @@ export default function Configuraciones() {
                   description="Si lo apagás, no vas a aparecer en el ranking de usuarios."
                   active={configuracion.mostrarActividadRanking}
                   onClick={() => toggleConfig("mostrarActividadRanking")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -480,6 +511,7 @@ export default function Configuraciones() {
                   description="Controla si otras personas ven el número de puntos visitados, no el detalle."
                   active={configuracion.mostrarPuntosVisitadosPerfil}
                   onClick={() => toggleConfig("mostrarPuntosVisitadosPerfil")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -488,6 +520,7 @@ export default function Configuraciones() {
                   description="Muestra la lista de lugares que guardaste como favoritos en tu perfil público."
                   active={configuracion.mostrarFavoritosPerfil}
                   onClick={() => toggleConfig("mostrarFavoritosPerfil")}
+                  disabled={saving}
                 />
 
                 <DangerRow
@@ -510,6 +543,7 @@ export default function Configuraciones() {
                   description="Muestra el botón de vista del lugar cuando esté disponible."
                   active={configuracion.vista360Habilitada}
                   onClick={() => toggleConfig("vista360Habilitada")}
+                  disabled={saving}
                 />
               </ConfigSection>
 
@@ -524,6 +558,7 @@ export default function Configuraciones() {
                   description="Ideal para descubrir lugares sin abrir todo el tiempo el mapa."
                   active={configuracion.notificaciones?.puntosCercanos}
                   onClick={() => toggleNotificacion("puntosCercanos")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -532,6 +567,7 @@ export default function Configuraciones() {
                   description="Te ayuda a no perder recompensas cercanas."
                   active={configuracion.notificaciones?.insignias}
                   onClick={() => toggleNotificacion("insignias")}
+                  disabled={saving}
                 />
 
                 <ToggleRow
@@ -540,28 +576,17 @@ export default function Configuraciones() {
                   description="Para promociones o beneficios de locales asociados."
                   active={configuracion.notificaciones?.recompensas}
                   onClick={() => toggleNotificacion("recompensas")}
+                  disabled={saving}
                 />
               </ConfigSection>
 
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => navigate("/perfil")}
-                  className="rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition hover:bg-crema"
+                  className="w-full rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition hover:bg-crema"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-morado py-3 font-bold text-crema shadow disabled:opacity-60"
-                >
-                  {saving ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Save size={18} />
-                  )}
-                  Guardar
+                  Volver al perfil
                 </button>
               </div>
             </form>
@@ -593,7 +618,9 @@ export default function Configuraciones() {
       >
         <form onSubmit={guardarPassword} className="space-y-4">
           {passwordMensaje && (
-            <Alert variant={passwordMensaje.variant}>{passwordMensaje.text}</Alert>
+            <Alert variant={passwordMensaje.variant}>
+              {passwordMensaje.text}
+            </Alert>
           )}
 
           <TextField
@@ -672,7 +699,9 @@ function ConfigSection({ icon: Icon, title, description, children }) {
           {Icon && <Icon size={19} />}
         </span>
         <div>
-          <h2 className="font-fredoka text-2xl leading-none text-uva">{title}</h2>
+          <h2 className="font-fredoka text-2xl leading-none text-uva">
+            {title}
+          </h2>
           {description && (
             <p className="mt-1 text-sm font-semibold leading-snug text-uva/60">
               {description}
@@ -686,13 +715,21 @@ function ConfigSection({ icon: Icon, title, description, children }) {
   );
 }
 
-function ToggleRow({ icon: Icon, title, description, active, onClick }) {
+function ToggleRow({
+  icon: Icon,
+  title,
+  description,
+  active,
+  onClick,
+  disabled = false,
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={Boolean(active)}
-      className="flex w-full items-center gap-3 rounded-2xl border border-uva/10 bg-crema px-4 py-3 text-left transition hover:border-morado/40"
+      className="flex w-full items-center gap-3 rounded-2xl border border-uva/10 bg-crema px-4 py-3 text-left transition hover:border-morado/40 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
@@ -796,7 +833,8 @@ function DangerRow({ confirmar, loading, onStart, onCancel, onConfirm }) {
               ¿Borrar historial de visitas?
             </p>
             <p className="mt-1 text-xs font-semibold text-uva/60">
-              Se elimina el registro de puntos visitados. Tus insignias se conservan.
+              Se elimina el registro de puntos visitados. Tus insignias se
+              conservan.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
