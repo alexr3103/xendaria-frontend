@@ -14,6 +14,8 @@ export const CONFIGURACION_USUARIO_DEFAULT = {
     puntosCercanos: true,
     insignias: true,
     recompensas: true,
+    rutas: false,
+    compras: false,
   },
 };
 

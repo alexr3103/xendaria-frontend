@@ -15,6 +15,11 @@ import {
 } from "../../lib/avatarOptions.js";
 
 const DESCRIPCION_MAX_LENGTH = 150;
+const CATEGORIA_COMERCIO = "comercios";
+
+function normalizarCategoriaFavorita(value = "") {
+  return value === CATEGORIA_COMERCIO ? "" : value;
+}
 
 function getUsuarioLocal() {
   try {
@@ -49,7 +54,9 @@ export default function EditarPerfil() {
     foto: usuarioLS?.foto || "",
     fotoGoogle: usuarioLS?.fotoGoogle || "",
     descripcion: usuarioLS?.descripcion || "",
-    categoriaFavorita: usuarioLS?.configuracion?.categoriaFavorita || "",
+    categoriaFavorita: normalizarCategoriaFavorita(
+      usuarioLS?.configuracion?.categoriaFavorita
+    ),
     configuracion: usuarioLS?.configuracion || {},
   });
   const [loading, setLoading] = useState(true);
@@ -85,7 +92,9 @@ export default function EditarPerfil() {
           foto: data.foto || "",
           fotoGoogle: data.fotoGoogle || "",
           descripcion: data.descripcion || "",
-          categoriaFavorita: data.configuracion?.categoriaFavorita || "",
+          categoriaFavorita: normalizarCategoriaFavorita(
+            data.configuracion?.categoriaFavorita
+          ),
           configuracion: data.configuracion || {},
         });
       } catch (err) {
@@ -311,49 +320,51 @@ export default function EditarPerfil() {
                   </span>
                   <div className="-mx-1 overflow-x-auto pb-1">
                     <div className="flex min-w-max gap-3 px-1">
-                      {Object.entries(categorias).map(([value, categoria]) => {
-                        const imagen = getCategoriaImagen(value);
-                        const Icon = categoria.icon;
-                        const selected = form.categoriaFavorita === value;
+                      {Object.entries(categorias)
+                        .filter(([value]) => value !== CATEGORIA_COMERCIO)
+                        .map(([value, categoria]) => {
+                          const imagen = getCategoriaImagen(value);
+                          const Icon = categoria.icon;
+                          const selected = form.categoriaFavorita === value;
 
-                        return (
-                          <button
-                            key={value}
-                            type="button"
-                            onClick={() => seleccionarCategoriaFavorita(value)}
-                            className="flex w-24 shrink-0 flex-col items-center gap-1"
-                            aria-pressed={selected}
-                          >
-                            <span
-                              className={`h-20 w-20 overflow-hidden rounded-full border-4 bg-crema transition ${
-                                selected
-                                  ? "border-rosa scale-105 shadow-md"
-                                  : "border-crema"
-                              }`}
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => seleccionarCategoriaFavorita(value)}
+                              className="flex w-24 shrink-0 flex-col items-center gap-1"
+                              aria-pressed={selected}
                             >
-                              {imagen && (
-                                <img
-                                  src={imagen}
-                                  alt=""
-                                  className="h-full w-full object-cover"
-                                />
-                              )}
-                              {!imagen && Icon && (
-                                <span
-                                  className="flex h-full w-full items-center justify-center"
-                                  style={{ backgroundColor: categoria.color }}
-                                  aria-hidden="true"
-                                >
-                                  <Icon size={30} className="text-uva" />
-                                </span>
-                              )}
-                            </span>
-                            <span className="w-full truncate text-center text-[11px] font-bold text-uva">
-                              {categoria.label}
-                            </span>
-                          </button>
-                        );
-                      })}
+                              <span
+                                className={`h-20 w-20 overflow-hidden rounded-full border-4 bg-crema transition ${
+                                  selected
+                                    ? "border-rosa scale-105 shadow-md"
+                                    : "border-crema"
+                                }`}
+                              >
+                                {imagen && (
+                                  <img
+                                    src={imagen}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                  />
+                                )}
+                                {!imagen && Icon && (
+                                  <span
+                                    className="flex h-full w-full items-center justify-center"
+                                    style={{ backgroundColor: categoria.color }}
+                                    aria-hidden="true"
+                                  >
+                                    <Icon size={30} className="text-uva" />
+                                  </span>
+                                )}
+                              </span>
+                              <span className="w-full truncate text-center text-[11px] font-bold text-uva">
+                                {categoria.label}
+                              </span>
+                            </button>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>

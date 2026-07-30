@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   BookOpen,
@@ -37,6 +37,7 @@ import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx"
 import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
 import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
+import CampoDireccionAdmin from "../../components/CampoDireccionAdmin.jsx";
 import {
   normalizarRecompensaComercio,
   recompensaComercioInicial,
@@ -127,6 +128,7 @@ export default function EditarPunto() {
   const [camposObligatoriosFaltantes, setCamposObligatoriosFaltantes] =
     useState([]);
   const [restaurando, setRestaurando] = useState(false);
+  const mensajeRef = useRef(null);
 
   const categoriasActivas = useMemo(() => getCategoriasPunto(punto || {}), [punto]);
   const esComercio = categoriasActivas.includes("comercios");
@@ -178,6 +180,10 @@ export default function EditarPunto() {
     obtenerPunto();
   }, [API, id, navigate, token]);
 
+  useEffect(() => {
+    if (mensaje) enfocarMensaje();
+  }, [mensaje]);
+
   function actualizarCampo(campo, valor) {
     setPunto((actual) => ({ ...actual, [campo]: valor }));
   }
@@ -202,16 +208,19 @@ export default function EditarPunto() {
     });
   }
 
-  function subirArriba() {
-    document
-      .querySelector("main > section")
-      ?.scrollTo({ top: 0, behavior: "smooth" });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  function enfocarMensaje() {
+    window.requestAnimationFrame(() => {
+      mensajeRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      mensajeRef.current?.focus({ preventScroll: true });
+    });
   }
 
   function mostrarMensajeArriba(nuevoMensaje) {
     setMensaje(nuevoMensaje);
-    setTimeout(subirArriba, 0);
+    enfocarMensaje();
   }
 
   function toggleCategoria(categoria) {
@@ -379,7 +388,7 @@ export default function EditarPunto() {
 
   function continuarCompletando() {
     setMostrarCamposObligatorios(false);
-    setTimeout(subirArriba, 0);
+    enfocarMensaje();
   }
 
   async function eliminarPunto(password) {
@@ -566,11 +575,20 @@ export default function EditarPunto() {
           </div>
         </div>
 
-        {mensaje && <Alert variant={mensaje.variant}>{mensaje.text}</Alert>}
+        {mensaje && (
+          <div
+            ref={mensajeRef}
+            tabIndex={-1}
+            className="outline-none"
+            aria-live="polite"
+          >
+            <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          </div>
+        )}
 
-        <div className="mt-8 flex w-full max-w-[1180px] min-w-0 flex-col items-start gap-6 xl:flex-row">
+        <div className="mt-8 grid w-full max-w-[1180px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] 2xl:grid-cols-[minmax(0,830px)_320px]">
           <FormularioEditorAdmin
-            className="w-full min-w-0 xl:max-w-[830px] xl:flex-none"
+            className="w-full min-w-0 max-w-none"
             onSubmit={(event) => {
               event.preventDefault();
               guardarCambios();
@@ -592,13 +610,13 @@ export default function EditarPunto() {
                   />
                 </Field>
 
-                <Field label="Dirección">
-                  <input
-                    className={inputClass}
-                    value={punto.direccion || ""}
-                    onChange={(event) => actualizarCampo("direccion", event.target.value)}
-                  />
-                </Field>
+                <CampoDireccionAdmin
+                  value={punto.direccion}
+                  onChange={(direccion) => actualizarCampo("direccion", direccion)}
+                  onCoordenadasChange={({ lat, lon }) =>
+                    setPunto((actual) => ({ ...actual, lat, lon }))
+                  }
+                />
               </div>
 
               <div>
@@ -789,7 +807,7 @@ export default function EditarPunto() {
             </div>
           </FormularioEditorAdmin>
 
-          <aside className="w-full min-w-0 self-start space-y-8 xl:sticky xl:top-5 xl:w-80 xl:flex-none">
+          <aside className="mx-auto w-full min-w-0 max-w-sm self-start space-y-8 xl:sticky xl:top-5 xl:mx-0 xl:max-w-none">
             <TarjetaVistaUsuario punto={punto} />
             <TarjetaDetalleUsuario punto={punto} />
           </aside>

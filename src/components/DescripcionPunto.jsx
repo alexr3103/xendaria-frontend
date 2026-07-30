@@ -151,7 +151,7 @@ export default function DescripcionPunto({
   const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
 
   return (
-    <div className="fixed inset-0 bg-morado/10 backdrop-blur-sm flex items-end sm:items-center justify-center overflow-x-hidden px-3 sm:px-4 pt-4 pb-3 sm:py-6 z-[9999]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden bg-morado/10 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
       <div className="relative w-full max-w-[430px] max-h-[calc(100dvh-1rem)]">
 
         {!mostrarVistaLugar && (
@@ -179,7 +179,7 @@ export default function DescripcionPunto({
         )}
         <div
           className="
-            relative z-10 bg-crema rounded-t-[32px] sm:rounded-[40px] shadow-xl
+            relative z-10 bg-crema rounded-[32px] sm:rounded-[40px] shadow-xl
             mt-[106px] sm:mt-[165px]
             pt-[78px] sm:pt-[100px]
             pb-6 sm:pb-8

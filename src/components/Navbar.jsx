@@ -54,7 +54,7 @@ export default function UserNav() {
 
   return (
     <nav
-      className="fixed bottom-4 left-1/2 z-50 w-[82%] max-w-[300px] -translate-x-1/2"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[82%] max-w-[300px] -translate-x-1/2"
       aria-label="Menu principal"
     >
       <div className="relative rounded-3xl bg-gris px-3 py-2 text-crema shadow-xl">

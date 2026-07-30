@@ -40,7 +40,7 @@ export default function AdminLayout({ children, title }) {
   }
 
   return (
-    <main className="min-h-screen bg-crema font-nunito lg:flex">
+    <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-crema font-nunito lg:flex">
 
       {/* SIDEBAR */}
       <aside className="sticky top-0 z-40 flex w-full flex-col bg-uva px-3 py-3 text-crema shadow-2xl sm:px-5 lg:h-screen lg:w-64 lg:shrink-0 lg:px-5 lg:py-10">
@@ -52,7 +52,7 @@ export default function AdminLayout({ children, title }) {
             className="h-10 w-10 object-contain drop-shadow-md lg:h-11 lg:w-11"
             alt="Logo Xendaria"
           />
-          <h2 className="text-xl font-normal leading-none tracking-wide lg:text-2xl">
+          <h2 className="font-fredoka text-xl font-medium leading-none tracking-wide lg:text-2xl">
             Xendaria
           </h2>
         </div>
@@ -130,8 +130,8 @@ export default function AdminLayout({ children, title }) {
       </aside>
 
       {/* CONTENIDO */}
-      <section className="min-w-0 flex-1 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto lg:p-10">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-8">
+      <section className="min-w-0 max-w-full flex-1 overflow-x-hidden p-4 sm:p-6 lg:h-screen lg:overflow-y-auto lg:p-10">
+        <header className="mb-6 flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between lg:mb-8">
           {title ? (
             <h1 className="text-3xl font-fredoka leading-none text-uva sm:text-4xl">
               {title}
@@ -140,7 +140,7 @@ export default function AdminLayout({ children, title }) {
             <span />
           )}
 
-          <div className="relative">
+          <div className="relative min-w-0 max-w-full">
             <button
               type="button"
               onClick={() => setAdminMenuOpen((open) => !open)}

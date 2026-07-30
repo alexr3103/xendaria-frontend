@@ -1,4 +1,4 @@
-const CACHE_NAME = "xendaria-static-v2";
+const CACHE_NAME = "xendaria-static-v3";
 const LEGACY_CACHE_NAME = "xendaria-v1";
 
 const APP_SHELL = ["/", "/manifest.json"];
@@ -44,6 +44,63 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
+});
+
+self.addEventListener("push", (event) => {
+  let payload = {};
+
+  try {
+    payload = event.data?.json() || {};
+  } catch {
+    payload = {
+      titulo: "Novedad en Xendaria",
+      mensaje: event.data?.text() || "",
+    };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(
+      payload.titulo || "Novedad en Xendaria",
+      {
+        body: payload.mensaje || "",
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-144.png",
+        data: {
+          enlace: payload.enlace || "/",
+        },
+      }
+    )
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const destino = new URL(
+    event.notification.data?.enlace || "/",
+    self.location.origin
+  ).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientes) => {
+        const clienteAbierto = clientes.find(
+          (cliente) => new URL(cliente.url).origin === self.location.origin
+        );
+
+        if (clienteAbierto) {
+          return clienteAbierto.focus().then(() => {
+            if ("navigate" in clienteAbierto) {
+              return clienteAbierto.navigate(destino);
+            }
+            return undefined;
+          });
+        }
+
+        return self.clients.openWindow(destino);
+      })
+  );
 });
 
 self.addEventListener("fetch", (event) => {

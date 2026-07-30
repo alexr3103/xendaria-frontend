@@ -31,6 +31,7 @@ import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
 import { getCategoriaImagen } from "../../lib/categoriaImagenes.js";
+import { desvincularDispositivoPush } from "../../lib/notificacionesPush.js";
 
 function getUsuarioLocal() {
   try {
@@ -405,14 +406,23 @@ export default function Perfil() {
       value: rutasRealizadasCount,
     },
   ].filter(Boolean);
-  const categoriaFavorita = perfil?.configuracion?.categoriaFavorita;
+  const categoriaFavorita =
+    perfil?.configuracion?.categoriaFavorita === "comercios"
+      ? ""
+      : perfil?.configuracion?.categoriaFavorita;
   const categoriaFavoritaInfo = categorias[categoriaFavorita];
   const categoriaFavoritaImagen = getCategoriaImagen(categoriaFavorita);
 
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    navigate("/login");
+  async function logout() {
+    try {
+      await desvincularDispositivoPush({ API, token });
+    } catch {
+      // El cierre de sesion debe continuar aunque falle la desvinculacion push.
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+      navigate("/login");
+    }
   }
 
   async function eliminarFavorito(idPunto) {
@@ -863,7 +873,10 @@ export default function Perfil() {
                         eliminando={puntoPropioEliminando === getId(punto)}
                         onOpen={() =>
                           navigate("/home", {
-                            state: { puntoPropioId: getId(punto) },
+                            state: {
+                              puntoPropioId: getId(punto),
+                              puntoEnFoco: punto,
+                            },
                           })
                         }
                         onDelete={() => eliminarPuntoPropio(getId(punto))}

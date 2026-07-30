@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -31,6 +31,7 @@ import {
 } from "../../components/EditorAdmin.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
+import CampoDireccionAdmin from "../../components/CampoDireccionAdmin.jsx";
 import { recompensaComercioInicial } from "../../lib/recompensaComercio.js";
 
 function getCategoriasPunto(punto = {}) {
@@ -66,9 +67,30 @@ export default function CrearPunto() {
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const mensajeRef = useRef(null);
 
   const categoriasActivas = useMemo(() => getCategoriasPunto(punto), [punto]);
   const esComercio = categoriasActivas.includes("comercios");
+
+  function enfocarMensaje() {
+    window.requestAnimationFrame(() => {
+      mensajeRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      mensajeRef.current?.focus({ preventScroll: true });
+    });
+  }
+
+  function mostrarError(mensaje) {
+    setOk("");
+    setError(mensaje);
+    enfocarMensaje();
+  }
+
+  useEffect(() => {
+    if (error || ok) enfocarMensaje();
+  }, [error, ok]);
 
   async function getErrorMessage(res) {
     try {
@@ -106,7 +128,7 @@ export default function CrearPunto() {
 
     try {
       if (String(punto.lat).trim() === "" || String(punto.lon).trim() === "") {
-        setError("Latitud y longitud son obligatorias.");
+        mostrarError("Latitud y longitud son obligatorias.");
         return;
       }
 
@@ -114,7 +136,7 @@ export default function CrearPunto() {
       const lon = Number(punto.lon);
 
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-        setError("Latitud y longitud deben ser números válidos.");
+        mostrarError("Latitud y longitud deben ser números válidos.");
         return;
       }
 
@@ -125,7 +147,7 @@ export default function CrearPunto() {
           !String(punto.recompensaComercio?.codigo || "").trim() ||
           !String(punto.recompensaComercio?.venceEn || "").trim())
       ) {
-        setError(
+        mostrarError(
           "Completá el beneficio, el código y el vencimiento de la recompensa."
         );
         return;
@@ -166,14 +188,15 @@ export default function CrearPunto() {
       }
 
       if (!res.ok) {
-        setError(await getErrorMessage(res));
+        mostrarError(await getErrorMessage(res));
         return;
       }
 
       setOk("Punto creado correctamente");
+      enfocarMensaje();
       setTimeout(() => navigate("/admin/mapa"), 900);
     } catch {
-      setError("No se pudo conectar con la API. Revisá que el backend esté funcionando.");
+      mostrarError("No se pudo conectar con la API. Revisá que el backend esté funcionando.");
     } finally {
       setGuardando(false);
     }
@@ -205,14 +228,21 @@ export default function CrearPunto() {
           </>
         }
       >
-        <div className="mb-6 space-y-3">
-          {error && <Alert variant="error">{error}</Alert>}
-          {ok && <Alert variant="success">{ok}</Alert>}
-        </div>
+        {(error || ok) && (
+          <div
+            ref={mensajeRef}
+            tabIndex={-1}
+            className="mb-6 space-y-3 outline-none"
+            aria-live="polite"
+          >
+            {error && <Alert variant="error">{error}</Alert>}
+            {ok && <Alert variant="success">{ok}</Alert>}
+          </div>
+        )}
 
-        <div className="mt-8 flex w-full max-w-[1180px] min-w-0 flex-col items-start gap-6 xl:flex-row">
+        <div className="mt-8 grid w-full max-w-[1180px] min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] 2xl:grid-cols-[minmax(0,830px)_320px]">
           <FormularioEditorAdmin
-            className="w-full min-w-0 xl:max-w-[830px] xl:flex-none"
+            className="w-full min-w-0 max-w-none"
             onSubmit={(event) => {
               event.preventDefault();
               guardarPunto();
@@ -235,14 +265,13 @@ export default function CrearPunto() {
                 />
               </CampoAdmin>
 
-              <CampoAdmin label="Dirección">
-                <input
-                  className={claseInputAdmin}
-                  placeholder="Ej: Av. Córdoba 1234"
-                  value={punto.direccion}
-                  onChange={(event) => actualizarCampo("direccion", event.target.value)}
-                />
-              </CampoAdmin>
+              <CampoDireccionAdmin
+                value={punto.direccion}
+                onChange={(direccion) => actualizarCampo("direccion", direccion)}
+                onCoordenadasChange={({ lat, lon }) =>
+                  setPunto((prev) => ({ ...prev, lat, lon }))
+                }
+              />
             </div>
 
             <CampoAdmin label="Categorías">
@@ -417,7 +446,7 @@ export default function CrearPunto() {
           </div>
           </FormularioEditorAdmin>
 
-          <aside className="w-full min-w-0 self-start space-y-8 xl:sticky xl:top-5 xl:w-80 xl:flex-none">
+          <aside className="mx-auto w-full min-w-0 max-w-sm self-start space-y-8 xl:sticky xl:top-5 xl:mx-0 xl:max-w-none">
             <TarjetaVistaUsuario punto={punto} />
             <TarjetaDetalleUsuario punto={punto} />
           </aside>

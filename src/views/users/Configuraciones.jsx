@@ -15,8 +15,12 @@ import {
   MapPinned,
   Medal,
   Rotate3D,
+  Save,
+  Share2,
   Shield,
+  ShoppingBasket,
   Trash2,
+  UserX,
   UserRound,
 } from "lucide-react";
 import Header from "../../layouts/Header.jsx";
@@ -26,6 +30,10 @@ import Alert from "../../components/Alertas.jsx";
 import ModalXendaria from "../../components/ModalXendaria.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { normalizarConfiguracionUsuario } from "../../lib/configuracionUsuario.js";
+import {
+  activarNotificacionesPush,
+  desactivarNotificacionesPush,
+} from "../../lib/notificacionesPush.js";
 
 function getUsuarioLocal() {
   try {
@@ -72,6 +80,16 @@ export default function Configuraciones() {
   });
   const [passwordMensaje, setPasswordMensaje] = useState(null);
   const [cambiandoPassword, setCambiandoPassword] = useState(false);
+  const [modalDesactivarCuenta, setModalDesactivarCuenta] = useState(false);
+  const [desactivandoCuenta, setDesactivandoCuenta] = useState(false);
+  const [cuentaDesactivada, setCuentaDesactivada] = useState(false);
+  const [cuentaMensaje, setCuentaMensaje] = useState(null);
+  const [activandoPush, setActivandoPush] = useState("");
+  const [permisoPush, setPermisoPush] = useState(() =>
+    typeof Notification === "undefined"
+      ? "no-disponible"
+      : Notification.permission
+  );
 
   useEffect(() => {
     let activo = true;
@@ -159,16 +177,6 @@ export default function Configuraciones() {
       permitirUbicacion: false,
     }));
     setConfirmarUbicacion(false);
-  }
-
-  function toggleNotificacion(key) {
-    setConfiguracion((actual) => ({
-      ...actual,
-      notificaciones: {
-        ...actual.notificaciones,
-        [key]: !actual.notificaciones?.[key],
-      },
-    }));
   }
 
   function abrirModalPassword() {
@@ -378,6 +386,125 @@ export default function Configuraciones() {
     }
   }
 
+  async function toggleNotificacionPush(key) {
+    const estaActiva = configuracion.notificaciones?.[key] === true;
+    const clavesPush = ["recompensas", "rutas", "compras"];
+
+    setActivandoPush(key);
+    setMensaje(null);
+
+    try {
+      if (!estaActiva) {
+        await activarNotificacionesPush({ API, token });
+        setPermisoPush("granted");
+      }
+
+      const notificacionesSiguientes = {
+        ...configuracion.notificaciones,
+        [key]: !estaActiva,
+      };
+
+      setConfiguracion((actual) => ({
+        ...actual,
+        notificaciones: notificacionesSiguientes,
+      }));
+
+      if (
+        estaActiva &&
+        !clavesPush.some(
+          (clave) => clave !== key && notificacionesSiguientes[clave] === true
+        )
+      ) {
+        await desactivarNotificacionesPush({ API, token });
+      }
+    } catch (error) {
+      setMensaje({
+        variant: "error",
+        text:
+          error.message ||
+          "No se pudo cambiar la configuración de notificaciones.",
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setActivandoPush("");
+    }
+  }
+
+  async function activarPushEnDispositivo() {
+    setActivandoPush("dispositivo");
+    setMensaje(null);
+
+    try {
+      await activarNotificacionesPush({ API, token });
+      setPermisoPush("granted");
+      setMensaje({
+        variant: "success",
+        text: "Las notificaciones quedaron activadas en este dispositivo.",
+      });
+    } catch (error) {
+      setMensaje({
+        variant: "error",
+        text:
+          error.message ||
+          "No se pudieron activar las notificaciones en este dispositivo.",
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setActivandoPush("");
+    }
+  }
+
+  function abrirModalDesactivarCuenta() {
+    setCuentaMensaje(null);
+    setCuentaDesactivada(false);
+    setModalDesactivarCuenta(true);
+  }
+
+  function cerrarModalDesactivarCuenta() {
+    if (desactivandoCuenta) return;
+
+    if (cuentaDesactivada) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    setModalDesactivarCuenta(false);
+  }
+
+  async function desactivarCuenta() {
+    setDesactivandoCuenta(true);
+    setCuentaMensaje(null);
+
+    try {
+      const res = await fetch(`${API}/api/usuarios/${usuarioId}/desactivar`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(data?.message || "No se pudo desactivar la cuenta");
+      }
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+      setCuentaDesactivada(true);
+      setCuentaMensaje({
+        variant: "success",
+        text: data?.message || "Tu cuenta fue desactivada correctamente.",
+      });
+    } catch (error) {
+      setCuentaMensaje({
+        variant: "error",
+        text: error.message || "No se pudo desactivar la cuenta.",
+      });
+    } finally {
+      setDesactivandoCuenta(false);
+    }
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-crema pb-28">
       <div className="sticky top-0 z-50">
@@ -549,33 +676,62 @@ export default function Configuraciones() {
               <ConfigSection
                 icon={Bell}
                 title="Notificaciones"
-                description="Por ahora guardamos tu preferencia; las notificaciones push se conectan después."
+                description="Elegí qué novedades querés recibir incluso cuando no estés usando la app."
               >
-                <ToggleRow
-                  icon={LocateFixed}
-                  title="Avisar cuando estoy cerca de un punto"
-                  description="Ideal para descubrir lugares sin abrir todo el tiempo el mapa."
-                  active={configuracion.notificaciones?.puntosCercanos}
-                  onClick={() => toggleNotificacion("puntosCercanos")}
-                  disabled={saving}
-                />
-
-                <ToggleRow
-                  icon={Medal}
-                  title="Avisar insignias desbloqueables"
-                  description="Te ayuda a no perder recompensas cercanas."
-                  active={configuracion.notificaciones?.insignias}
-                  onClick={() => toggleNotificacion("insignias")}
-                  disabled={saving}
-                />
+                {permisoPush !== "granted" && (
+                  <ActionRow
+                    icon={Bell}
+                    title="Activar avisos en este dispositivo"
+                    description="El navegador te va a pedir permiso una sola vez."
+                    actionLabel={
+                      activandoPush === "dispositivo"
+                        ? "Activando"
+                        : "Activar"
+                    }
+                    onClick={activarPushEnDispositivo}
+                  />
+                )}
 
                 <ToggleRow
                   icon={Gift}
-                  title="Avisar recompensas de comercios"
-                  description="Para promociones o beneficios de locales asociados."
+                  title="Nuevas recompensas"
+                  description="Te avisamos cuando un comercio suma un beneficio."
                   active={configuracion.notificaciones?.recompensas}
-                  onClick={() => toggleNotificacion("recompensas")}
-                  disabled={saving}
+                  onClick={() => toggleNotificacionPush("recompensas")}
+                  disabled={saving || Boolean(activandoPush)}
+                />
+
+                <ToggleRow
+                  icon={Share2}
+                  title="Nuevas rutas"
+                  description="Te avisamos cuando aparece un recorrido nuevo."
+                  active={configuracion.notificaciones?.rutas}
+                  onClick={() => toggleNotificacionPush("rutas")}
+                  disabled={saving || Boolean(activandoPush)}
+                />
+
+                <ToggleRow
+                  icon={ShoppingBasket}
+                  title="Pagos y pedidos"
+                  description="Recibí el pago confirmado y cada cambio del estado de tu compra."
+                  active={configuracion.notificaciones?.compras}
+                  onClick={() => toggleNotificacionPush("compras")}
+                  disabled={saving || Boolean(activandoPush)}
+                />
+              </ConfigSection>
+
+              <ConfigSection
+                icon={Shield}
+                title="Cuenta"
+                description="Gestioná el acceso a tu cuenta de Xendaria."
+              >
+                <ActionRow
+                  icon={UserX}
+                  title="Desactivar cuenta"
+                  description="La cuenta queda oculta y solo soporte puede reactivarla."
+                  actionLabel="Desactivar"
+                  onClick={abrirModalDesactivarCuenta}
+                  tone="danger"
                 />
               </ConfigSection>
 
@@ -685,6 +841,73 @@ export default function Configuraciones() {
         </form>
       </ModalXendaria>
 
+      <ModalXendaria
+        open={modalDesactivarCuenta}
+        onClose={cerrarModalDesactivarCuenta}
+        maxWidth="max-w-md"
+        header={
+          <div className="bg-white px-5 pb-3 pt-5">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-fucsia/10 text-fucsia">
+              <UserX size={22} />
+            </span>
+            <p className="mt-4 text-xs font-extrabold uppercase tracking-wide text-uva/55">
+              Cuenta
+            </p>
+            <h2 className="font-fredoka text-3xl leading-tight text-uva">
+              Desactivar cuenta
+            </h2>
+          </div>
+        }
+        contentClassName="bg-white px-5 pb-5"
+      >
+        <div className="space-y-4">
+          {cuentaMensaje && (
+            <Alert variant={cuentaMensaje.variant}>{cuentaMensaje.text}</Alert>
+          )}
+
+          {!cuentaDesactivada ? (
+            <>
+              <p className="text-sm font-semibold leading-relaxed text-uva/70">
+                Tu perfil dejará de aparecer en comunidad y rankings, y se
+                cerrará tu sesión. Para reactivar la cuenta vas a tener que
+                escribir a xendariaoficial@gmail.com. Si querés eliminarla
+                permanentemente, también tenés que contactarnos por ese medio.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={cerrarModalDesactivarCuenta}
+                  disabled={desactivandoCuenta}
+                  className="rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva disabled:opacity-60"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={desactivarCuenta}
+                  disabled={desactivandoCuenta}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-fucsia py-3 font-bold text-crema shadow disabled:opacity-60"
+                >
+                  {desactivandoCuenta && (
+                    <Loader2 size={18} className="animate-spin" />
+                  )}
+                  Desactivar
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={cerrarModalDesactivarCuenta}
+              className="w-full rounded-xl bg-morado py-3 font-bold text-crema shadow"
+            >
+              Ir a iniciar sesión
+            </button>
+          )}
+        </div>
+      </ModalXendaria>
+
       <Navbar active="perfil" />
     </div>
   );
@@ -758,14 +981,31 @@ function ToggleRow({
   );
 }
 
-function ActionRow({ icon: Icon, title, description, actionLabel, onClick }) {
+function ActionRow({
+  icon: Icon,
+  title,
+  description,
+  actionLabel,
+  onClick,
+  tone = "normal",
+}) {
+  const danger = tone === "danger";
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-2xl border border-uva/10 bg-crema px-4 py-3 text-left transition hover:border-morado/40"
+      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
+        danger
+          ? "border-fucsia/20 bg-fucsia/5 hover:border-fucsia/40"
+          : "border-uva/10 bg-crema hover:border-morado/40"
+      }`}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-morado/10 text-morado">
+      <span
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+          danger ? "bg-fucsia text-crema" : "bg-morado/10 text-morado"
+        }`}
+      >
         {Icon && <Icon size={18} />}
       </span>
       <span className="min-w-0 flex-1">
@@ -774,7 +1014,13 @@ function ActionRow({ icon: Icon, title, description, actionLabel, onClick }) {
           {description}
         </span>
       </span>
-      <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-extrabold text-morado shadow-sm ring-1 ring-uva/10">
+      <span
+        className={`shrink-0 rounded-full px-3 py-1 text-xs font-extrabold shadow-sm ${
+          danger
+            ? "bg-fucsia text-crema"
+            : "bg-white text-morado ring-1 ring-uva/10"
+        }`}
+      >
         {actionLabel}
       </span>
     </button>

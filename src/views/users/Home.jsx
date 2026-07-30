@@ -201,6 +201,7 @@ export default function Home() {
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
   const recenterDesdeDetalle = location.state?.recenterUser || 0;
   const puntoPropioIdDesdePerfil = location.state?.puntoPropioId || null;
+  const puntoDesdePerfil = location.state?.puntoEnFoco || null;
   const rutaDesdeRutas = location.state?.rutaActiva || null;
 
   const [categorias, setCategorias] = useState([]);
@@ -301,6 +302,23 @@ export default function Home() {
   useEffect(() => {
     if (!puntoPropioIdDesdePerfil) return;
 
+    const coordsDesdePerfil = getCoordsPunto(puntoDesdePerfil);
+
+    if (coordsDesdePerfil) {
+      setFiltro(null);
+      setDestino(null);
+      setPuntoSeleccionado(null);
+      setPuntoEnFoco({
+        id: getPuntoId(puntoDesdePerfil) || String(puntoPropioIdDesdePerfil),
+        lat: coordsDesdePerfil.lat,
+        lon: coordsDesdePerfil.lon,
+      });
+      setMensajeFocoPunto("Centrando tu punto...");
+      navigate("/home", { replace: true, state: null });
+      setTimeout(() => setMensajeFocoPunto(""), 1400);
+      return;
+    }
+
     if (!puntosPropiosCargados) {
       setMensajeFocoPunto("Buscando tu punto...");
       return;
@@ -338,7 +356,13 @@ export default function Home() {
     setMensajeFocoPunto("Centrando tu punto...");
     navigate("/home", { replace: true, state: null });
     setTimeout(() => setMensajeFocoPunto(""), 1400);
-  }, [navigate, puntoPropioIdDesdePerfil, puntosPropios, puntosPropiosCargados]);
+  }, [
+    navigate,
+    puntoDesdePerfil,
+    puntoPropioIdDesdePerfil,
+    puntosPropios,
+    puntosPropiosCargados,
+  ]);
 
   useEffect(() => {
     const usuario = getUsuarioLocal();
@@ -1114,7 +1138,7 @@ export default function Home() {
         <button
           type="button"
           onClick={abrirModalPuntoPropio}
-          className="absolute right-4 bottom-[calc(118px+env(safe-area-inset-bottom))] z-[900] w-14 h-14 rounded-full bg-morado text-crema shadow-xl flex items-center justify-center active:scale-95 transition"
+          className="absolute right-3 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[900] flex h-14 w-14 items-center justify-center rounded-full bg-morado text-crema shadow-xl transition active:scale-95 sm:right-4"
           aria-label="Agregar punto propio"
           title="Agregar punto propio"
         >
@@ -1130,7 +1154,7 @@ export default function Home() {
           <button
             type="button"
             onClick={volverAMiUbicacion}
-            className="absolute right-4 bottom-[calc(186px+env(safe-area-inset-bottom))] z-[900] w-12 h-12 rounded-full bg-crema text-morado shadow-xl border border-uva/10 flex items-center justify-center active:scale-95 transition"
+            className="absolute right-4 bottom-[calc(162px+env(safe-area-inset-bottom))] z-[900] flex h-12 w-12 items-center justify-center rounded-full border border-uva/10 bg-crema text-morado shadow-xl transition active:scale-95 sm:right-5"
             aria-label="Volver a mi ubicacion"
             title="Volver a mi ubicacion"
           >

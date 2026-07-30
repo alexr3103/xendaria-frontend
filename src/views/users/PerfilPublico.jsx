@@ -180,7 +180,10 @@ export default function PerfilPublico() {
   );
   const descripcion = normalizarDescripcion(perfil?.descripcion);
   const perfilPublico = perfil?.configuracion?.perfilPublico !== false;
-  const categoriaFavorita = perfil?.configuracion?.categoriaFavorita;
+  const categoriaFavorita =
+    perfil?.configuracion?.categoriaFavorita === "comercios"
+      ? ""
+      : perfil?.configuracion?.categoriaFavorita;
   const categoriaFavoritaInfo = categorias[categoriaFavorita];
   const categoriaFavoritaImagen = getCategoriaImagen(categoriaFavorita);
   const tituloActual = titulosPerfil?.tituloActual;

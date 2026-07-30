@@ -8,6 +8,7 @@ import {
   MapPin,
   MessageCircleMore,
   Phone,
+  RefreshCw,
   Store,
   XCircle,
 } from "lucide-react";
@@ -182,19 +183,31 @@ export default function ComerciosAdmin() {
   return (
     <AdminStyle title="Comercios">
       <section>
-        <div className="mb-6 flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-morado/10 text-morado">
-            <Store size={22} />
-          </span>
-          <div>
-            <h2 className="font-fredoka text-2xl text-uva">
-              Solicitudes comerciales
-            </h2>
-            <p className="mt-1 max-w-3xl font-semibold text-gris">
-              Revisá los comercios que completaron el formulario de la landing y
-              registrá el avance de cada contacto.
-            </p>
+        <div className="mb-6 flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-morado/10 text-morado">
+              <Store size={22} />
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-fredoka text-2xl text-uva">
+                Solicitudes comerciales
+              </h2>
+              <p className="mt-1 max-w-3xl font-semibold text-gris">
+                Revisá los comercios que completaron el formulario de la landing y
+                registrá el avance de cada contacto.
+              </p>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={cargarSolicitudes}
+            disabled={cargando}
+            className="inline-flex h-10 w-fit shrink-0 items-center justify-center gap-2 rounded-full bg-uva px-4 text-sm font-bold text-crema shadow-md transition hover:bg-uva/90 disabled:opacity-60"
+          >
+            <RefreshCw size={17} className={cargando ? "animate-spin" : ""} />
+            Actualizar
+          </button>
         </div>
 
         {mensaje && (

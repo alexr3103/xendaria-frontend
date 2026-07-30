@@ -7,10 +7,12 @@ import {
   CheckCircle2,
   Clock3,
   MapPinned,
+  MessageCircleMore,
   ReceiptText,
   RefreshCw,
   Share2,
   Star,
+  Store,
   TicketCheck,
   Users,
 } from "lucide-react";
@@ -34,26 +36,6 @@ const RUTAS_COLORS = {
   curiosidades_leyendas: "#C69BFF",
   verde_aire_libre: "#83FFC4",
   sabores_comercios: "#FFF7A8",
-};
-
-const BIG_NUMBER = {
-  fontSize: "3.4rem",
-  lineHeight: "0.95",
-};
-
-const MAIN_NUMBER = {
-  fontSize: "4.4rem",
-  lineHeight: "0.95",
-};
-
-const METRIC_NUMBER = {
-  fontSize: "2.45rem",
-  lineHeight: "0.95",
-};
-
-const METRIC_MONEY_NUMBER = {
-  fontSize: "2.35rem",
-  lineHeight: "0.95",
 };
 
 function getToken() {
@@ -261,7 +243,9 @@ export default function DashboardAdmin() {
           <DashboardSkeleton />
         ) : (
           <div className="space-y-5">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid min-w-0 gap-5 lg:grid-cols-2">
+              <ComerciosPanel comercios={resumen.comercios} />
+
               <OrdenesCompraPanel
                 porGestionar={ordenesPorGestionar}
                 pagadas={ordenesPagadas}
@@ -274,19 +258,91 @@ export default function DashboardAdmin() {
                 productosSinStock={resumen.productos?.sinStock}
               />
 
+            </div>
+
+            <div className="grid min-w-0 gap-5 lg:grid-cols-2">
               <AlertasAdminPanel items={alertasAdmin} highlight />
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2">
               <PrioridadesPanel items={prioridades} />
-              <MovimientoPanel dashboard={dashboard} resumen={resumen} />
             </div>
 
+            <MovimientoPanel dashboard={dashboard} resumen={resumen} />
             <DestacadosPanel dashboard={dashboard} />
           </div>
         )}
       </div>
     </AdminStyle>
+  );
+}
+
+function ComerciosPanel({ comercios = {} }) {
+  const estados = comercios.porEstado || {};
+
+  return (
+    <section className="h-full min-w-0 rounded-3xl border border-morado/20 bg-white p-5 shadow-sm sm:p-6">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <SectionTitle
+          icon={Store}
+          title="Solicitudes comerciales"
+          subtitle="La financiación que conviene atender primero."
+        />
+        <Link
+          to="/admin/comercios"
+          className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-uva px-4 py-2 text-sm font-extrabold text-crema shadow-sm transition hover:bg-uva/90"
+        >
+          Abrir comercios
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-morado/20 bg-morado/10 px-4 py-5 text-center shadow-inner">
+        <p className="font-fredoka text-5xl leading-none text-morado sm:text-6xl">
+          {number(comercios.porGestionar)}
+        </p>
+        <p className="mt-2 text-sm font-extrabold uppercase tracking-wide text-uva sm:text-base">
+          Por gestionar
+        </p>
+        <p className="text-sm font-bold leading-snug text-gris sm:text-base">
+          pendientes o ya contactadas
+        </p>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <CommerceMetric label="Pendientes" value={estados.pendiente} tone="warm" />
+        <CommerceMetric
+          label="Contactadas"
+          value={estados.contactado}
+          icon={MessageCircleMore}
+        />
+        <CommerceMetric
+          label="Aprobadas"
+          value={estados.aprobado}
+          tone="success"
+          icon={CheckCircle2}
+        />
+        <CommerceMetric label="Nuevas 7 días" value={comercios.recientes} />
+      </div>
+    </section>
+  );
+}
+
+function CommerceMetric({ label, value, tone = "normal", icon: Icon }) {
+  const toneClass =
+    tone === "warm"
+      ? "border-vainilla bg-vainilla/45"
+      : tone === "success"
+      ? "border-menta bg-menta/30"
+      : "border-uva/10 bg-crema/65";
+
+  return (
+    <div className={`min-w-0 rounded-2xl border px-3 py-4 text-center ${toneClass}`}>
+      {Icon && <Icon size={17} className="mx-auto mb-1 text-uva" />}
+      <p className="font-fredoka text-3xl leading-none text-morado sm:text-4xl">
+        {number(value)}
+      </p>
+      <p className="mt-2 break-words text-xs font-extrabold uppercase leading-tight tracking-wide text-gris sm:text-sm">
+        {label}
+      </p>
+    </div>
   );
 }
 
@@ -319,8 +375,8 @@ function OrdenesCompraPanel({
       </div>
 
       <div className="mt-5 grid gap-4">
-        <div className="overflow-hidden rounded-[34px] border border-morado/20 bg-morado/10 px-5 py-5 text-center shadow-inner">
-          <p className="font-fredoka text-morado" style={MAIN_NUMBER}>
+        <div className="overflow-hidden rounded-3xl border border-morado/20 bg-morado/10 px-5 py-5 text-center shadow-inner">
+          <p className="font-fredoka text-5xl leading-none text-morado sm:text-6xl">
             {number(porGestionar)}
           </p>
           <p className="mt-2 text-base font-extrabold uppercase tracking-wide text-uva">
@@ -359,10 +415,7 @@ function OrderMetric({ label, value, tone = "normal" }) {
 
   return (
     <div className={`rounded-3xl border px-4 py-3 text-center ${accent}`}>
-      <p
-        className="break-words font-fredoka text-morado"
-        style={label === "Ingresos" ? METRIC_MONEY_NUMBER : METRIC_NUMBER}
-      >
+      <p className="break-words font-fredoka text-3xl leading-none text-morado sm:text-4xl">
         {value}
       </p>
       <p className="mt-2 text-sm font-extrabold uppercase tracking-wide text-gris">
@@ -376,7 +429,7 @@ function OrderStatus({ label, value }) {
   return (
     <div className="flex min-w-0 items-center justify-center rounded-3xl border border-uva/10 bg-crema/65 px-3 py-5 text-center">
       <span className="min-w-0">
-        <span className="block font-fredoka text-morado" style={BIG_NUMBER}>
+        <span className="block font-fredoka text-4xl leading-none text-morado sm:text-5xl">
           {number(value)}
         </span>
         <span className="mt-2 block text-sm font-extrabold leading-tight text-gris sm:text-base">
@@ -404,7 +457,7 @@ function AlertasAdminPanel({ items, highlight = false }) {
           title="Alertas admin"
           subtitle="Pendientes que conviene resolver."
         />
-        <span className="flex h-14 min-w-14 shrink-0 items-center justify-center rounded-2xl bg-uva px-4 font-fredoka text-3xl leading-none text-crema shadow-sm">
+        <span className="flex h-12 min-w-12 shrink-0 items-center justify-center rounded-2xl bg-uva px-3 font-fredoka text-2xl leading-none text-crema shadow-sm sm:h-14 sm:min-w-14 sm:text-3xl">
           {number(total)}
         </span>
       </div>
@@ -433,7 +486,7 @@ function AlertRow({ item }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-lg font-extrabold">{item.titulo}</p>
+          <p className="text-base font-extrabold leading-tight sm:text-lg">{item.titulo}</p>
           <p className="mt-1 line-clamp-2 text-base font-bold leading-snug">
             {item.descripcion}
           </p>
@@ -467,15 +520,15 @@ function PriorityCard({ label, value, detail, icon: Icon, to, color }) {
   return (
     <Link
       to={to}
-      className="group grid min-w-0 grid-cols-[64px_minmax(0,1fr)_64px] items-center rounded-3xl border border-uva/10 bg-crema/50 px-5 py-6 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+      className="group grid min-w-0 grid-cols-[44px_minmax(0,1fr)] items-center gap-2 rounded-3xl border border-uva/10 bg-crema/50 px-3 py-5 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm sm:grid-cols-[56px_minmax(0,1fr)_56px] sm:px-5 sm:py-6"
     >
       <span
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-uva ${color}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-uva sm:h-12 sm:w-12 ${color}`}
       >
         {Icon && <Icon size={22} />}
       </span>
       <span className="min-w-0 text-center">
-        <span className="block font-fredoka text-morado" style={BIG_NUMBER}>
+        <span className="block font-fredoka text-4xl leading-none text-morado sm:text-5xl">
           {number(value)}
         </span>
         <span className="mt-2 block truncate text-lg font-extrabold text-uva">
@@ -485,7 +538,7 @@ function PriorityCard({ label, value, detail, icon: Icon, to, color }) {
           {detail}
         </span>
       </span>
-      <span aria-hidden="true" />
+      <span className="hidden sm:block" aria-hidden="true" />
     </Link>
   );
 }
@@ -519,7 +572,7 @@ function MovimientoPanel({ dashboard, resumen }) {
 function MiniStat({ label, value }) {
   return (
     <div className="rounded-3xl border border-uva/10 bg-crema/55 px-4 py-4 text-center">
-      <p className="font-fredoka text-morado" style={BIG_NUMBER}>
+      <p className="font-fredoka text-3xl leading-none text-morado sm:text-4xl">
         {number(value)}
       </p>
       <p className="mt-2 text-base font-extrabold uppercase tracking-wide text-uva">
@@ -616,7 +669,7 @@ function SectionTitle({ icon: Icon, title, subtitle }) {
         {Icon && <Icon size={21} />}
       </span>
       <div>
-        <h3 className="font-fredoka text-3xl leading-none text-uva">{title}</h3>
+        <h3 className="font-fredoka text-2xl leading-none text-uva sm:text-3xl">{title}</h3>
         {subtitle && (
           <p className="mt-1 text-base font-extrabold leading-snug text-uva">
             {subtitle}

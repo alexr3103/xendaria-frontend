@@ -42,6 +42,9 @@ export default function VistaDetallePuntoUsuario({
   const descripcionDetalle =
     punto.descripcion_completa || punto.descripcion || "";
   const descripcionEsLarga = descripcionDetalle.length > 260;
+  const promedioCalificacion = Number(
+    resumenCalificacion?.promedioEstrellas || 0
+  ).toFixed(1);
 
   return (
     <div
@@ -165,12 +168,18 @@ export default function VistaDetallePuntoUsuario({
                 Solo podés calificar si estás en el lugar.
               </p>
             </div>
-            <div className="text-right">
-              <p className="font-fredoka text-2xl text-fucsia">
-                {resumenCalificacion?.promedioEstrellas || 0}
+            <div className="shrink-0 text-right">
+              <p className="inline-flex items-center gap-1 font-fredoka text-xl text-uva">
+                <Star
+                  size={17}
+                  className="text-vainilla"
+                  fill="currentColor"
+                  aria-hidden="true"
+                />
+                {promedioCalificacion}
               </p>
-              <p className="text-[11px] font-bold text-uva">
-                {resumenCalificacion?.totalCalificaciones || 0} votos
+              <p className="text-[11px] font-bold text-uva/65">
+                {resumenCalificacion?.totalCalificaciones || 0} opiniones
               </p>
             </div>
           </div>

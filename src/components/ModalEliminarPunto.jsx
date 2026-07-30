@@ -94,9 +94,9 @@ export default function ModalEliminarPunto({
             className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-uva transition active:bg-uva/10 disabled:opacity-50"
           >
             {mostrarPassword ? (
-              <EyeOff size={19} aria-hidden="true" />
-            ) : (
               <Eye size={19} aria-hidden="true" />
+            ) : (
+              <EyeOff size={19} aria-hidden="true" />
             )}
           </button>
         </div>

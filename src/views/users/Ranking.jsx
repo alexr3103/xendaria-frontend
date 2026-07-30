@@ -400,25 +400,25 @@ function PodioUsuario({ usuario }) {
     1: {
       avatar: "h-20 w-20 border-vainilla",
       badge: "bg-vainilla text-uva",
-      pedestal: "h-24 bg-vainilla/80 border-vainilla",
+      pedestal: "h-28 bg-vainilla/80 border-vainilla",
       icon: "text-uva",
     },
     2: {
       avatar: "h-16 w-16 border-celeste",
       badge: "bg-celeste text-uva",
-      pedestal: "h-16 bg-celeste/70 border-celeste",
+      pedestal: "h-24 bg-celeste/70 border-celeste",
       icon: "text-uva",
     },
     3: {
       avatar: "h-16 w-16 border-rosa",
       badge: "bg-rosa text-uva",
-      pedestal: "h-14 bg-rosa/70 border-rosa",
+      pedestal: "h-20 bg-rosa/70 border-rosa",
       icon: "text-uva",
     },
   }[usuario.posicion] || {
     avatar: "h-16 w-16 border-crema",
     badge: "bg-morado/10 text-morado",
-    pedestal: "h-14 bg-morado/10 border-morado/20",
+    pedestal: "h-20 bg-morado/10 border-morado/20",
     icon: "text-morado",
   };
 
@@ -442,7 +442,7 @@ function PodioUsuario({ usuario }) {
         {usuario.nombre}
       </p>
       <div
-        className={`mt-2 flex w-full flex-col items-center justify-end rounded-t-3xl border px-1 pb-2 ${estilos.pedestal}`}
+        className={`mt-2 flex w-full flex-col items-center justify-end rounded-t-3xl border px-1 py-3 ${estilos.pedestal}`}
       >
         <p className="font-fredoka text-xl leading-none text-uva">
           {usuario.totalInsignias}

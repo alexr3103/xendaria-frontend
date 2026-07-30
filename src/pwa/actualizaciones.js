@@ -1,7 +1,7 @@
 export const EVENTO_ACTUALIZACION_PWA =
   "xendaria:actualizacion-disponible";
 
-const INTERVALO_REVISION_MS = 30 * 60 * 1000;
+const INTERVALO_REVISION_MS = 60 * 60 * 1000;
 
 let registroActual = null;
 let actualizacionPendiente = null;

@@ -172,6 +172,30 @@ export default function MapaUsuario({
     setRutaActiva(ruta);
   }
 
+  function enfocarPunto(punto) {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+
+    const lat = Number(
+      punto?.lat ?? punto?.ubicacion?.coordinates?.[1]
+    );
+    const lon = Number(
+      punto?.lon ?? punto?.ubicacion?.coordinates?.[0]
+    );
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+    puntoEnFocoHastaRef.current = Date.now() + 4000;
+    map.stop();
+    map.flyTo({
+      center: [lon, lat],
+      zoom: Math.max(map.getZoom(), 16),
+      offset: [0, -120],
+      speed: 1.15,
+      essential: true,
+    });
+  }
+
   useEffect(() => {
     if (!mapContainer.current) return;
 
@@ -337,6 +361,7 @@ export default function MapaUsuario({
           setPuntosSuperpuestos(puntosDelGrupo);
           return;
         }
+        enfocarPunto(p);
         onSelectPunto?.(p);
       };
 
@@ -635,6 +660,7 @@ export default function MapaUsuario({
         onClose={() => setPuntosSuperpuestos([])}
         onSelect={(punto) => {
           setPuntosSuperpuestos([]);
+          enfocarPunto(punto);
           onSelectPunto?.(punto);
         }}
       />

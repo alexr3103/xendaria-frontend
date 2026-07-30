@@ -9,7 +9,9 @@ import {
   ShieldCheck,
   Sparkles,
   Trash2,
+  UserCheck,
   UserRound,
+  UserX,
   Users,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
@@ -91,10 +93,13 @@ export default function UsuariosAdmin() {
   const [buscar, setBuscar] = useState("");
   const [buscarPuntos, setBuscarPuntos] = useState("");
   const [filtroFavoritos, setFiltroFavoritos] = useState(null);
+  const [filtroEstadoCuenta, setFiltroEstadoCuenta] = useState("todas");
   const [ordenUsuarios, setOrdenUsuarios] = useState({ campo: "", direccion: "" });
   const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
+  const [usuarioAReactivar, setUsuarioAReactivar] = useState(null);
   const [tituloAEliminar, setTituloAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const [reactivando, setReactivando] = useState(false);
 
   const [pagina, setPagina] = useState(1);
   const porPagina = 15;
@@ -387,6 +392,49 @@ export default function UsuariosAdmin() {
     }
   }
 
+  async function confirmarReactivarUsuario() {
+    if (!usuarioAReactivar || reactivando) return;
+
+    try {
+      setReactivando(true);
+      setMensaje(null);
+
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${API}/api/usuarios/${usuarioAReactivar._id}/reactivar`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message || "No se pudo reactivar el usuario.");
+      }
+
+      setUsuarios((prev) =>
+        prev.map((usuario) =>
+          usuario._id === usuarioAReactivar._id
+            ? { ...usuario, activo: true, desactivadoEn: null }
+            : usuario
+        )
+      );
+      setUsuarioAReactivar(null);
+      setMensaje({
+        variant: "success",
+        text: "La cuenta fue reactivada correctamente.",
+      });
+    } catch (err) {
+      setMensaje({
+        variant: "error",
+        text: err.message || "No se pudo reactivar el usuario.",
+      });
+    } finally {
+      setReactivando(false);
+    }
+  }
+
   const totalPuntosPropios = resumenPuntosPropios.reduce(
     (total, item) => total + item.total,
     0
@@ -411,9 +459,15 @@ export default function UsuariosAdmin() {
   }, [buscarPuntos, resumenPuntosPropios]);
 
   const usuariosOrdenados = useMemo(() => {
-    if (!ordenUsuarios.campo) return usuarios;
+    const usuariosFiltrados = usuarios.filter((usuario) => {
+      if (filtroEstadoCuenta === "activas") return usuario.activo !== false;
+      if (filtroEstadoCuenta === "desactivadas") return usuario.activo === false;
+      return true;
+    });
 
-    return [...usuarios].sort((a, b) => {
+    if (!ordenUsuarios.campo) return usuariosFiltrados;
+
+    return [...usuariosFiltrados].sort((a, b) => {
       const valorA =
         ordenUsuarios.campo === "email"
           ? normalizarBusqueda(a.email)
@@ -426,7 +480,7 @@ export default function UsuariosAdmin() {
         ? valorA.localeCompare(valorB)
         : valorB.localeCompare(valorA);
     });
-  }, [ordenUsuarios, usuarios]);
+  }, [filtroEstadoCuenta, ordenUsuarios, usuarios]);
 
   function cambiarOrdenUsuarios(campo) {
     setOrdenUsuarios((actual) => {
@@ -496,13 +550,35 @@ export default function UsuariosAdmin() {
 
               <div className="flex gap-2 overflow-x-auto pb-1">
                 <PildoraFiltro
-                  active={!filtroFavoritos}
+                  active={filtroEstadoCuenta === "todas"}
                   onClick={() => {
-                    setFiltroFavoritos(null);
+                    setFiltroEstadoCuenta("todas");
                     setPagina(1);
                   }}
                 >
                   Todos
+                </PildoraFiltro>
+                <PildoraFiltro
+                  active={filtroEstadoCuenta === "activas"}
+                  onClick={() => {
+                    setFiltroEstadoCuenta("activas");
+                    setPagina(1);
+                  }}
+                  color="#7AF0C4"
+                  icon={UserCheck}
+                >
+                  Activos
+                </PildoraFiltro>
+                <PildoraFiltro
+                  active={filtroEstadoCuenta === "desactivadas"}
+                  onClick={() => {
+                    setFiltroEstadoCuenta("desactivadas");
+                    setPagina(1);
+                  }}
+                  color="#D1D1D1"
+                  icon={UserX}
+                >
+                  Desactivados
                 </PildoraFiltro>
                 <PildoraFiltro
                   active={filtroFavoritos === "Con favoritos"}
@@ -577,6 +653,7 @@ export default function UsuariosAdmin() {
                     </th>
                     <th className="p-3">Rol</th>
                     <th className="p-3">Favoritos</th>
+                    <th className="p-3">Estado</th>
                     <th className="p-3 text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -636,7 +713,37 @@ export default function UsuariosAdmin() {
                         </td>
 
                         <td className="p-3">
-                          <div className="flex justify-center">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+                              usuario.activo === false
+                                ? "bg-uva/10 text-uva/60"
+                                : "bg-menta/35 text-uva"
+                            }`}
+                          >
+                            {usuario.activo === false ? (
+                              <UserX size={13} />
+                            ) : (
+                              <UserCheck size={13} />
+                            )}
+                            {usuario.activo === false ? "Desactivado" : "Activo"}
+                          </span>
+                        </td>
+
+                        <td className="p-3">
+                          <div className="flex justify-center gap-2">
+                            {usuario.activo === false && (
+                              <button
+                                type="button"
+                                onClick={() => setUsuarioAReactivar(usuario)}
+                                className="rounded-lg bg-menta p-2 text-uva transition hover:bg-menta/75 active:scale-95"
+                                title="Reactivar usuario"
+                                aria-label={`Reactivar a ${
+                                  usuario.nombre || usuario.email
+                                }`}
+                              >
+                                <UserCheck size={18} />
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => setUsuarioAEliminar(usuario)}
@@ -824,6 +931,19 @@ export default function UsuariosAdmin() {
         danger
         onCancel={() => (eliminando ? null : setUsuarioAEliminar(null))}
         onConfirm={confirmarEliminarUsuario}
+      />
+      <ModalConfirmacion
+        open={Boolean(usuarioAReactivar)}
+        title="Reactivar cuenta"
+        message={`El usuario "${
+          usuarioAReactivar?.nombre || usuarioAReactivar?.email || ""
+        }" podrá volver a iniciar sesión. Su historial y sus preferencias se mantienen.`}
+        confirmText={reactivando ? "Reactivando..." : "Reactivar"}
+        cancelText="Cancelar"
+        onCancel={() =>
+          reactivando ? null : setUsuarioAReactivar(null)
+        }
+        onConfirm={confirmarReactivarUsuario}
       />
       <ModalConfirmacion
         open={Boolean(tituloAEliminar)}
