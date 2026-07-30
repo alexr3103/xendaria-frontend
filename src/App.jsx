@@ -39,6 +39,7 @@ import DashboardAdmin from "./views/admin/DashboardAdmin.jsx";
 import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
 import InstalacionPWA from "./components/InstalacionPWA.jsx";
+import ActivacionNotificacionesPWA from "./components/ActivacionNotificacionesPWA.jsx";
 
 export default function App() {
   const [step, setStep] = useState("loading");
@@ -118,6 +119,7 @@ export default function App() {
       {contenido}
       <ActualizacionPWA />
       <InstalacionPWA habilitada={step === "app"} />
+      <ActivacionNotificacionesPWA habilitada={step === "app"} />
     </>
   );
 }

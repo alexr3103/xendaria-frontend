@@ -7,6 +7,19 @@ import useCantidadCarrito from "../hooks/useCantidadCarrito.js";
 import BuzonNotificaciones from "../components/BuzonNotificaciones.jsx";
 import { sincronizarSuscripcionPush } from "../lib/notificacionesPush.js";
 
+function tienePreferenciasPushActivas() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    const notificaciones = usuario?.configuracion?.notificaciones || {};
+
+    return ["recompensas", "rutas", "compras"].some(
+      (clave) => notificaciones[clave] === true
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default function Header({
   categorias,
   filtro,
@@ -46,14 +59,31 @@ export default function Header({
 
   useEffect(() => {
     cargarConteoNotificaciones();
-    sincronizarSuscripcionPush({ API, token }).catch(() => {});
+
+    const sincronizarPush = () => {
+      sincronizarSuscripcionPush({
+        API,
+        token,
+        crearSiFalta: tienePreferenciasPushActivas(),
+      }).catch(() => {});
+    };
+
+    sincronizarPush();
 
     const interval = window.setInterval(cargarConteoNotificaciones, 60000);
     window.addEventListener("focus", cargarConteoNotificaciones);
+    window.addEventListener(
+      "xendaria:configuracion-actualizada",
+      sincronizarPush
+    );
 
     return () => {
       window.clearInterval(interval);
       window.removeEventListener("focus", cargarConteoNotificaciones);
+      window.removeEventListener(
+        "xendaria:configuracion-actualizada",
+        sincronizarPush
+      );
     };
   }, [API, cargarConteoNotificaciones, token]);
 

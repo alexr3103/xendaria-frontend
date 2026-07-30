@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeft,
+  Bookmark,
   Check,
   Compass,
   Edit3,
@@ -8,9 +10,7 @@ import {
   MapPin,
   Plus,
   Share2,
-  Sparkles,
   Trash2,
-  X,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
@@ -238,6 +238,12 @@ export default function RutasAdmin() {
     setMensaje(null);
   }
 
+  function volverAlListado() {
+    limpiarForm();
+    setTab("activas");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function agregarPunto(punto) {
     const id = getId(punto);
     if (!id || seleccionadosIds.has(id)) return;
@@ -390,7 +396,7 @@ export default function RutasAdmin() {
           <MetricCard
             label="Destacadas"
             value={metricas.destacadas}
-            icon={<Sparkles size={20} />}
+            icon={<Bookmark size={20} />}
           />
         </div>
       </div>
@@ -415,16 +421,14 @@ export default function RutasAdmin() {
                     {editandoId ? "Editar ruta" : "Nueva ruta"}
                   </h2>
                 </div>
-                {editandoId && (
-                  <button
-                    type="button"
-                    onClick={limpiarForm}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-fucsia/10 px-3 py-2 text-sm font-bold text-fucsia"
-                  >
-                    <X size={18} />
-                    Cancelar
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={volverAlListado}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-rosa px-3 py-2 text-sm font-bold text-uva shadow-sm transition active:scale-[0.98]"
+                >
+                  <ArrowLeft size={18} />
+                  Volver
+                </button>
               </div>
             </div>
 
@@ -513,7 +517,7 @@ export default function RutasAdmin() {
                 <div className="flex flex-wrap gap-2">
                   <ActionToggle
                     active={form.destacada}
-                    icon={<Sparkles size={17} />}
+                    icon={<Bookmark size={17} />}
                     label="Destacada"
                     onClick={() => actualizarForm("destacada", !form.destacada)}
                   />

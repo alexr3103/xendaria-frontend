@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AuthLayout from "../../layouts/Auth.jsx";
 import Alert from "../../components/Alertas.jsx";
+import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link } from "react-router-dom";
 
@@ -32,6 +33,9 @@ function validarRegistro(form) {
   if (form.password !== form.passwordConfirm) {
     return "Las contraseñas deben coincidir.";
   }
+  if (!form.aceptaTerminos) {
+    return "Debés aceptar los términos y la política de privacidad.";
+  }
 
   return "";
 }
@@ -42,13 +46,19 @@ export default function Register() {
     email: "",
     password: "",
     passwordConfirm: "",
+    aceptaTerminos: false,
   });
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
+  const [legalesOpen, setLegalesOpen] = useState(false);
 
   function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.type === "checkbox" ? e.target.checked : e.target.value,
+    });
   }
 
   async function handleSubmit(e) {
@@ -98,15 +108,16 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta">
-      {err && <Alert variant="error" id="register-error">{err}</Alert>}
-      {ok && <Alert variant="success">{ok}</Alert>}
+    <>
+      <AuthLayout title="Crear cuenta">
+        {err && <Alert variant="error" id="register-error">{err}</Alert>}
+        {ok && <Alert variant="success">{ok}</Alert>}
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-3"
-        aria-describedby={err ? "register-error" : undefined}
-      >
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3"
+          aria-describedby={err ? "register-error" : undefined}
+        >
         <TextField
           label="Nombre completo"
           name="nombre"
@@ -150,6 +161,27 @@ export default function Register() {
           autoComplete="new-password"
         />
 
+        <label className="mt-1 flex cursor-pointer items-start gap-3 text-sm leading-snug text-uva">
+          <input
+            type="checkbox"
+            name="aceptaTerminos"
+            checked={form.aceptaTerminos}
+            onChange={handleChange}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-morado"
+          />
+          <span>
+            Acepto los{" "}
+            <button
+              type="button"
+              onClick={() => setLegalesOpen(true)}
+              className="font-bold text-morado underline underline-offset-2"
+            >
+              términos y la política de privacidad
+            </button>
+            .
+          </span>
+        </label>
+
         <button
           type="submit"
           disabled={loading}
@@ -158,14 +190,20 @@ export default function Register() {
         >
           {loading ? "Creando..." : "Registrarse"}
         </button>
-      </form>
+        </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
-        ¿Ya tenés cuenta?{" "}
-        <Link to="/login" className="text-morado font-semibold hover:underline">
-          Iniciá sesión
-        </Link>
-      </p>
-    </AuthLayout>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          ¿Ya tenés cuenta?{" "}
+          <Link to="/login" className="text-morado font-semibold hover:underline">
+            Iniciá sesión
+          </Link>
+        </p>
+      </AuthLayout>
+
+      <DocumentosLegales
+        open={legalesOpen}
+        onClose={() => setLegalesOpen(false)}
+      />
+    </>
   );
 }

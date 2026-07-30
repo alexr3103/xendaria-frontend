@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   BookOpen,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   Heart,
   Info,
@@ -25,6 +26,7 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
 import CargadorMapa from "../../components/CargadorMapa.jsx";
+import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import ModalXendaria from "../../components/ModalXendaria.jsx";
 import TituloPerfil from "../../components/TituloPerfil.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
@@ -234,6 +236,7 @@ export default function Perfil() {
   const [verCompras, setVerCompras] = useState(false);
   const [verBeneficios, setVerBeneficios] = useState(false);
   const [modalSobreApp, setModalSobreApp] = useState(false);
+  const [modalLegales, setModalLegales] = useState(false);
   const [modalSoporte, setModalSoporte] = useState(false);
   const [mensaje, setMensaje] = useState(null);
   const [favoritoEliminando, setFavoritoEliminando] = useState(null);
@@ -918,6 +921,15 @@ export default function Perfil() {
       <InfoPerfilModal
         open={modalSobreApp}
         onClose={() => setModalSobreApp(false)}
+        onOpenLegal={() => {
+          setModalSobreApp(false);
+          setModalLegales(true);
+        }}
+      />
+
+      <DocumentosLegales
+        open={modalLegales}
+        onClose={() => setModalLegales(false)}
       />
 
       <SoportePerfilModal
@@ -930,7 +942,7 @@ export default function Perfil() {
   );
 }
 
-function InfoPerfilModal({ open, onClose }) {
+function InfoPerfilModal({ open, onClose, onOpenLegal }) {
   return (
     <ModalXendaria
       open={open}
@@ -979,6 +991,18 @@ function InfoPerfilModal({ open, onClose }) {
           Las compras se procesan mediante MercadoPago. Xendaria guarda la orden
           para que puedas consultar el estado desde tu perfil.
         </InfoModalItem>
+
+        <button
+          type="button"
+          onClick={onOpenLegal}
+          className="flex min-h-12 w-full items-center justify-between rounded-xl bg-rosa/45 px-4 py-3 text-left font-bold text-uva transition active:scale-[0.98]"
+        >
+          <span className="inline-flex items-center gap-3">
+            <BookOpen aria-hidden="true" size={20} className="text-morado" />
+            Términos y política de privacidad
+          </span>
+          <ChevronRight aria-hidden="true" size={19} className="text-morado" />
+        </button>
       </div>
     </ModalXendaria>
   );

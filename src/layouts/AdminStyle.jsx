@@ -52,7 +52,7 @@ export default function AdminLayout({ children, title }) {
             className="h-10 w-10 object-contain drop-shadow-md lg:h-11 lg:w-11"
             alt="Logo Xendaria"
           />
-          <h2 className="font-fredoka text-xl font-medium leading-none tracking-wide lg:text-2xl">
+          <h2 className="font-fredoka text-xl font-[500] leading-none tracking-wide lg:text-2xl">
             Xendaria
           </h2>
         </div>

@@ -13,15 +13,22 @@ export async function login({ email, password }) {
   return data;
 }
 
-export async function googleLogin(credential) {
+export async function googleLogin(credential, { aceptaTerminos = false } = {}) {
   const res = await fetch(`${API_URL}/api/usuarios/login/google`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ credential }),
+    body: JSON.stringify({ credential, aceptaTerminos }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Error al iniciar sesión con Google");
+  if (!res.ok) {
+    const error = new Error(
+      data.message || "Error al iniciar sesión con Google"
+    );
+    error.status = res.status;
+    error.code = data.code;
+    throw error;
+  }
   return data;
 }

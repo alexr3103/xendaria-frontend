@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { login, googleLogin } from "../../lib/api/auth.js";
 import AuthLayout from "../../layouts/Auth.jsx";
 import Alert from "../../components/Alertas.jsx";
+import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link } from "react-router-dom";
 
@@ -14,6 +15,10 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleCredentialPendiente, setGoogleCredentialPendiente] =
+    useState("");
+  const [legalesGoogleOpen, setLegalesGoogleOpen] = useState(false);
 
   // Recuperar contraseña
   const [recuperando, setRecuperando] = useState(false);
@@ -56,11 +61,38 @@ export default function Login() {
   async function handleGoogleLogin(credentialResponse) {
     setErr("");
     setMsg("");
+    setGoogleLoading(true);
     try {
       const data = await googleLogin(credentialResponse.credential);
       guardarSesionYRedirigir(data);
     } catch (e) {
-      setErr(e.message || "Error con Google");
+      if (e.code === "TERMINOS_REQUERIDOS") {
+        setGoogleCredentialPendiente(credentialResponse.credential);
+        setLegalesGoogleOpen(true);
+      } else {
+        setErr(e.message || "Error con Google");
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
+
+  async function aceptarTerminosGoogle() {
+    if (!googleCredentialPendiente) return;
+
+    setErr("");
+    setGoogleLoading(true);
+
+    try {
+      const data = await googleLogin(googleCredentialPendiente, {
+        aceptaTerminos: true,
+      });
+      guardarSesionYRedirigir(data);
+    } catch (e) {
+      setLegalesGoogleOpen(false);
+      setErr(e.message || "No se pudo crear la cuenta con Google");
+    } finally {
+      setGoogleLoading(false);
     }
   }
 
@@ -98,7 +130,8 @@ export default function Login() {
   }
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthLayout title="Iniciar sesión">
 
         {err && <Alert variant="error">{err}</Alert>}
@@ -143,14 +176,23 @@ export default function Login() {
 
         {/* ===== Login Google ===== */}
         <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={() => setErr("Error con Google")}
-            text="signin_with"
-            shape="pill"
-            width="220"
-          />
+          <div className={googleLoading ? "pointer-events-none opacity-60" : ""}>
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setErr("Error con Google")}
+              text="signin_with"
+              shape="pill"
+              width="220"
+            />
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setLegalesGoogleOpen(true)}
+          className="mx-auto text-xs font-bold text-morado underline underline-offset-2"
+        >
+          Términos y privacidad
+        </button>
 
         {/*  RECUPERAR CONTRASEÑA*/}
         <div className="mt-4 text-center">
@@ -202,6 +244,19 @@ export default function Login() {
           </Link>
         </p>
       </AuthLayout>
-    </GoogleOAuthProvider>
+      </GoogleOAuthProvider>
+
+      <DocumentosLegales
+        open={legalesGoogleOpen}
+        onClose={() => {
+          setLegalesGoogleOpen(false);
+          setGoogleCredentialPendiente("");
+        }}
+        onAccept={
+          googleCredentialPendiente ? aceptarTerminosGoogle : undefined
+        }
+        accepting={googleLoading}
+      />
+    </>
   );
 }

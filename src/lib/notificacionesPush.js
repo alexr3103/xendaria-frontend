@@ -101,7 +101,11 @@ export async function desactivarNotificacionesPush({ API, token }) {
   await suscripcion.unsubscribe();
 }
 
-export async function sincronizarSuscripcionPush({ API, token }) {
+export async function sincronizarSuscripcionPush({
+  API,
+  token,
+  crearSiFalta = false,
+}) {
   if (
     !token ||
     !("serviceWorker" in navigator) ||
@@ -113,7 +117,16 @@ export async function sincronizarSuscripcionPush({ API, token }) {
   }
 
   const registro = await navigator.serviceWorker.ready;
-  const suscripcion = await registro.pushManager.getSubscription();
+  let suscripcion = await registro.pushManager.getSubscription();
+
+  if (!suscripcion && crearSiFalta) {
+    const clavePublica = await obtenerClavePublica(API, token);
+    suscripcion = await registro.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertirClaveBase64(clavePublica),
+    });
+  }
+
   if (!suscripcion) return null;
 
   return guardarSuscripcion(API, token, suscripcion);
