@@ -38,6 +38,7 @@ import EditarMerch from "./views/admin/EditarMerch.jsx";
 import DashboardAdmin from "./views/admin/DashboardAdmin.jsx";
 import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
+import InstalacionPWA from "./components/InstalacionPWA.jsx";
 
 export default function App() {
   const [step, setStep] = useState("loading");
@@ -52,24 +53,14 @@ export default function App() {
     }, 1000);
   }, []);
 
-  if (step === "loading")
-    return (
-      <>
-        <Carga />
-        <ActualizacionPWA />
-      </>
-    );
+  let contenido;
 
-  if (step === "splash")
-    return (
-      <>
-        <Splash onContinue={() => setStep("app")} />
-        <ActualizacionPWA />
-      </>
-    );
-
-  return (
-    <>
+  if (step === "loading") {
+    contenido = <Carga />;
+  } else if (step === "splash") {
+    contenido = <Splash onContinue={() => setStep("app")} />;
+  } else {
+    contenido = (
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
@@ -119,7 +110,14 @@ export default function App() {
         <Route path="/perfil/configuracion" element={<Configuraciones />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
+    );
+  }
+
+  return (
+    <>
+      {contenido}
       <ActualizacionPWA />
+      <InstalacionPWA habilitada={step === "app"} />
     </>
   );
 }

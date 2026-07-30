@@ -1134,32 +1134,32 @@ export default function Home() {
         />
       )}
 
-      {!puntoSeleccionado && !destino && !rutaEnCurso && (
-        <button
-          type="button"
-          onClick={abrirModalPuntoPropio}
-          className="absolute right-3 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[900] flex h-14 w-14 items-center justify-center rounded-full bg-morado text-crema shadow-xl transition active:scale-95 sm:right-4"
-          aria-label="Agregar punto propio"
-          title="Agregar punto propio"
-        >
-          <Plus size={28} />
-        </button>
-      )}
-
       {!puntoSeleccionado &&
         !destino &&
         !rutaEnCurso &&
         !modalPuntoPropio &&
         !ajustandoUbicacion && (
-          <button
-            type="button"
-            onClick={volverAMiUbicacion}
-            className="absolute right-4 bottom-[calc(162px+env(safe-area-inset-bottom))] z-[900] flex h-12 w-12 items-center justify-center rounded-full border border-uva/10 bg-crema text-morado shadow-xl transition active:scale-95 sm:right-5"
-            aria-label="Volver a mi ubicacion"
-            title="Volver a mi ubicacion"
-          >
-            <LocateFixed size={23} />
-          </button>
+          <div className="absolute right-3 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-[900] flex flex-col items-center gap-3 sm:right-4">
+            <button
+              type="button"
+              onClick={volverAMiUbicacion}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-uva/10 bg-crema text-morado shadow-xl transition active:scale-95"
+              aria-label="Volver a mi ubicacion"
+              title="Volver a mi ubicacion"
+            >
+              <LocateFixed size={23} />
+            </button>
+
+            <button
+              type="button"
+              onClick={abrirModalPuntoPropio}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-morado text-crema shadow-xl transition active:scale-95"
+              aria-label="Agregar punto propio"
+              title="Agregar punto propio"
+            >
+              <Plus size={28} />
+            </button>
+          </div>
         )}
 
       {ajustandoUbicacion && (

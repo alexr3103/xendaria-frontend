@@ -65,7 +65,8 @@ export default function ActualizacionPWA() {
   return (
     <ModalXendaria
       open={Boolean(actualizacion)}
-      showClose={false}
+      onClose={actualizando ? undefined : posponer}
+      closeLabel="Cerrar actualización"
       maxWidth="max-w-sm"
       className="border-morado/20 bg-white"
       contentClassName="p-5 sm:p-6"
@@ -91,7 +92,7 @@ export default function ActualizacionPWA() {
             type="button"
             onClick={posponer}
             disabled={actualizando}
-            className="min-h-11 rounded-xl border border-uva/20 bg-crema px-3 font-bold text-uva transition active:scale-[0.98] disabled:opacity-50"
+            className="min-h-11 rounded-xl bg-rosa px-3 font-bold text-uva shadow-sm transition active:scale-[0.98] disabled:opacity-50"
           >
             Más tarde
           </button>
