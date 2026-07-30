@@ -420,6 +420,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
 
   return (
     <AdminStyle title="Gestión de merch">
+      <div className="min-w-0 max-w-full overflow-x-hidden">
       <div className="mb-6 border-b border-uva/10 pb-4">
         <PestanasAdmin
           tabs={[
@@ -499,6 +500,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
         onCancel={() => setProductoAEliminar(null)}
         danger
       />
+      </div>
     </AdminStyle>
   );
 }
@@ -621,8 +623,31 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[1050px] border-collapse text-left">
+      <div className="grid gap-3 xl:hidden">
+        {ordenesFiltradas.map((orden) => {
+          const idOrden = getId(orden);
+
+          return (
+            <OrdenCardMovil
+              key={idOrden}
+              orden={orden}
+              expandida={ordenExpandida === idOrden}
+              actualizando={actualizandoOrden === idOrden}
+              onToggle={() =>
+                setOrdenExpandida((actual) => (actual === idOrden ? null : idOrden))
+              }
+              onEstadoChange={onEstadoChange}
+            />
+          );
+        })}
+
+        {ordenesFiltradas.length === 0 && (
+          <EmptyPanel icon={ReceiptText} text="No hay órdenes con ese filtro." />
+        )}
+      </div>
+
+      <div className="hidden xl:block">
+        <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
               <th className="px-3 py-4">Orden</th>
@@ -753,6 +778,111 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
         )}
       </div>
     </section>
+  );
+}
+
+function OrdenCardMovil({
+  orden,
+  expandida,
+  actualizando,
+  onToggle,
+  onEstadoChange,
+}) {
+  const idOrden = getId(orden);
+  const items = Array.isArray(orden.items) ? orden.items : [];
+  const usuario = orden.usuario || {};
+  const estado = ESTADO_ORDEN[orden.estado] || ESTADO_ORDEN.pagada;
+  const EstadoIcon = estado.icon;
+  const pagoOk = pagoProcesado(orden);
+  const puedeProcesar = pagoOk && orden.estado === "pagada";
+  const puedeEnviar = pagoOk && orden.estado === "procesando";
+
+  return (
+    <article className="min-w-0 overflow-hidden rounded-2xl border border-uva/10 bg-white shadow-sm">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full min-w-0 p-4 text-left transition active:bg-crema/60"
+        aria-expanded={expandida}
+      >
+        <span className="flex min-w-0 items-start justify-between gap-3">
+          <span className="min-w-0">
+            <span className="block truncate font-extrabold text-uva">
+              {orden.numeroCompra || `Orden ${idOrden.slice(-6)}`}
+            </span>
+            <span className="mt-0.5 block text-xs font-bold text-uva/55">
+              {formatDate(orden.createdAt)}
+            </span>
+          </span>
+          <span className="shrink-0 font-extrabold text-morado">
+            {formatMoney(orden.total)}
+          </span>
+        </span>
+
+        <span className="mt-3 block min-w-0">
+          <span className="block truncate font-bold text-uva">
+            {usuario.nombre || "Usuario sin nombre"}
+          </span>
+          <span className="block break-all text-xs font-semibold text-gris">
+            {usuario.email || "Sin email"}
+          </span>
+        </span>
+
+        <span className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+              pagoOk ? "bg-menta/35 text-uva" : "bg-fucsia/10 text-fucsia"
+            }`}
+          >
+            <CreditCard size={13} />
+            {pagoOk ? "Pago procesado" : "Pago no procesado"}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${estado.className}`}
+          >
+            <EstadoIcon size={13} />
+            {estado.label}
+          </span>
+          <span className="text-xs font-bold text-uva/60">
+            {items.length} item{items.length === 1 ? "" : "s"}
+          </span>
+        </span>
+
+        <span className="mt-3 flex items-center justify-end gap-1 text-xs font-extrabold text-morado">
+          {expandida ? "Ocultar detalle" : "Ver detalle"}
+          {expandida ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </span>
+      </button>
+
+      {(puedeProcesar || puedeEnviar) && (
+        <div className="grid grid-cols-2 gap-2 border-t border-uva/10 px-4 py-3">
+          <button
+            type="button"
+            disabled={!puedeProcesar || actualizando}
+            onClick={() => onEstadoChange(idOrden, "procesando")}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-morado/20 px-3 text-sm font-bold text-uva transition active:bg-morado/30 disabled:cursor-not-allowed disabled:bg-uva/10 disabled:text-uva/30"
+          >
+            <Package size={17} />
+            Procesar
+          </button>
+          <button
+            type="button"
+            disabled={!puedeEnviar || actualizando}
+            onClick={() => onEstadoChange(idOrden, "enviada")}
+            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition disabled:cursor-not-allowed ${
+              puedeEnviar && !actualizando
+                ? "bg-rosa/45 text-uva active:bg-rosa/65"
+                : "bg-uva/10 text-uva/30"
+            }`}
+          >
+            <Send size={17} />
+            Enviar
+          </button>
+        </div>
+      )}
+
+      {expandida && <OrdenDetalle orden={orden} />}
+    </article>
   );
 }
 
@@ -1008,8 +1138,36 @@ function ProductosPanel({
         ))}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] border-collapse text-left">
+      <div className="grid gap-3 xl:hidden">
+        {productosFiltrados.map((producto) => (
+          <ProductoCardMovil
+            key={producto._id}
+            producto={producto}
+            variantesAbiertas={productoVariantesAbiertas === producto._id}
+            actualizando={actualizandoProducto === producto._id}
+            onToggleVariantes={() =>
+              setProductoVariantesAbiertas((actual) =>
+                actual === producto._id ? null : producto._id
+              )
+            }
+            onToggleActivo={() =>
+              onToggleActivo(producto._id, producto.activo === false)
+            }
+            onDelete={() => onDelete(producto)}
+          />
+        ))}
+
+        {productos.length === 0 && (
+          <EmptyPanel icon={ShoppingBasket} text="No hay productos cargados." />
+        )}
+
+        {productos.length > 0 && productosFiltrados.length === 0 && (
+          <EmptyPanel icon={ShoppingBasket} text="No hay productos con esa búsqueda." />
+        )}
+      </div>
+
+      <div className="hidden xl:block">
+        <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
               <th className="px-3 py-4">Foto</th>
@@ -1149,6 +1307,122 @@ function ProductosPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function ProductoCardMovil({
+  producto,
+  variantesAbiertas,
+  actualizando,
+  onToggleVariantes,
+  onToggleActivo,
+  onDelete,
+}) {
+  const variantes = Array.isArray(producto.variantes) ? producto.variantes : [];
+  const tieneVariantes = variantes.length > 0;
+  const variantesVisibles = variantesAbiertas ? variantes : variantes.slice(0, 2);
+
+  return (
+    <article className="min-w-0 rounded-2xl border border-uva/10 bg-white p-4 shadow-sm">
+      <div className="grid min-w-0 grid-cols-[64px_minmax(0,1fr)] gap-3">
+        <img
+          src={producto.imagen}
+          alt={producto.nombre}
+          className="h-16 w-16 rounded-xl border border-uva/10 object-cover"
+        />
+        <div className="min-w-0">
+          <h3 className="break-words font-extrabold leading-tight text-uva">
+            {producto.nombre}
+          </h3>
+          <div className="mt-2">
+            <CategoryBadge categoria={producto.categoria} />
+          </div>
+        </div>
+      </div>
+
+      <dl className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-crema px-3 py-3 text-sm">
+        <div className="min-w-0">
+          <dt className="text-xs font-bold uppercase text-uva/55">Precio</dt>
+          <dd className="mt-0.5 truncate font-extrabold text-morado">
+            {formatMoney(producto.precio)}
+          </dd>
+        </div>
+        <div className="min-w-0 border-l border-uva/10 pl-3">
+          <dt className="text-xs font-bold uppercase text-uva/55">Stock</dt>
+          <dd className="mt-0.5 font-extrabold text-uva">
+            {calcularStockTotal(producto)}
+          </dd>
+        </div>
+      </dl>
+
+      {tieneVariantes && (
+        <div className="mt-3">
+          <p className="text-xs font-extrabold uppercase text-uva/55">Variantes</p>
+          <div className="mt-2 flex min-w-0 flex-wrap gap-2">
+            {variantesVisibles.map((variante, index) => (
+              <span
+                key={`${producto._id}-variante-movil-${index}`}
+                className="inline-flex max-w-full items-center rounded-full bg-crema px-2.5 py-1 text-xs font-extrabold leading-tight text-uva/75"
+                title={describirVariante(variante)}
+              >
+                <span className="break-words">
+                  {describirVarianteCorta(variante)}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          {variantes.length > 2 && (
+            <button
+              type="button"
+              onClick={onToggleVariantes}
+              aria-expanded={variantesAbiertas}
+              className="mt-2 inline-flex min-h-10 items-center gap-1 rounded-full bg-rosa/30 px-3 text-xs font-extrabold text-uva transition active:bg-rosa/45"
+            >
+              {variantesAbiertas ? (
+                <>
+                  <ChevronUp size={14} />
+                  Ocultar variantes
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} />
+                  Ver todas ({variantes.length})
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 flex min-w-0 flex-wrap items-center justify-between gap-3 border-t border-uva/10 pt-3">
+        <ProductVisibilityToggle
+          active={producto.activo !== false}
+          loading={actualizando}
+          onClick={onToggleActivo}
+        />
+
+        <div className="ml-auto flex items-center gap-2">
+          <Link
+            to={`/admin/merch/editar/${producto._id}`}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-morado/20 text-morado transition active:bg-morado/30"
+            title="Editar"
+            aria-label={`Editar ${producto.nombre}`}
+          >
+            <Pencil size={18} />
+          </Link>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-fucsia text-crema transition active:bg-fucsia/80"
+            title="Eliminar"
+            aria-label={`Eliminar ${producto.nombre}`}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
+    </article>
   );
 }
 

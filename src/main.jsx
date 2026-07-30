@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./index.css";
+import { registrarPWA } from "./pwa/actualizaciones.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -12,15 +13,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log("Service Worker registrado:", registration.scope);
-      })
-      .catch((error) => {
-        console.error("Error al registrar el Service Worker:", error);
-      });
-  });
-}
+registrarPWA();

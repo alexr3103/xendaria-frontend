@@ -15,7 +15,6 @@ import {
   MapPinned,
   Medal,
   Rotate3D,
-  Save,
   Shield,
   Trash2,
   UserRound,
@@ -132,7 +131,7 @@ export default function Configuraciones() {
     }, 350);
 
     return () => clearTimeout(timeout);
-  }, [configuracion, loading, token, usuarioId]);
+  }, [API, configuracion, loading, navigate, token, usuarioId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleConfig(key) {
     setConfiguracion((actual) => ({

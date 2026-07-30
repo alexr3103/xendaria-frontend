@@ -9,6 +9,8 @@ import {
   Loader2,
   MapPin,
   MapPinned,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   Search,
   Share2,
@@ -66,6 +68,7 @@ export default function MapaAdminWrapper() {
   const [rutas, setRutas] = useState([]);
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null);
   const [rutaSeleccionada, setRutaSeleccionada] = useState(null);
+  const [panelExploracionAbierto, setPanelExploracionAbierto] = useState(true);
   const [modoNuevo, setModoNuevo] = useState(false);
   const [duplicados, setDuplicados] = useState([]);
   const [fusionandoDuplicados, setFusionandoDuplicados] = useState(false);
@@ -79,6 +82,12 @@ export default function MapaAdminWrapper() {
   const [eliminandoPunto, setEliminandoPunto] = useState(false);
   const [errorEliminar, setErrorEliminar] = useState("");
   const resolverMovimientoRef = useRef(null);
+
+  function minimizarPanelParaEditar() {
+    if (window.matchMedia("(max-width: 1791px)").matches) {
+      setPanelExploracionAbierto(false);
+    }
+  }
 
   const puntosFiltrados = useMemo(() => {
     const busqueda = busquedaPunto.trim().toLowerCase();
@@ -165,6 +174,7 @@ export default function MapaAdminWrapper() {
       setVista("puntos");
       setPuntoSeleccionado(encontrado);
       setModoNuevo(false);
+      minimizarPanelParaEditar();
     }
   }, [idDesdeURL, puntos]);
 
@@ -195,15 +205,23 @@ export default function MapaAdminWrapper() {
     }
   }, [duplicados.length, duplicadoActualIndex]);
 
+  useEffect(() => {
+    if (!puntoSeleccionado) {
+      setPanelExploracionAbierto(true);
+    }
+  }, [puntoSeleccionado]);
+
   function handleSelectPunto(p) {
     setVista("puntos");
     setPuntoSeleccionado(p);
     setModoNuevo(false);
+    minimizarPanelParaEditar();
   }
 
   function handleNuevoPunto() {
     setVista("puntos");
     setModoNuevo(true);
+    minimizarPanelParaEditar();
     setPuntoSeleccionado({
       nombre: "",
       categoria: "puntos_populares",
@@ -362,53 +380,98 @@ export default function MapaAdminWrapper() {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[340px_1fr]">
-        <aside className="rounded-3xl border border-uva/10 bg-white p-4 shadow-xl">
-          <div className="mb-4 grid grid-cols-2 rounded-2xl bg-crema p-1">
-            <TabButton active={vista === "puntos"} onClick={() => setVista("puntos")}>
-              <MapPinned size={17} />
-              Puntos
-            </TabButton>
-            <TabButton active={vista === "rutas"} onClick={() => setVista("rutas")}>
-              <Share2 size={17} />
-              Rutas
-            </TabButton>
-          </div>
+      <div
+        className={`grid min-w-0 gap-5 ${
+          panelExploracionAbierto
+            ? "xl:grid-cols-[340px_minmax(0,1fr)]"
+            : "xl:grid-cols-[72px_minmax(0,1fr)]"
+        }`}
+      >
+        {panelExploracionAbierto ? (
+          <aside className="min-w-0 rounded-3xl border border-uva/10 bg-white p-4 shadow-xl">
+            <div className="mb-4 flex min-w-0 items-center gap-2">
+              <div className="grid min-w-0 flex-1 grid-cols-2 rounded-2xl bg-crema p-1">
+                <TabButton active={vista === "puntos"} onClick={() => setVista("puntos")}>
+                  <MapPinned size={17} />
+                  Puntos
+                </TabButton>
+                <TabButton active={vista === "rutas"} onClick={() => setVista("rutas")}>
+                  <Share2 size={17} />
+                  Rutas
+                </TabButton>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPanelExploracionAbierto(false)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-crema text-uva transition hover:bg-morado/15"
+                title="Minimizar listado"
+                aria-label="Minimizar listado de puntos y rutas"
+              >
+                <PanelLeftClose size={19} />
+              </button>
+            </div>
 
-          {vista === "puntos" ? (
-            <PuntosPanel
-              puntos={puntosFiltrados}
-              total={puntos.length}
-              categoria={categoriaPunto}
-              setCategoria={setCategoriaPunto}
-              busqueda={busquedaPunto}
-              setBusqueda={setBusquedaPunto}
-              categoriasDisponibles={categoriasPuntosDisponibles}
-              onNuevo={handleNuevoPunto}
-              onSelect={handleSelectPunto}
-              seleccionado={puntoSeleccionado}
-              duplicadosCount={duplicados.length}
-              inactivosCount={puntos.filter((punto) => punto.activo === false).length}
-              onFusionarDuplicados={abrirModalDuplicados}
-              fusionandoDuplicados={fusionandoDuplicados}
-            />
-          ) : (
-            <RutasPanel
-              rutas={rutasFiltradas}
-              total={rutas.length}
-              categoria={categoriaRuta}
-              setCategoria={setCategoriaRuta}
-              categoriasDisponibles={categoriasRutasDisponibles}
-              onSelect={setRutaSeleccionada}
-              seleccionada={rutaSeleccionada}
-            />
-          )}
-        </aside>
+            {vista === "puntos" ? (
+              <PuntosPanel
+                puntos={puntosFiltrados}
+                total={puntos.length}
+                categoria={categoriaPunto}
+                setCategoria={setCategoriaPunto}
+                busqueda={busquedaPunto}
+                setBusqueda={setBusquedaPunto}
+                categoriasDisponibles={categoriasPuntosDisponibles}
+                onNuevo={handleNuevoPunto}
+                onSelect={handleSelectPunto}
+                seleccionado={puntoSeleccionado}
+                duplicadosCount={duplicados.length}
+                inactivosCount={puntos.filter((punto) => punto.activo === false).length}
+                onFusionarDuplicados={abrirModalDuplicados}
+                fusionandoDuplicados={fusionandoDuplicados}
+              />
+            ) : (
+              <RutasPanel
+                rutas={rutasFiltradas}
+                total={rutas.length}
+                categoria={categoriaRuta}
+                setCategoria={setCategoriaRuta}
+                categoriasDisponibles={categoriasRutasDisponibles}
+                onSelect={setRutaSeleccionada}
+                seleccionada={rutaSeleccionada}
+              />
+            )}
+          </aside>
+        ) : (
+          <aside className="min-w-0 rounded-2xl border border-uva/10 bg-white p-2 shadow-lg xl:rounded-3xl">
+            <div className="flex min-w-0 items-center gap-1 xl:flex-col">
+              <TabButtonCompacto
+                active={vista === "puntos"}
+                icon={<MapPinned size={19} />}
+                label="Puntos"
+                onClick={() => setVista("puntos")}
+              />
+              <TabButtonCompacto
+                active={vista === "rutas"}
+                icon={<Share2 size={19} />}
+                label="Rutas"
+                onClick={() => setVista("rutas")}
+              />
+              <button
+                type="button"
+                onClick={() => setPanelExploracionAbierto(true)}
+                className="ml-auto flex h-11 min-w-11 shrink-0 items-center justify-center rounded-xl bg-morado/15 px-3 text-morado transition hover:bg-morado/25 xl:ml-0 xl:mt-2 xl:w-11 xl:px-0"
+                title="Mostrar listado"
+                aria-label="Mostrar listado de puntos o rutas"
+              >
+                <PanelLeftOpen size={20} />
+              </button>
+            </div>
+          </aside>
+        )}
 
         <section
           className={`grid min-h-[calc(100vh-9rem)] items-stretch gap-5 ${
             vista === "puntos" && puntoSeleccionado
-              ? "xl:grid-cols-[1fr_auto]"
+              ? "xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_390px]"
               : "xl:grid-cols-1"
           }`}
         >
@@ -493,6 +556,25 @@ function TabButton({ active, onClick, children }) {
       }`}
     >
       {children}
+    </button>
+  );
+}
+
+function TabButtonCompacto({ active, icon, label, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold transition xl:w-11 xl:flex-none xl:px-0 ${
+        active
+          ? "bg-uva text-crema shadow"
+          : "bg-crema text-uva/65 hover:bg-morado/15 hover:text-uva"
+      }`}
+      aria-label={`Ver ${label.toLowerCase()}`}
+      title={label}
+    >
+      {icon}
+      <span className="truncate xl:sr-only">{label}</span>
     </button>
   );
 }
@@ -1000,7 +1082,7 @@ function PuntoPanel({
   };
 
   return (
-    <div className="relative w-full max-w-full xl:w-[390px]">
+    <div className="relative w-full max-w-full xl:w-[360px] 2xl:w-[390px]">
       <aside className="h-fit max-h-[80vh] w-full overflow-y-auto overflow-x-hidden rounded-3xl border border-uva/10 bg-white p-5 shadow-xl">
         <div className="absolute right-4 top-4 z-20">
           <BotonCerrar onClick={onCerrar} className="h-11 w-11 rounded-xl" />

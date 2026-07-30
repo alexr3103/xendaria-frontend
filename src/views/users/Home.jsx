@@ -278,7 +278,7 @@ export default function Home() {
   }, [navigate, rutaDesdeRutas]);
 
   useEffect(() => {
-    fetch(`${API}/api/puntos`)
+    fetch(`${API}/api/puntos`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         const cats = [
@@ -499,9 +499,9 @@ export default function Home() {
     const usuarioId = usuario?.id || usuario?._id;
     const idPunto = getPuntoId(punto);
 
-    if (!usuarioId  || !token) {
+    if (!usuarioId || !token) {
       navigate("/login");
-      throw new Error("Tenes que iniciar sesion para registrar la visita.");
+      throw new Error("Tenés que iniciar sesión para registrar la visita.");
     }
 
     const res = await fetch(`${API}/api/usuarios/${usuarioId}/visitados`, {

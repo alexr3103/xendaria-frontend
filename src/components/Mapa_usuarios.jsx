@@ -109,7 +109,6 @@ export default function MapaUsuario({
     maximumAge: 10000,
     timeout: 20000,
   });
-  console.log("coords usuario:", coords);
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -191,11 +190,28 @@ export default function MapaUsuario({
       try {
         if (onListo) onListo(false);
 
+        const res = await fetch(`${API}/api/puntos`, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("No se pudieron cargar los puntos");
+        }
+
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error("La respuesta de puntos no es valida");
+        }
+
+        puntosRef.current = data;
+        setPuntosVersion((version) => version + 1);
+        localStorage.setItem("puntos_xendaria", JSON.stringify(data));
+        if (onListo) onListo(true);
+      } catch {
         const guardados = localStorage.getItem("puntos_xendaria");
+
         if (guardados) {
           try {
             const parsed = JSON.parse(guardados);
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (Array.isArray(parsed)) {
               puntosRef.current = parsed;
               setPuntosVersion((version) => version + 1);
             }
@@ -204,16 +220,6 @@ export default function MapaUsuario({
           }
         }
 
-        const res = await fetch(`${API}/api/puntos`);
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          puntosRef.current = data;
-          setPuntosVersion((version) => version + 1);
-          localStorage.setItem("puntos_xendaria", JSON.stringify(data));
-        }
-        if (onListo) onListo(true);
-      } catch {
         if (onListo) onListo(true);
       }
     });
@@ -488,23 +494,11 @@ export default function MapaUsuario({
   }, [coords, mapReady, onCoordsChange]);
 
   useEffect(() => {
-    console.log("auto center check", {
-      coords,
-      mapReady,
-      destino,
-      rutaActiva,
-      puntoEnFoco,
-      yaCentro: ubicacionInicialCentradaRef.current,
-      hayMapa: !!mapRef.current,
-    });
-
     if (!coords || !mapRef.current || !mapReady) return;
     if (ubicacionInicialCentradaRef.current) return;
     if (destino || rutaActiva || puntoEnFoco) return;
 
     ubicacionInicialCentradaRef.current = true;
-
-    console.log("centrando mapa en:", coords);
 
     mapRef.current.flyTo({
       center: [coords.lng, coords.lat],

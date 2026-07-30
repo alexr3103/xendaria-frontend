@@ -37,6 +37,7 @@ import CrearMerch from "./views/admin/CrearMerch.jsx";
 import EditarMerch from "./views/admin/EditarMerch.jsx";
 import DashboardAdmin from "./views/admin/DashboardAdmin.jsx";
 import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
+import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
 
 export default function App() {
   const [step, setStep] = useState("loading");
@@ -51,12 +52,24 @@ export default function App() {
     }, 1000);
   }, []);
 
-  if (step === "loading") return <Carga />;
+  if (step === "loading")
+    return (
+      <>
+        <Carga />
+        <ActualizacionPWA />
+      </>
+    );
 
   if (step === "splash")
-    return <Splash onContinue={() => setStep("app")} />;
+    return (
+      <>
+        <Splash onContinue={() => setStep("app")} />
+        <ActualizacionPWA />
+      </>
+    );
 
   return (
+    <>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
@@ -105,8 +118,8 @@ export default function App() {
         <Route path="/perfil/editar" element={<EditarPerfil />} />
         <Route path="/perfil/configuracion" element={<Configuraciones />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
-        
-
       </Routes>
+      <ActualizacionPWA />
+    </>
   );
 }
