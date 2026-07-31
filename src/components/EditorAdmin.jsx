@@ -65,10 +65,13 @@ export function SeccionPlanaAdmin({ icon, title, description, children, contentC
   );
 }
 
-export function CampoAdmin({ label, children }) {
+export function CampoAdmin({ label, children, required = false }) {
   return (
     <label className="flex min-w-0 flex-col gap-2 text-sm font-bold text-uva/80">
-      {label}
+      <span>
+        {label}
+        {required && <span className="ml-1 text-fucsia">*</span>}
+      </span>
       {children}
     </label>
   );

@@ -18,7 +18,11 @@ export default function TextField({
 
   return (
     <label className="flex flex-col text-sm font-semibold text-uva relative">
-      {label}
+      <span>
+        {label}
+        {required && <span className="ml-1 text-fucsia">*</span>}
+      </span>
+
       <div className="relative">
         <input
           name={name}
@@ -49,6 +53,7 @@ export default function TextField({
           </button>
         )}
       </div>
+
       {error && (
         <span id={`${name}-error`} className="mt-1 text-xs text-fucsia">
           {error}

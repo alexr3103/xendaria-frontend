@@ -179,7 +179,7 @@ export default function VistaDetallePuntoUsuario({
                 {promedioCalificacion}
               </p>
               <p className="text-[11px] font-bold text-uva/65">
-                {resumenCalificacion?.totalCalificaciones || 0} opiniones
+                {resumenCalificacion?.totalCalificaciones || 0} calificaciones
               </p>
             </div>
           </div>
