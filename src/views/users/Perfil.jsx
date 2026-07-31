@@ -34,6 +34,7 @@ import cargafail from "../../assets/cargafail.png";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
 import { getCategoriaImagen } from "../../lib/categoriaImagenes.js";
 import { desvincularDispositivoPush } from "../../lib/notificacionesPush.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 
 function getUsuarioLocal() {
   try {
@@ -372,7 +373,17 @@ export default function Perfil() {
           navigate("/404", { replace: true });
           return;
         }
-        navigate("/login");
+        if (error.status === 401) {
+          limpiarSesion();
+          navigate("/login", { replace: true });
+          return;
+        }
+        setMensaje({
+          variant: "error",
+          text:
+            error.message ||
+            "No pudimos cargar tu perfil. Revisá tu conexión e intentá nuevamente.",
+        });
       } finally {
         if (activo) setLoading(false);
       }

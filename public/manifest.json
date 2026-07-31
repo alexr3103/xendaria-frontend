@@ -2,11 +2,11 @@
   "name": "Xendaria",
   "short_name": "Xendaria",
   "description": "App de turismo urbano para descubrir Buenos Aires con mapa interactivo, rutas, insignias y comercios locales.",
-  "start_url": "/",
+  "start_url": "/home",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FDF6F0",
+  "background_color": "#F9CDD0",
   "theme_color": "#401A37",
   "icons": [
     {
