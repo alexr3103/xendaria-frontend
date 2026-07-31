@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { login, googleLogin } from "../../lib/api/auth.js";
 import AuthLayout from "../../layouts/Auth.jsx";
 import Alert from "../../components/Alertas.jsx";
 import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { obtenerDestinoSesion } from "../../lib/sesion.js";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -19,6 +21,11 @@ export default function Login() {
   const [googleCredentialPendiente, setGoogleCredentialPendiente] =
     useState("");
   const [legalesGoogleOpen, setLegalesGoogleOpen] = useState(false);
+
+  useEffect(() => {
+    const destino = obtenerDestinoSesion();
+    if (destino) navigate(destino, { replace: true });
+  }, [navigate]);
 
   // Recuperar contraseña
   const [recuperando, setRecuperando] = useState(false);

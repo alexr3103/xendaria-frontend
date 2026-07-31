@@ -40,6 +40,12 @@ import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
 import InstalacionPWA from "./components/InstalacionPWA.jsx";
 import ActivacionNotificacionesPWA from "./components/ActivacionNotificacionesPWA.jsx";
+import { obtenerDestinoSesion } from "./lib/sesion.js";
+
+function RutaInicial() {
+  const destino = obtenerDestinoSesion();
+  return destino ? <Navigate to={destino} replace /> : <Login />;
+}
 
 export default function App() {
   const [step, setStep] = useState("loading");
@@ -63,7 +69,7 @@ export default function App() {
   } else {
     contenido = (
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<RutaInicial />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />

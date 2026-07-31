@@ -22,9 +22,9 @@ function esDispositivoIOS() {
   );
 }
 
-function fueDescartadaEnEstaSesion() {
+function fueDescartada() {
   try {
-    return sessionStorage.getItem(CLAVE_DESCARTADA) === "true";
+    return localStorage.getItem(CLAVE_DESCARTADA) === "true";
   } catch {
     return false;
   }
@@ -62,7 +62,7 @@ export default function InstalacionPWA({ habilitada = true }) {
     if (
       !habilitada ||
       instalada ||
-      fueDescartadaEnEstaSesion() ||
+      fueDescartada() ||
       (!eventoInstalacion && !esIOS)
     ) {
       return undefined;
@@ -74,7 +74,7 @@ export default function InstalacionPWA({ habilitada = true }) {
 
   const cerrar = () => {
     try {
-      sessionStorage.setItem(CLAVE_DESCARTADA, "true");
+      localStorage.setItem(CLAVE_DESCARTADA, "true");
     } catch {
       // La instalacion sigue disponible aunque el navegador bloquee el storage.
     }
