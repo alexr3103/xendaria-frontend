@@ -46,8 +46,7 @@ const TIPOS_BENEFICIO = {
   descuento: "Descuento porcentual",
   cortesia: "Producto o consumición de cortesía",
   primera_visita: "Beneficio por primera visita",
-  ruta: "Beneficio al completar una ruta",
-  otro: "Otro beneficio",
+  contacto_equipo: "Solicitar contacto del equipo",
 };
 
 function formatearFecha(fecha) {
