@@ -8,6 +8,10 @@ import { Link } from "react-router-dom";
 const API = import.meta.env.VITE_API_URL;
 const PASSWORD_INFO =
   "La contraseña debe tener al menos 6 caracteres, un número, una mayúscula y un caracter especial.";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_NUMBER_REGEX = /[0-9]/;
+const PASSWORD_UPPERCASE_REGEX = /[A-Z]/;
+const PASSWORD_SPECIAL_CHARACTER_REGEX = /[!@#$%^&*(),.?":{}|<>_+=-]/;
 
 function validarRegistro(form) {
   const nombre = form.nombre.trim();
@@ -15,19 +19,19 @@ function validarRegistro(form) {
 
   if (!nombre) return "Ingresá tu nombre completo.";
   if (!email) return "Ingresá tu correo electrónico.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!EMAIL_REGEX.test(email)) {
     return "Ingresá un correo electrónico válido.";
   }
   if (form.password.length < 6) {
     return "La contraseña debe tener al menos 6 caracteres.";
   }
-  if (!/[0-9]/.test(form.password)) {
+  if (!PASSWORD_NUMBER_REGEX.test(form.password)) {
     return "La contraseña debe tener al menos un número.";
   }
-  if (!/[A-Z]/.test(form.password)) {
+  if (!PASSWORD_UPPERCASE_REGEX.test(form.password)) {
     return "La contraseña debe tener al menos una mayúscula.";
   }
-  if (!/[!@#$%^&*(),.?\":{}|<>_\\-+=]/.test(form.password)) {
+  if (!PASSWORD_SPECIAL_CHARACTER_REGEX.test(form.password)) {
     return "La contraseña debe tener al menos un caracter especial.";
   }
   if (form.password !== form.passwordConfirm) {

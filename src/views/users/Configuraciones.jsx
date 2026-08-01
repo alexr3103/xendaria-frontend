@@ -35,6 +35,10 @@ import {
   desactivarNotificacionesPush,
 } from "../../lib/notificacionesPush.js";
 
+const PASSWORD_NUMBER_REGEX = /[0-9]/;
+const PASSWORD_UPPERCASE_REGEX = /[A-Z]/;
+const PASSWORD_SPECIAL_CHARACTER_REGEX = /[!@#$%^&*(),.?":{}|<>_+=-]/;
+
 function getUsuarioLocal() {
   try {
     return JSON.parse(localStorage.getItem("usuario") || "null");
@@ -216,15 +220,15 @@ export default function Configuraciones() {
       return "La contraseña debe tener al menos 6 caracteres.";
     }
 
-    if (!/[0-9]/.test(passwordForm.passwordNueva)) {
+    if (!PASSWORD_NUMBER_REGEX.test(passwordForm.passwordNueva)) {
       return "La contraseña debe tener al menos un número.";
     }
 
-    if (!/[A-Z]/.test(passwordForm.passwordNueva)) {
+    if (!PASSWORD_UPPERCASE_REGEX.test(passwordForm.passwordNueva)) {
       return "La contraseña debe tener al menos una mayúscula.";
     }
 
-    if (!/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(passwordForm.passwordNueva)) {
+    if (!PASSWORD_SPECIAL_CHARACTER_REGEX.test(passwordForm.passwordNueva)) {
       return "La contraseña debe tener al menos un caracter especial.";
     }
 

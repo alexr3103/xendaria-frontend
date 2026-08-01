@@ -1,9 +1,12 @@
+const BASE64URL_DASH_REGEX = /-/g;
+const BASE64URL_UNDERSCORE_REGEX = /_/g;
+
 export function decodificarToken(token) {
   try {
     const payloadBase64Url = String(token || "").split(".")[1];
     const payloadBase64 = payloadBase64Url
-      ?.replace(/-/g, "+")
-      .replace(/_/g, "/");
+      ?.replace(BASE64URL_DASH_REGEX, "+")
+      .replace(BASE64URL_UNDERSCORE_REGEX, "/");
 
     if (!payloadBase64) return null;
 

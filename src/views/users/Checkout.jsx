@@ -13,6 +13,8 @@ import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
 
 const formatoPrecio = new Intl.NumberFormat("es-AR");
+const NON_DIGIT_REGEX = /\D/g;
+const POSTAL_CODE_REGEX = /^[a-zA-Z0-9\s-]{4,10}$/;
 
 const PROVINCIAS = [
   { value: "capital_federal", label: "CABA" },
@@ -77,7 +79,7 @@ function renderVariante(variante) {
 
 function validarCheckout(form) {
   const errores = {};
-  const telefonoLimpio = form.telefono.replace(/\D/g, "");
+  const telefonoLimpio = form.telefono.replace(NON_DIGIT_REGEX, "");
   const codigoPostal = form.codigoPostal.trim();
 
   if (form.nombreCompleto.trim().length < 3) {
@@ -104,7 +106,7 @@ function validarCheckout(form) {
     errores.provincia = "Seleccioná una provincia o zona.";
   }
 
-  if (!/^[a-zA-Z0-9\s-]{4,10}$/.test(codigoPostal)) {
+  if (!POSTAL_CODE_REGEX.test(codigoPostal)) {
     errores.codigoPostal = "Ingresá un código postal válido.";
   }
 

@@ -24,6 +24,8 @@ import EncabezadoOrdenableAdmin from "../../components/EncabezadoOrdenableAdmin.
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 
+const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+
 const FORM_TITULO_INICIAL = {
   _id: "",
   categoria: "puntos_populares",
@@ -58,7 +60,7 @@ const OPCIONES_CATEGORIAS_TITULOS = [
 function normalizarBusqueda(valor = "") {
   return String(valor)
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(DIACRITICS_REGEX, "")
     .toLowerCase()
     .trim();
 }

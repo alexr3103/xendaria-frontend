@@ -1,11 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 
+const BASE64URL_DASH_REGEX = /-/g;
+const BASE64URL_UNDERSCORE_REGEX = /_/g;
+
 function tokenExpirado(token) {
   try {
     const payloadBase64Url = token.split(".")[1];
     const payloadBase64 = payloadBase64Url
-      ?.replace(/-/g, "+")
-      .replace(/_/g, "/");
+      ?.replace(BASE64URL_DASH_REGEX, "+")
+      .replace(BASE64URL_UNDERSCORE_REGEX, "/");
     if (!payloadBase64) return true;
 
     const padding = "=".repeat((4 - (payloadBase64.length % 4)) % 4);

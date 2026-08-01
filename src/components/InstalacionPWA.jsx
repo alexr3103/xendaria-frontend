@@ -3,6 +3,7 @@ import { Download, Share2, SquarePlus } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 
 const CLAVE_DESCARTADA = "xendaria:instalacion-descartada";
+const IOS_DEVICE_REGEX = /iphone|ipad|ipod/i;
 
 function estaInstalada() {
   if (typeof window === "undefined") return false;
@@ -17,7 +18,7 @@ function esDispositivoIOS() {
   if (typeof navigator === "undefined") return false;
 
   return (
-    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    IOS_DEVICE_REGEX.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
   );
 }

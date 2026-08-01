@@ -16,6 +16,7 @@ import {
 
 const DESCRIPCION_MAX_LENGTH = 150;
 const CATEGORIA_COMERCIO = "comercios";
+const GOOGLE_PROFILE_IMAGE_REGEX = /googleusercontent\.com|ggpht\.com/i;
 
 function normalizarCategoriaFavorita(value = "") {
   return value === CATEGORIA_COMERCIO ? "" : value;
@@ -30,7 +31,7 @@ function getUsuarioLocal() {
 }
 
 function esFotoGoogle(value = "") {
-  return /googleusercontent\.com|ggpht\.com/i.test(String(value));
+  return GOOGLE_PROFILE_IMAGE_REGEX.test(String(value));
 }
 
 async function getErrorMessage(res) {

@@ -18,6 +18,7 @@ import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
 import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 
 const API = import.meta.env.VITE_API_URL;
+const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
 
 const ESTADOS = {
   pendiente: {
@@ -61,7 +62,7 @@ function formatearFecha(fecha) {
 function normalizarBusqueda(valor) {
   return String(valor || "")
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(DIACRITICS_REGEX, "")
     .toLowerCase();
 }
 

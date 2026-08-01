@@ -1,6 +1,11 @@
+const BASE64URL_DASH_REGEX = /-/g;
+const BASE64URL_UNDERSCORE_REGEX = /_/g;
+
 function convertirClaveBase64(clave) {
   const padding = "=".repeat((4 - (clave.length % 4)) % 4);
-  const base64 = (clave + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const base64 = (clave + padding)
+    .replace(BASE64URL_DASH_REGEX, "+")
+    .replace(BASE64URL_UNDERSCORE_REGEX, "/");
   const datos = window.atob(base64);
 
   return Uint8Array.from(datos, (caracter) => caracter.charCodeAt(0));

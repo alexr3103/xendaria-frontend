@@ -1,4 +1,5 @@
 export const TALLES_DISPONIBLES = ["XS", "S", "M", "L", "XL", "XXL"];
+const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
 
 export const MERCH_CATEGORY_OPTIONS = [
   {
@@ -52,7 +53,7 @@ export const MERCH_COLOR_OPTIONS = [
 export function normalizarCategoriaMerch(categoria = "") {
   return String(categoria)
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(DIACRITICS_REGEX, "")
     .toLowerCase()
     .trim();
 }

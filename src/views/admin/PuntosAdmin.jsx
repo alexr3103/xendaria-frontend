@@ -17,6 +17,10 @@ import { categorias } from "../../components/CategoriasFiltros.jsx";
 import EncabezadoOrdenableAdmin from "../../components/EncabezadoOrdenableAdmin.jsx";
 import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 
+const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+const NON_ALPHANUMERIC_REGEX = /[^a-z0-9]+/g;
+const EDGE_DASHES_REGEX = /^-+|-+$/g;
+
 function getCategoriasPunto(punto = {}) {
   const valores = [
     ...(Array.isArray(punto.categorias) ? punto.categorias : []),
@@ -34,11 +38,11 @@ function getInsigniaUrl(punto = {}) {
 function crearSlug(nombre = "") {
   return nombre
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(DIACRITICS_REGEX, "")
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(NON_ALPHANUMERIC_REGEX, "-")
+    .replace(EDGE_DASHES_REGEX, "");
 }
 
 export default function PuntosAdmin() {

@@ -1,3 +1,5 @@
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 export const recompensaComercioInicial = {
   beneficio: "",
   codigo: "",
@@ -8,7 +10,7 @@ export const recompensaComercioInicial = {
 
 export function normalizarFechaRecompensa(value) {
   if (!value) return "";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
+  if (ISO_DATE_REGEX.test(String(value))) return String(value);
 
   const fecha = new Date(value);
   if (Number.isNaN(fecha.getTime())) return "";
