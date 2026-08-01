@@ -70,6 +70,8 @@ export default function CrearMerch() {
   const [guardando, setGuardando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
 
+  const usaTalles = producto.categoria === "Indumentaria";
+
   useEffect(() => {
     return () => {
       if (productoGuardadoRef.current) return;
@@ -131,43 +133,6 @@ export default function CrearMerch() {
         [talle]: valor,
       },
     }));
-  }
-
-  function agregarVariantesPorTalle() {
-    if (!cargaPorTalles.color) {
-      setError("Seleccioná un color para cargar los talles.");
-      return;
-    }
-
-    const nuevasVariantes = TALLES_DISPONIBLES
-      .map((talle) => ({
-        color: cargaPorTalles.color,
-        talle,
-        stock: Number(cargaPorTalles.stockPorTalle[talle] || 0),
-        diseno: "",
-        esNueva: true,
-      }))
-      .filter((variante) => variante.stock > 0);
-
-    if (nuevasVariantes.length === 0) {
-      setError("Ingresá stock en al menos un talle.");
-      return;
-    }
-
-    setProducto((prev) => ({
-      ...prev,
-      variantes: [...prev.variantes, ...nuevasVariantes],
-    }));
-
-    setCargaPorTalles({
-      color: "",
-      stockPorTalle: TALLES_DISPONIBLES.reduce((acc, talle) => {
-        acc[talle] = "";
-        return acc;
-      }, {}),
-    });
-
-    setError("");
   }
 
   function agregarImagen(data) {
@@ -293,23 +258,45 @@ export default function CrearMerch() {
         return;
       }
 
-      const variantesLimpias = producto.variantes
-        .map((variante) => ({
-          color: variante.color?.trim() || undefined,
-          talle: variante.talle?.trim() || undefined,
-          diseno: variante.diseno?.trim() || undefined,
-          stock:
-            variante.stock === "" || variante.stock === null
-              ? undefined
-              : Number(variante.stock),
-        }))
-        .filter(
-          (variante) =>
-            variante.color ||
-            variante.talle ||
-            variante.diseno ||
-            variante.stock !== undefined
-        );
+      let variantesLimpias = [];
+
+      if (usaTalles) {
+        if (!cargaPorTalles.color) {
+          setError("Seleccioná un color para el producto.");
+          return;
+        }
+
+        variantesLimpias = TALLES_DISPONIBLES
+          .map((talle) => ({
+            color: cargaPorTalles.color,
+            talle,
+            stock: Number(cargaPorTalles.stockPorTalle[talle] || 0),
+          }))
+          .filter((variante) => variante.stock > 0);
+
+        if (variantesLimpias.length === 0) {
+          setError("Ingresá stock en al menos un talle.");
+          return;
+        }
+      } else {
+        variantesLimpias = producto.variantes
+          .map((variante) => ({
+            color: variante.color?.trim() || undefined,
+            talle: variante.talle?.trim() || undefined,
+            diseno: variante.diseno?.trim() || undefined,
+            stock:
+              variante.stock === "" || variante.stock === null
+                ? undefined
+                : Number(variante.stock),
+          }))
+          .filter(
+            (variante) =>
+              variante.color ||
+              variante.talle ||
+              variante.diseno ||
+              variante.stock !== undefined
+          );
+      }
 
       const stockTotal = variantesLimpias.reduce(
         (acc, variante) => acc + (variante.stock || 0),
@@ -486,90 +473,90 @@ export default function CrearMerch() {
             description="Elegí un color y cargá varios talles con su stock."
             icon={Shapes}
           >
-            <div className="rounded-[26px] border border-uva/10 bg-crema/70 p-4 sm:p-5">
-              <div className="space-y-3">
-                <span className="text-sm font-bold text-uva/80">Color</span>
+            {usaTalles ? (
+              <div className="rounded-[26px] border border-uva/10 bg-crema/70 p-4 sm:p-5">
+                <div className="space-y-3">
+                  <span className="text-sm font-bold text-uva/80">Color</span>
 
-                <div className="flex flex-wrap gap-2">
-                  {MERCH_COLOR_OPTIONS.map((color) => {
-                    const seleccionado = cargaPorTalles.color === color.nombre;
+                  <div className="flex flex-wrap gap-2">
+                    {MERCH_COLOR_OPTIONS.map((color) => {
+                      const seleccionado = cargaPorTalles.color === color.nombre;
 
-                    return (
-                      <button
-                        key={color.nombre}
-                        type="button"
-                        title={color.nombre}
-                        onClick={() => seleccionarColorCarga(color.nombre)}
-                        className={`${color.swatchClassName} h-9 w-9 rounded-full border-2 shadow-sm transition ${
-                          seleccionado
-                            ? "scale-110 border-morado"
-                            : "border-uva/20 hover:border-morado/60"
-                        } ${color.nombre === "Blanco" ? "ring-1 ring-uva/20" : ""}`}
-                      />
-                    );
-                  })}
+                      return (
+                        <button
+                          key={color.nombre}
+                          type="button"
+                          title={color.nombre}
+                          onClick={() => seleccionarColorCarga(color.nombre)}
+                          className={`${color.swatchClassName} h-9 w-9 rounded-full border-2 shadow-sm transition ${
+                            seleccionado
+                              ? "scale-110 border-black ring-4 ring-vainilla shadow-md"
+                              : "border-uva/20 hover:border-morado/60"
+                          } ${color.nombre === "Blanco" ? "ring-1 ring-uva/20" : ""}`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-xs font-semibold text-uva/45">
+                    {cargaPorTalles.color
+                      ? `Color seleccionado: ${cargaPorTalles.color}`
+                      : "Seleccioná un color"}
+                  </p>
                 </div>
 
-                <p className="text-xs font-semibold text-uva/45">
-                  {cargaPorTalles.color
-                    ? `Color seleccionado: ${cargaPorTalles.color}`
-                    : "Seleccioná un color"}
-                </p>
+                <div className="mt-6">
+                  <span className="text-sm font-bold text-uva/80">Talles y stock</span>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+                    {TALLES_DISPONIBLES.map((talle) => (
+                      <div
+                        key={talle}
+                        className="rounded-2xl border border-uva/10 bg-white p-3"
+                      >
+                        <p className="mb-2 text-center text-sm font-extrabold text-uva">
+                          {talle}
+                        </p>
+
+                        <input
+                          type="number"
+                          min="0"
+                          value={cargaPorTalles.stockPorTalle[talle]}
+                          onChange={(event) =>
+                            cambiarStockTalle(talle, event.target.value)
+                          }
+                          className={`${claseInputAdmin} px-3 py-2 text-center`}
+                          placeholder="0"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={agregarVariante}
+                    className="rounded-full bg-uva px-4 py-2.5 text-sm font-bold text-crema shadow transition hover:bg-uva/90"
+                  >
+                    + Agregar variante
+                  </button>
+                </div>
 
-              <div className="mt-6">
-                <span className="text-sm font-bold text-uva/80">Talles y stock</span>
-
-                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-                  {TALLES_DISPONIBLES.map((talle) => (
-                    <div
-                      key={talle}
-                      className="rounded-2xl border border-uva/10 bg-white p-3"
-                    >
-                      <p className="mb-2 text-center text-sm font-extrabold text-uva">
-                        {talle}
-                      </p>
-
-                      <input
-                        type="number"
-                        min="0"
-                        value={cargaPorTalles.stockPorTalle[talle]}
-                        onChange={(event) => cambiarStockTalle(talle, event.target.value)}
-                        className={`${claseInputAdmin} px-3 py-2 text-center`}
-                        placeholder="0"
-                      />
-                    </div>
+                <div className="grid gap-4">
+                  {producto.variantes.map((variante, index) => (
+                    <VariantEditor
+                      key={`${variante.esNueva ? "nueva" : "existente"}-${index}`}
+                      variante={variante}
+                      index={index}
+                      onChange={actualizarVariante}
+                      onDelete={eliminarVariante}
+                    />
                   ))}
                 </div>
-              </div>
-
-              <div className="mt-5 flex justify-end">
-                <button
-                  type="button"
-                  onClick={agregarVariantesPorTalle}
-                  className="rounded-full bg-uva px-4 py-2.5 text-sm font-bold text-crema shadow transition hover:bg-uva/90"
-                >
-                  + Agregar combinación
-                </button>
-              </div>
-            </div>
-
-            {producto.variantes.length === 0 ? (
-              <p className="text-sm font-semibold text-uva/55">
-                Este producto no tiene variantes cargadas.
-              </p>
-            ) : (
-              <div className="grid gap-4">
-                {producto.variantes.map((variante, index) => (
-                  <VariantEditor
-                    key={`${variante.esNueva ? "nueva" : "existente"}-${index}`}
-                    variante={variante}
-                    index={index}
-                    onChange={actualizarVariante}
-                    onDelete={eliminarVariante}
-                  />
-                ))}
-              </div>
+              </>
             )}
           </SeccionPlanaAdmin>
 

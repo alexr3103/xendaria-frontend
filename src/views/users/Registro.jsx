@@ -27,7 +27,7 @@ function validarRegistro(form) {
   if (!/[A-Z]/.test(form.password)) {
     return "La contraseña debe tener al menos una mayúscula.";
   }
-  if (!/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(form.password)) {
+  if (!/[!@#$%^&*(),.?\":{}|<>_\\-+=]/.test(form.password)) {
     return "La contraseña debe tener al menos un caracter especial.";
   }
   if (form.password !== form.passwordConfirm) {
@@ -75,7 +75,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API}/api/usuarios/register`, {  
+      const res = await fetch(`${API}/api/usuarios/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -87,16 +87,21 @@ export default function Register() {
 
       const data = await res.json();
       if (!res.ok) {
-        const msg = Array.isArray(data.message) ? data.message.join(" • ") : data.message;
+        const msg = Array.isArray(data.message)
+          ? data.message.join(" • ")
+          : data.message;
         throw new Error(msg || "Error al registrarse");
       }
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("usuario", JSON.stringify({
-        id: data.id,
-        nombre: data.nombre,
-        email: data.email,
-      }));
+      localStorage.setItem(
+        "usuario",
+        JSON.stringify({
+          id: data.id,
+          nombre: data.nombre,
+          email: data.email,
+        })
+      );
 
       setOk("Cuenta creada con éxito");
       setTimeout(() => (window.location.href = "/login"), 1500);
@@ -118,78 +123,93 @@ export default function Register() {
           className="flex flex-col gap-3"
           aria-describedby={err ? "register-error" : undefined}
         >
-        <TextField
-          label="Nombre completo"
-          name="nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          placeholder="Ej: Juan Pérez"
-          autoComplete="name"
-          required
-        />
-
-        <TextField
-          label="Correo electrónico"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Ej: juanperez@email.com"
-          required
-          autoComplete="email"
-        />
-
-        <Alert variant="info">{PASSWORD_INFO}</Alert>
-
-        <TextField
-          label="Contraseña"
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-          required
-          autoComplete="new-password"
-        />
-
-        <TextField
-          label="Confirmar contraseña"
-          name="passwordConfirm"
-          type="password"
-          value={form.passwordConfirm}
-          onChange={handleChange}
-          required
-          autoComplete="new-password"
-        />
-
-        <label className="mt-1 flex cursor-pointer items-start gap-3 text-sm leading-snug text-uva">
-          <input
-            type="checkbox"
-            name="aceptaTerminos"
-            checked={form.aceptaTerminos}
+          <TextField
+            label={
+              <>
+                Nombre completo <span className="text-fucsia">*</span>
+              </>
+            }
+            name="nombre"
+            value={form.nombre}
             onChange={handleChange}
-            className="mt-0.5 h-5 w-5 shrink-0 accent-morado"
+            placeholder="Ej: Juan Pérez"
+            autoComplete="name"
+            required
           />
-          <span>
-            Acepto los{" "}
-            <button
-              type="button"
-              onClick={() => setLegalesOpen(true)}
-              className="font-bold text-morado underline underline-offset-2"
-            >
-              términos y la política de privacidad
-            </button>
-            .
-          </span>
-        </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 bg-morado text-white font-bold py-3 rounded-xl hover:bg-uva 
-                     active:scale-[0.98] transition-transform focus:ring-4 focus:ring-morado/30 disabled:opacity-60"
-        >
-          {loading ? "Creando..." : "Registrarse"}
-        </button>
+          <TextField
+            label={
+              <>
+                Correo electrónico <span className="text-fucsia">*</span>
+              </>
+            }
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Ej: juanperez@email.com"
+            required
+            autoComplete="email"
+          />
+
+          <Alert variant="info">{PASSWORD_INFO}</Alert>
+
+          <TextField
+            label={
+              <>
+                Contraseña <span className="text-fucsia">*</span>
+              </>
+            }
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            autoComplete="new-password"
+          />
+
+          <TextField
+            label={
+              <>
+                Confirmar contraseña <span className="text-fucsia">*</span>
+              </>
+            }
+            name="passwordConfirm"
+            type="password"
+            value={form.passwordConfirm}
+            onChange={handleChange}
+            required
+            autoComplete="new-password"
+          />
+
+          <label className="mt-1 flex cursor-pointer items-start gap-3 text-sm leading-snug text-uva">
+            <input
+              type="checkbox"
+              name="aceptaTerminos"
+              checked={form.aceptaTerminos}
+              onChange={handleChange}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-morado"
+            />
+            <span>
+              Acepto los{" "}
+              <button
+                type="button"
+                onClick={() => setLegalesOpen(true)}
+                className="font-bold text-morado underline underline-offset-2"
+              >
+                términos y la política de privacidad
+              </button>
+              .
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 bg-morado text-white font-bold py-3 rounded-xl hover:bg-uva active:scale-[0.98] transition-transform focus:ring-4 focus:ring-morado/30 disabled:opacity-60"
+          >
+            {loading ? "Creando..." : "Registrarse"}
+          </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-600">

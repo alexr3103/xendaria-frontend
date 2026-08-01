@@ -18,10 +18,7 @@ export default function TextField({
 
   return (
     <label className="flex flex-col text-sm font-semibold text-uva relative">
-      <span>
-        {label}
-        {required && <span className="ml-1 text-fucsia">*</span>}
-      </span>
+      <span>{label}</span>
 
       <div className="relative">
         <input

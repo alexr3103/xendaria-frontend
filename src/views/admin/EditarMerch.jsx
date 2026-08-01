@@ -49,6 +49,34 @@ function prepararVariantesDesdeAPI(variantes = []) {
   }));
 }
 
+function crearStockPorTalleVacio() {
+  return TALLES_DISPONIBLES.reduce((acc, talle) => {
+    acc[talle] = "";
+    return acc;
+  }, {});
+}
+
+function agruparVariantesPorColor(variantes = []) {
+  const grupos = new Map();
+
+  variantes.forEach((variante) => {
+    const color = variante.color || "Sin color";
+
+    if (!grupos.has(color)) {
+      grupos.set(color, {
+        color,
+        stockPorTalle: crearStockPorTalleVacio(),
+      });
+    }
+
+    if (variante.talle) {
+      grupos.get(color).stockPorTalle[variante.talle] = variante.stock ?? "";
+    }
+  });
+
+  return Array.from(grupos.values());
+}
+
 export default function EditarMerch() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -59,6 +87,7 @@ export default function EditarMerch() {
   const imagenesNuevasRef = useRef([]);
 
   const [producto, setProducto] = useState(null);
+  const [gruposColor, setGruposColor] = useState([]);
   const [imagenesEliminadas, setImagenesEliminadas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
@@ -67,6 +96,8 @@ export default function EditarMerch() {
   const [error, setError] = useState("");
   const [mostrarConfirmacionEliminar, setMostrarConfirmacionEliminar] =
     useState(false);
+
+  const usaTalles = producto?.categoria === "Indumentaria";
 
   useEffect(() => {
     async function cargarProducto() {
@@ -86,6 +117,10 @@ export default function EditarMerch() {
 
         const data = await res.json();
 
+        const variantesPreparadas = Array.isArray(data.variantes)
+          ? prepararVariantesDesdeAPI(data.variantes)
+          : [];
+
         setProducto({
           ...data,
           categoria: getMerchCategoryInfo(data.categoria).value,
@@ -96,10 +131,10 @@ export default function EditarMerch() {
             : data.imagen
               ? [{ url: data.imagen }]
               : [],
-          variantes: Array.isArray(data.variantes)
-            ? prepararVariantesDesdeAPI(data.variantes)
-            : [],
+          variantes: variantesPreparadas,
         });
+
+        setGruposColor(agruparVariantesPorColor(variantesPreparadas));
       } catch (err) {
         setError(err.message || "No se pudo cargar el producto");
       } finally {
@@ -154,6 +189,39 @@ export default function EditarMerch() {
       ...prev,
       variantes: prev.variantes.filter((_, i) => i !== index),
     }));
+  }
+
+  function actualizarColorGrupo(index, color) {
+    const colorDuplicado = gruposColor.some(
+      (grupo, i) => i !== index && grupo.color === color
+    );
+
+    if (colorDuplicado) {
+      setError("Ese color ya existe en el producto.");
+      return;
+    }
+
+    setError("");
+
+    setGruposColor((prev) =>
+      prev.map((grupo, i) => (i === index ? { ...grupo, color } : grupo))
+    );
+  }
+
+  function actualizarStockGrupo(index, talle, valor) {
+    setGruposColor((prev) =>
+      prev.map((grupo, i) =>
+        i === index
+          ? {
+              ...grupo,
+              stockPorTalle: {
+                ...grupo.stockPorTalle,
+                [talle]: valor,
+              },
+            }
+          : grupo
+      )
+    );
   }
 
   function agregarImagen(data) {
@@ -254,23 +322,62 @@ export default function EditarMerch() {
         return;
       }
 
-      const variantesLimpias = producto.variantes
-        .map((variante) => ({
-          color: variante.color?.trim() || undefined,
-          talle: variante.talle?.trim() || undefined,
-          diseno: variante.diseno?.trim() || undefined,
-          stock:
-            variante.stock === "" || variante.stock === null
-              ? undefined
-              : Number(variante.stock),
-        }))
-        .filter(
-          (variante) =>
-            variante.color ||
-            variante.talle ||
-            variante.diseno ||
-            variante.stock !== undefined
-        );
+      let variantesLimpias = [];
+
+      if (usaTalles) {
+        const colores = gruposColor
+          .map((grupo) => grupo.color?.trim())
+          .filter(Boolean);
+
+        const coloresUnicos = new Set(colores);
+
+        if (colores.length !== coloresUnicos.size) {
+          setError("No puede haber colores repetidos.");
+          return;
+        }
+
+        variantesLimpias = gruposColor
+          .flatMap((grupo) =>
+            TALLES_DISPONIBLES.map((talle) => {
+              const varianteExistente = (producto.variantes || []).find(
+                (variante) =>
+                  (variante.color || "").trim() === (grupo.color || "").trim() &&
+                  (variante.talle || "").trim() === talle
+              );
+
+              return {
+                color: grupo.color?.trim() || undefined,
+                talle,
+                diseno: varianteExistente?.diseno?.trim() || undefined,
+                stock: Number(grupo.stockPorTalle[talle] || 0),
+              };
+            })
+          )
+          .filter((variante) => variante.color && variante.stock > 0);
+
+        if (variantesLimpias.length === 0) {
+          setError("Ingresá stock en al menos un talle.");
+          return;
+        }
+      } else {
+        variantesLimpias = producto.variantes
+          .map((variante) => ({
+            color: variante.color?.trim() || undefined,
+            talle: variante.talle?.trim() || undefined,
+            diseno: variante.diseno?.trim() || undefined,
+            stock:
+              variante.stock === "" || variante.stock === null
+                ? undefined
+                : Number(variante.stock),
+          }))
+          .filter(
+            (variante) =>
+              variante.color ||
+              variante.talle ||
+              variante.diseno ||
+              variante.stock !== undefined
+          );
+      }
 
       const stockTotal = variantesLimpias.reduce(
         (acc, variante) => acc + (variante.stock || 0),
@@ -390,7 +497,11 @@ export default function EditarMerch() {
                 disabled={guardando}
                 className="flex items-center justify-center gap-2 rounded-full bg-morado px-4 py-2.5 font-bold text-crema shadow-md transition hover:bg-morado/85 disabled:opacity-60"
               >
-                {guardando ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                {guardando ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Save size={18} />
+                )}
                 {guardando ? "Guardando..." : "Guardar"}
               </button>
               <button
@@ -428,7 +539,7 @@ export default function EditarMerch() {
               <SectionTitle
                 icon={Package}
                 title="Datos principales"
-              subtitle="Lo básico que identifica al producto en la tienda."
+                subtitle="Lo básico que identifica al producto en la tienda."
               />
 
               <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(260px,1.35fr)_220px_160px_180px]">
@@ -474,7 +585,10 @@ export default function EditarMerch() {
                   <InterruptorProductoMerch
                     active={producto.activo !== false}
                     onClick={() =>
-                      setProducto({ ...producto, activo: producto.activo === false })
+                      setProducto({
+                        ...producto,
+                        activo: producto.activo === false,
+                      })
                     }
                   />
                 </div>
@@ -485,7 +599,10 @@ export default function EditarMerch() {
                   className={`${inputClass} min-h-36 resize-y`}
                   value={producto.descripcion || ""}
                   onChange={(event) =>
-                    setProducto({ ...producto, descripcion: event.target.value })
+                    setProducto({
+                      ...producto,
+                      descripcion: event.target.value,
+                    })
                   }
                 />
               </Field>
@@ -512,35 +629,128 @@ export default function EditarMerch() {
 
             <FlatSection
               title="Variantes"
-              description="Combinaciones de color, talle, diseño y stock."
+              description="Editá stock por color y talle."
               icon={Shapes}
             >
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={agregarVariante}
-                  className="rounded-full bg-uva px-4 py-2.5 text-sm font-bold text-crema shadow transition hover:bg-uva/90"
-                >
-                  + Agregar variante
-                </button>
-              </div>
+              {usaTalles ? (
+                gruposColor.length === 0 ? (
+                  <p className="text-sm font-semibold text-uva/55">
+                    Este producto no tiene colores cargados.
+                  </p>
+                ) : (
+                  <div className="grid gap-4">
+                    {gruposColor.map((grupo, index) => (
+                      <article
+                        key={`${grupo.color || "sin-color"}-${index}`}
+                        className="rounded-[26px] border border-uva/10 bg-crema/70 p-4 sm:p-5"
+                      >
+                        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h4 className="font-fredoka text-lg leading-none text-uva">
+                              {grupo.color || "Nuevo color"}
+                            </h4>
+                            <p className="text-xs font-semibold text-uva/45">
+                              Talles y stock por color.
+                            </p>
+                          </div>
+                        </div>
 
-              {producto.variantes.length === 0 ? (
-                <p className="text-sm font-semibold text-uva/55">
-                  Este producto no tiene variantes cargadas.
-                </p>
+                        <div className="space-y-3">
+                          <span className="text-sm font-bold text-uva/80">
+                            Color
+                          </span>
+
+                          <div className="flex flex-wrap gap-2">
+                            {MERCH_COLOR_OPTIONS.map((color) => {
+                              const seleccionado =
+                                grupo.color === color.nombre;
+
+                              return (
+                                <button
+                                  key={color.nombre}
+                                  type="button"
+                                  title={color.nombre}
+                                  onClick={() =>
+                                    actualizarColorGrupo(index, color.nombre)
+                                  }
+                                  className={`${color.swatchClassName} h-9 w-9 rounded-full border-2 shadow-sm transition ${
+                                    seleccionado
+                                      ? "scale-110 border-black ring-4 ring-vainilla shadow-md"
+                                      : "border-uva/20 hover:border-morado/60"
+                                  } ${color.nombre === "Blanco" ? "ring-1 ring-uva/20" : ""}`}
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="mt-6">
+                          <span className="text-sm font-bold text-uva/80">
+                            Talles y stock
+                          </span>
+
+                          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+                            {TALLES_DISPONIBLES.map((talle) => (
+                              <div
+                                key={talle}
+                                className="rounded-2xl border border-uva/10 bg-white p-3"
+                              >
+                                <p className="mb-2 text-center text-sm font-extrabold text-uva">
+                                  {talle}
+                                </p>
+
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={grupo.stockPorTalle[talle]}
+                                  onChange={(event) =>
+                                    actualizarStockGrupo(
+                                      index,
+                                      talle,
+                                      event.target.value
+                                    )
+                                  }
+                                  className={`${inputClass} px-3 py-2 text-center`}
+                                  placeholder="0"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )
               ) : (
-                <div className="grid gap-4">
-                  {producto.variantes.map((variante, index) => (
-                    <VariantEditor
-                      key={`${variante.esNueva ? "nueva" : "existente"}-${index}`}
-                      variante={variante}
-                      index={index}
-                      onChange={actualizarVariante}
-                      onDelete={eliminarVariante}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={agregarVariante}
+                      className="rounded-full bg-uva px-4 py-2.5 text-sm font-bold text-crema shadow transition hover:bg-uva/90"
+                    >
+                      + Agregar variante
+                    </button>
+                  </div>
+
+                  {producto.variantes.length === 0 ? (
+                    <p className="text-sm font-semibold text-uva/55">
+                      Este producto no tiene variantes cargadas.
+                    </p>
+                  ) : (
+                    <div className="grid gap-4">
+                      {producto.variantes.map((variante, index) => (
+                        <VariantEditor
+                          key={`${variante.esNueva ? "nueva" : "existente"}-${index}`}
+                          variante={variante}
+                          index={index}
+                          onChange={actualizarVariante}
+                          onDelete={eliminarVariante}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </FlatSection>
 
@@ -559,7 +769,11 @@ export default function EditarMerch() {
                 disabled={guardando}
                 className="flex items-center justify-center gap-2 rounded-full bg-morado px-5 py-2.5 font-bold text-crema shadow-md transition hover:bg-morado/85 disabled:opacity-60"
               >
-                {guardando ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                {guardando ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  <Save size={18} />
+                )}
                 {guardando ? "Guardando..." : "Guardar"}
               </button>
             </div>

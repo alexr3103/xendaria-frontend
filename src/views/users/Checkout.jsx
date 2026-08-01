@@ -381,7 +381,11 @@ export default function Checkout() {
           <div className="space-y-6 px-4 py-5 sm:px-5">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <CampoCheckout
-                label="Nombre y apellido"
+                label={
+                  <>
+                    Nombre y apellido <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="nombreCompleto"
                 placeholder="Ej: Juan Pérez"
                 value={form.nombreCompleto}
@@ -389,7 +393,11 @@ export default function Checkout() {
                 error={errores.nombreCompleto}
               />
               <CampoCheckout
-                label="Teléfono"
+                label={
+                  <>
+                    Teléfono <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="telefono"
                 placeholder="Ej: 11 2345 6789"
                 value={form.telefono}
@@ -397,7 +405,11 @@ export default function Checkout() {
                 error={errores.telefono}
               />
               <CampoCheckout
-                label="Calle"
+                label={
+                  <>
+                    Calle <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="calle"
                 placeholder="Ej: Av. Corrientes"
                 value={form.calle}
@@ -405,7 +417,11 @@ export default function Checkout() {
                 error={errores.calle}
               />
               <CampoCheckout
-                label="Altura"
+                label={
+                  <>
+                    Altura <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="numero"
                 placeholder="Ej: 1234"
                 value={form.numero}
@@ -421,7 +437,11 @@ export default function Checkout() {
                 error={errores.pisoDepto}
               />
               <CampoCheckout
-                label="Ciudad"
+                label={
+                  <>
+                    Ciudad <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="ciudad"
                 placeholder="Ej: Palermo"
                 value={form.ciudad}
@@ -429,14 +449,22 @@ export default function Checkout() {
                 error={errores.ciudad}
               />
               <CampoSelectCheckout
-                label="Provincia / zona"
+                label={
+                  <>
+                    Provincia / zona <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="provincia"
                 value={form.provincia}
                 onChange={handleChange}
                 error={errores.provincia}
               />
               <CampoCheckout
-                label="Código postal"
+                label={
+                  <>
+                    Código postal <span className="text-fucsia">*</span>
+                  </>
+                }
                 name="codigoPostal"
                 placeholder="Ej: C1043"
                 value={form.codigoPostal}
