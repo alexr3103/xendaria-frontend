@@ -532,7 +532,12 @@ export default function UsuariosAdmin() {
 
       {mensaje && (
         <div className="mb-5 max-w-3xl">
-          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          <Alert
+            variant={mensaje.variant}
+            autoFocus={mensaje.variant === "error"}
+          >
+            {mensaje.text}
+          </Alert>
         </div>
       )}
 
@@ -626,7 +631,7 @@ export default function UsuariosAdmin() {
 
           {error && (
             <div className="mb-5 max-w-3xl">
-              <Alert>{error}</Alert>
+              <Alert autoFocus>{error}</Alert>
             </div>
           )}
 
@@ -837,7 +842,7 @@ export default function UsuariosAdmin() {
 
           {errorResumen && (
             <div className="mb-5 max-w-3xl">
-              <Alert>{errorResumen}</Alert>
+              <Alert autoFocus>{errorResumen}</Alert>
             </div>
           )}
 
@@ -1080,7 +1085,7 @@ function TitulosAdminSection({
 
       {error && (
         <div className="mb-5 max-w-3xl">
-          <Alert>{error}</Alert>
+          <Alert autoFocus>{error}</Alert>
         </div>
       )}
 

@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -123,7 +124,7 @@ export default function MapaAdminWrapper() {
     return Object.keys(CATEGORIAS_RUTAS_LABELS).filter((key) => usadas.has(key));
   }, [rutas]);
 
-  async function cargarPuntos() {
+  const cargarPuntos = useCallback(async () => {
     const query = new URLSearchParams({ incluirInactivos: "true" });
     const res = await fetch(`${API}/api/puntos?${query.toString()}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -132,9 +133,9 @@ export default function MapaAdminWrapper() {
     const lista = Array.isArray(data) ? data : [];
     setPuntos(lista);
     return lista;
-  }
+  }, [API, token]);
 
-  async function cargarRutas() {
+  const cargarRutas = useCallback(async () => {
     const res = await fetch(`${API}/api/rutas/admin/todas`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -148,9 +149,9 @@ export default function MapaAdminWrapper() {
     });
 
     return lista;
-  }
+  }, [API, token]);
 
-  async function cargarDuplicados() {
+  const cargarDuplicados = useCallback(async () => {
     const res = await fetch(`${API}/api/puntos/admin/duplicados`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -158,13 +159,13 @@ export default function MapaAdminWrapper() {
     const lista = Array.isArray(data) ? data : [];
     setDuplicados(lista);
     return lista;
-  }
+  }, [API, token]);
 
   useEffect(() => {
     cargarPuntos();
     cargarRutas();
     cargarDuplicados();
-  }, []);
+  }, [cargarDuplicados, cargarPuntos, cargarRutas]);
 
   useEffect(() => {
     if (!idDesdeURL || puntos.length === 0) return;
@@ -376,7 +377,12 @@ export default function MapaAdminWrapper() {
     <AdminStyle title="Mapa">
       {mensaje && (
         <div className="mb-4">
-          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          <Alert
+            variant={mensaje.variant}
+            autoFocus={mensaje.variant === "error"}
+          >
+            {mensaje.text}
+          </Alert>
         </div>
       )}
 

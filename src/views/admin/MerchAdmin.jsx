@@ -453,7 +453,12 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
 
       {mensaje && (
         <div className="mb-5 max-w-4xl">
-          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          <Alert
+            variant={mensaje.variant}
+            autoFocus={mensaje.variant === "error"}
+          >
+            {mensaje.text}
+          </Alert>
         </div>
       )}
 

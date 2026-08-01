@@ -149,16 +149,25 @@ export default function MapaAdmin({
   const routeMarkersRef = useRef([]);
   const editableMarkerRef = useRef(null);
   const puntoSeleccionadoRef = useRef(null);
+  const onListoRef = useRef(onListo);
+  const renderMarkersRef = useRef(null);
+  const renderEditableMarkerRef = useRef(null);
+  const renderRoutesRef = useRef(null);
 
   useEffect(() => {
     puntoSeleccionadoRef.current = puntoSeleccionado;
   }, [puntoSeleccionado]);
+
+  useEffect(() => {
+    onListoRef.current = onListo;
+  }, [onListo]);
 
   // ============================================================
   // Inicializar mapa
   // ============================================================
   useEffect(() => {
     if (!mapContainer.current) return;
+    mapContainer.current.replaceChildren();
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -168,7 +177,7 @@ export default function MapaAdmin({
     });
 
     mapRef.current.on("style.load", () => {
-      if (onListo) onListo(true);
+      onListoRef.current?.(true);
     });
 
     return () => {
@@ -486,6 +495,14 @@ function getRutaFeature(ruta) {
     });
   }
 
+  renderMarkersRef.current = renderMarkers;
+  renderEditableMarkerRef.current = renderEditableMarker;
+  renderRoutesRef.current = renderRoutes;
+
+  const categoriasPuntoSeleccionado = JSON.stringify(
+    puntoSeleccionado?.categorias || []
+  );
+
   useEffect(() => {
     if (!mapRef.current || modo !== "puntos") {
       clearEditableMarker();
@@ -493,8 +510,8 @@ function getRutaFeature(ruta) {
     }
 
     puntosRef.current = puntos;
-    renderMarkers(puntos);
-    renderEditableMarker(puntoSeleccionado);
+    renderMarkersRef.current?.(puntos);
+    renderEditableMarkerRef.current?.(puntoSeleccionadoRef.current);
     clearRouteMarkers();
     clearRouteLines();
   }, [puntos, modo, puntoSeleccionado?._id]);
@@ -505,7 +522,7 @@ function getRutaFeature(ruta) {
       return;
     }
 
-    renderEditableMarker(puntoSeleccionado);
+    renderEditableMarkerRef.current?.(puntoSeleccionadoRef.current);
   }, [
     modo,
     puntoSeleccionado?._id,
@@ -513,7 +530,7 @@ function getRutaFeature(ruta) {
     puntoSeleccionado?.lon,
     puntoSeleccionado?.categoria,
     puntoSeleccionado?.activo,
-    JSON.stringify(puntoSeleccionado?.categorias || []),
+    categoriasPuntoSeleccionado,
   ]);
 
   useEffect(() => {
@@ -523,7 +540,7 @@ function getRutaFeature(ruta) {
     const update = () => {
       clearPointMarkers();
       clearEditableMarker();
-      renderRoutes(rutas, rutaSeleccionada);
+      renderRoutesRef.current?.(rutas, rutaSeleccionada);
     };
 
     if (!map.isStyleLoaded()) {
@@ -538,10 +555,10 @@ function getRutaFeature(ruta) {
   // FlyTo al punto seleccionado
   // ============================================================
   useEffect(() => {
-    if (!puntoSeleccionado || modo !== "puntos") return;
+    if (!puntoSeleccionadoRef.current || modo !== "puntos") return;
     if (!mapRef.current) return;
 
-    const coords = getPuntoCoords(puntoSeleccionado);
+    const coords = getPuntoCoords(puntoSeleccionadoRef.current);
     if (!coords) return;
 
     mapRef.current.flyTo({

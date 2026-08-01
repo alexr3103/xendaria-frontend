@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import useGeolocation from "../hooks/geo.js";
@@ -86,6 +86,18 @@ function pintarPinPorCategorias(el, punto, colorForzado = null) {
   el.appendChild(pin);
 }
 
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) ** 2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
 export default function MapaUsuario({
   filtro = null,
   onSelectPunto,
@@ -118,6 +130,8 @@ export default function MapaUsuario({
   const puntosRef = useRef([]);
   const puntoEnFocoHastaRef = useRef(0);
   const comerciosEncuadradosRef = useRef(false);
+  const onListoRef = useRef(onListo);
+  const onSelectPuntoRef = useRef(onSelectPunto);
 
   const [rutaActiva, setRutaActiva] = useState(null);
   const [yaNotifique, setYaNotifique] = useState(false);
@@ -125,17 +139,10 @@ export default function MapaUsuario({
   const [puntosVersion, setPuntosVersion] = useState(0);
   const [puntosSuperpuestos, setPuntosSuperpuestos] = useState([]);
 
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(lat1 * (Math.PI / 180)) *
-        Math.cos(lat2 * (Math.PI / 180)) *
-        Math.sin(dLon / 2) ** 2;
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-  }
+  useEffect(() => {
+    onListoRef.current = onListo;
+    onSelectPuntoRef.current = onSelectPunto;
+  }, [onListo, onSelectPunto]);
 
   async function obtenerRuta(origen, destinoPunto) {
     const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${origen.lng},${origen.lat};${destinoPunto.lon},${destinoPunto.lat}?geometries=geojson&steps=true&access_token=${mapboxgl.accessToken}`;
@@ -172,7 +179,7 @@ export default function MapaUsuario({
     setRutaActiva(ruta);
   }
 
-  function enfocarPunto(punto) {
+  const enfocarPunto = useCallback((punto) => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
@@ -194,10 +201,11 @@ export default function MapaUsuario({
       speed: 1.15,
       essential: true,
     });
-  }
+  }, [mapReady]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
+    mapContainer.current.replaceChildren();
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -212,7 +220,7 @@ export default function MapaUsuario({
 
     mapRef.current.on("style.load", async () => {
       try {
-        if (onListo) onListo(false);
+        onListoRef.current?.(false);
 
         const res = await fetch(`${API}/api/puntos`, { cache: "no-store" });
         if (!res.ok) {
@@ -228,7 +236,7 @@ export default function MapaUsuario({
         puntosRef.current = data;
         setPuntosVersion((version) => version + 1);
         localStorage.setItem("puntos_xendaria", JSON.stringify(data));
-        if (onListo) onListo(true);
+        onListoRef.current?.(true);
       } catch {
         const guardados = localStorage.getItem("puntos_xendaria");
 
@@ -244,14 +252,14 @@ export default function MapaUsuario({
           }
         }
 
-        if (onListo) onListo(true);
+        onListoRef.current?.(true);
       }
     });
 
     return () => mapRef.current?.remove();
-  }, []);
+  }, [API]);
 
-  function renderMarkers(puntos) {
+  const renderMarkers = useCallback((puntos) => {
     if (!mapRef.current) return;
 
     document
@@ -362,7 +370,7 @@ export default function MapaUsuario({
           return;
         }
         enfocarPunto(p);
-        onSelectPunto?.(p);
+        onSelectPuntoRef.current?.(p);
       };
 
       el.addEventListener("click", abrirPunto);
@@ -377,7 +385,7 @@ export default function MapaUsuario({
         .setLngLat([lon, lat])
         .addTo(mapRef.current);
     });
-  }
+  }, [enfocarPunto, puntoPropioEditandoId]);
 
   useEffect(() => {
     if (!mapRef.current || !mapReady) return;
@@ -424,8 +432,8 @@ export default function MapaUsuario({
         comerciosEncuadradosRef.current = true;
       }
 
-      if (onListo && !yaNotifique) {
-        onListo();
+      if (onListoRef.current && !yaNotifique) {
+        onListoRef.current();
         setYaNotifique(true);
       }
       return;
@@ -462,8 +470,8 @@ export default function MapaUsuario({
 
     renderMarkers(result);
 
-    if (onListo && !yaNotifique) {
-      onListo();
+    if (onListoRef.current && !yaNotifique) {
+      onListoRef.current();
       setYaNotifique(true);
     }
   }, [
@@ -473,7 +481,7 @@ export default function MapaUsuario({
     puntosPropios,
     puntoPropioEditandoId,
     puntosVersion,
-    onListo,
+    renderMarkers,
     yaNotifique,
   ]);
 
@@ -661,7 +669,7 @@ export default function MapaUsuario({
         onSelect={(punto) => {
           setPuntosSuperpuestos([]);
           enfocarPunto(punto);
-          onSelectPunto?.(punto);
+          onSelectPuntoRef.current?.(punto);
         }}
       />
     </>

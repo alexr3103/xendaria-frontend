@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
+import Alert from "../../components/Alertas.jsx";
 
 export default function EnviosAdmin() {
     const API = import.meta.env.VITE_API_URL;
@@ -112,8 +113,8 @@ export default function EnviosAdmin() {
             )}
 
             {!cargando && error && (
-            <div className="bg-white border border-fucsia/30 text-uva rounded-2xl p-4 shadow-sm mb-6">
-                {error}
+            <div className="mb-6">
+                <Alert autoFocus>{error}</Alert>
             </div>
             )}
 

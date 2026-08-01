@@ -378,7 +378,11 @@ export default function CrearMerch() {
         }
       >
         <div className="mb-6 space-y-3">
-          {error && <Alert variant="error">{error}</Alert>}
+          {error && (
+            <Alert variant="error" autoFocus>
+              {error}
+            </Alert>
+          )}
           {ok && <Alert variant="success">{ok}</Alert>}
         </div>
 

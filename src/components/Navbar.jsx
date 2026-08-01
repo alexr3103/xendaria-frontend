@@ -7,7 +7,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import useCantidadCarrito from "../hooks/useCantidadCarrito.js";
 
@@ -26,7 +26,7 @@ export default function UserNav() {
   const itemRefs = useRef({});
   const cantidadCarrito = useCantidadCarrito();
 
-  function itemActivo(item) {
+  const itemActivo = useCallback((item) => {
     if (item.to === "/merch") {
       return ["/merch", "/carrito", "/checkout"].some(
         (path) =>
@@ -39,7 +39,7 @@ export default function UserNav() {
       location.pathname === item.to ||
       location.pathname.startsWith(`${item.to}/`)
     );
-  }
+  }, [location.pathname]);
 
   useEffect(() => {
     const activeItem = NAV_ITEMS.find(itemActivo);
@@ -50,7 +50,7 @@ export default function UserNav() {
       block: "nearest",
       inline: "center",
     });
-  }, [location.pathname]);
+  }, [itemActivo]);
 
   return (
     <nav

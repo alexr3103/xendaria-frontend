@@ -28,9 +28,11 @@ function distanceMeters(a, b) {
 
 export default function useGeolocation(options = {}) {
   const {
-    distanceThresholdMeters = 75,   
-    minIntervalMs = 3000,          
-    ...navOpts
+    distanceThresholdMeters = 75,
+    minIntervalMs = 3000,
+    enableHighAccuracy = true,
+    maximumAge = 0,
+    timeout = 8000,
   } = options;
 
   const [coords, setCoords] = useState(null);
@@ -64,12 +66,7 @@ export default function useGeolocation(options = {}) {
       return;
     }
 
-    const opts = {
-      enableHighAccuracy: true,   // usa el GPS real del móvil
-      maximumAge: 0,              
-      timeout: 8000,              
-      ...navOpts,
-    };
+    const opts = { enableHighAccuracy, maximumAge, timeout };
 
     const onSuccess = (p) => {
       const current = {
@@ -108,7 +105,14 @@ export default function useGeolocation(options = {}) {
 
     const id = navigator.geolocation.watchPosition(onSuccess, onError, opts);
     return () => navigator.geolocation.clearWatch(id);
-  }, [distanceThresholdMeters, minIntervalMs, permiteUbicacion]);
+  }, [
+    distanceThresholdMeters,
+    enableHighAccuracy,
+    maximumAge,
+    minIntervalMs,
+    permiteUbicacion,
+    timeout,
+  ]);
 
   return { coords };
 }

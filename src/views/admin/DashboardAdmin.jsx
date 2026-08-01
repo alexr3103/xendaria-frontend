@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -84,7 +84,7 @@ export default function DashboardAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function cargarDashboard() {
+  const cargarDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -106,13 +106,13 @@ export default function DashboardAdmin() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [API]);
 
   useEffect(() => {
     cargarDashboard();
-  }, []);
+  }, [cargarDashboard]);
 
-  const resumen = dashboard?.resumen || {};
+  const resumen = useMemo(() => dashboard?.resumen || {}, [dashboard]);
   const ordenesPagadas = Number(resumen.ordenes?.porEstado?.pagada || 0);
   const ordenesProcesando = Number(resumen.ordenes?.porEstado?.procesando || 0);
   const ordenesEnviadas = Number(resumen.ordenes?.porEstado?.enviada || 0);
@@ -237,7 +237,7 @@ export default function DashboardAdmin() {
           </div>
         </div>
 
-        {error && <Alert>{error}</Alert>}
+        {error && <Alert autoFocus>{error}</Alert>}
 
         {loading && !dashboard ? (
           <DashboardSkeleton />

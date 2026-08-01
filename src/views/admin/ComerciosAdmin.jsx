@@ -212,7 +212,12 @@ export default function ComerciosAdmin() {
 
         {mensaje && (
           <div className="mb-5 max-w-3xl">
-            <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+            <Alert
+              variant={mensaje.variant}
+              autoFocus={mensaje.variant === "error"}
+            >
+              {mensaje.text}
+            </Alert>
           </div>
         )}
 
@@ -253,7 +258,7 @@ export default function ComerciosAdmin() {
 
         {error && (
           <div className="max-w-3xl">
-            <Alert>{error}</Alert>
+            <Alert autoFocus>{error}</Alert>
           </div>
         )}
 

@@ -478,7 +478,9 @@ export default function EditarMerch() {
   if (!producto) {
     return (
       <AdminStyle title="Editar producto">
-        <Alert variant="error">No se pudo cargar el producto.</Alert>
+        <Alert variant="error" autoFocus>
+          No se pudo cargar el producto.
+        </Alert>
       </AdminStyle>
     );
   }
@@ -531,7 +533,11 @@ export default function EditarMerch() {
           </div>
 
           <div className="mb-6 space-y-3">
-            {error && <Alert variant="error">{error}</Alert>}
+            {error && (
+              <Alert variant="error" autoFocus>
+                {error}
+              </Alert>
+            )}
             {mensaje && <Alert variant="success">{mensaje}</Alert>}
           </div>
 

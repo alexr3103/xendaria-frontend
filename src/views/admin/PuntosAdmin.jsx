@@ -250,7 +250,12 @@ export default function PuntosAdmin() {
 
       {mensaje && (
         <div className="mb-4">
-          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          <Alert
+            variant={mensaje.variant}
+            autoFocus={mensaje.variant === "error"}
+          >
+            {mensaje.text}
+          </Alert>
         </div>
       )}
 
@@ -262,7 +267,9 @@ export default function PuntosAdmin() {
       {/* Error */}
       {error && (
         <div className="mb-4">
-          <Alert variant="error">{error}</Alert>
+          <Alert variant="error" autoFocus>
+            {error}
+          </Alert>
         </div>
       )}
 

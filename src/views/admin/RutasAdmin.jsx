@@ -403,7 +403,12 @@ export default function RutasAdmin() {
 
       {mensaje && (
         <div className="mb-5">
-          <Alert variant={mensaje.variant}>{mensaje.text}</Alert>
+          <Alert
+            variant={mensaje.variant}
+            autoFocus={mensaje.variant === "error"}
+          >
+            {mensaje.text}
+          </Alert>
         </div>
       )}
 
