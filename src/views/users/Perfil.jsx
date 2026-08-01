@@ -29,6 +29,7 @@ import CargadorMapa from "../../components/CargadorMapa.jsx";
 import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import ModalXendaria from "../../components/ModalXendaria.jsx";
 import TituloPerfil from "../../components/TituloPerfil.jsx";
+import TitulosPerfilModal from "../../components/TitulosPerfilModal.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
@@ -239,6 +240,7 @@ export default function Perfil() {
   const [modalSobreApp, setModalSobreApp] = useState(false);
   const [modalLegales, setModalLegales] = useState(false);
   const [modalSoporte, setModalSoporte] = useState(false);
+  const [modalTitulos, setModalTitulos] = useState(false);
   const [mensaje, setMensaje] = useState(null);
   const [favoritoEliminando, setFavoritoEliminando] = useState(null);
   const [puntoPropioEliminando, setPuntoPropioEliminando] = useState(null);
@@ -521,6 +523,23 @@ export default function Perfil() {
     }
   }
 
+  async function seleccionarTitulo(idTitulo) {
+    const data = await fetchJSON(`${API}/api/titulos/mios/seleccion`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idTitulo }),
+    });
+
+    setTitulosPerfil(data);
+    setMensaje({
+      variant: "success",
+      text: "Título visible actualizado.",
+    });
+  }
+
   if (loading) {
     return (
       <div className="relative min-h-screen bg-crema">
@@ -594,7 +613,10 @@ export default function Perfil() {
               </p>
             )}
 
-            <TituloPerfil titulo={tituloActual} />
+            <TituloPerfil
+              titulo={tituloActual}
+              onClick={() => setModalTitulos(true)}
+            />
 
             <div className="mt-4 flex justify-center">
               <button
@@ -946,6 +968,13 @@ export default function Perfil() {
       <SoportePerfilModal
         open={modalSoporte}
         onClose={() => setModalSoporte(false)}
+      />
+
+      <TitulosPerfilModal
+        open={modalTitulos}
+        onClose={() => setModalTitulos(false)}
+        resumen={titulosPerfil}
+        onGuardar={seleccionarTitulo}
       />
 
       <Navbar active="perfil" />

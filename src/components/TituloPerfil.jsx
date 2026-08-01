@@ -1,16 +1,15 @@
 import { Sparkles } from "lucide-react";
 import { categorias } from "./CategoriasFiltros.jsx";
 
-export default function TituloPerfil({ titulo }) {
+export default function TituloPerfil({ titulo, onClick }) {
   if (!titulo?.titulo) return null;
 
   const categoria = categorias[titulo.categoria];
   const Icon = categoria?.icon || Sparkles;
   const color = categoria?.color || "#F4EFFF";
 
-  return (
-    <div className="mt-3 flex justify-center">
-      <span className="inline-flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-uva/10 bg-crema px-3 py-2 text-uva shadow-sm">
+  const contenido = (
+    <>
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-uva shadow-sm"
           style={{ backgroundColor: color }}
@@ -20,7 +19,25 @@ export default function TituloPerfil({ titulo }) {
         <span className="min-w-0 whitespace-normal break-words text-center font-fredoka text-base leading-tight text-morado">
           {titulo.titulo}
         </span>
-      </span>
+    </>
+  );
+
+  return (
+    <div className="mt-3 flex justify-center">
+      {onClick ? (
+        <button
+          type="button"
+          onClick={onClick}
+          className="inline-flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-uva/10 bg-crema px-3 py-2 text-uva shadow-sm transition hover:border-morado/30 hover:bg-morado/5"
+          aria-label="Ver y elegir título del perfil"
+        >
+          {contenido}
+        </button>
+      ) : (
+        <span className="inline-flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-uva/10 bg-crema px-3 py-2 text-uva shadow-sm">
+          {contenido}
+        </span>
+      )}
     </div>
   );
 }

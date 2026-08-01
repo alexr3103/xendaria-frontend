@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import {
   BadgeCheck,
@@ -51,7 +50,6 @@ function formatFecha(fecha) {
 
 export default function Ranking() {
   const API = import.meta.env.VITE_API_URL;
-  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const [usuarios, setUsuarios] = useState([]);
@@ -226,7 +224,6 @@ export default function Ranking() {
                     <LugarRankingItem
                       key={lugar.puntoId}
                       lugar={lugar}
-                      onClick={() => navigate(`/punto/${lugar.puntoId}`)}
                     />
                   ))}
                 </div>
@@ -266,7 +263,6 @@ export default function Ranking() {
                       <LugarVotadoDestacado
                         key={lugar.puntoId}
                         lugar={lugar}
-                        onClick={() => navigate(`/punto/${lugar.puntoId}`)}
                       />
                     ))}
                   </div>
@@ -276,7 +272,6 @@ export default function Ranking() {
                       <LugarVotadoRankingItem
                         key={lugar.puntoId}
                         lugar={lugar}
-                        onClick={() => navigate(`/punto/${lugar.puntoId}`)}
                       />
                     ))}
                   </div>
@@ -483,15 +478,11 @@ function UsuarioRankingItem({ usuario }) {
   );
 }
 
-function LugarRankingItem({ lugar, onClick }) {
+function LugarRankingItem({ lugar }) {
   const categoria = categorias[lugar.categoria];
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full min-w-0 items-center gap-3 py-3 text-left"
-    >
+    <article className="flex w-full min-w-0 items-center gap-3 py-3 text-left">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-menta/60 font-fredoka text-uva">
         #{lugar.posicion}
       </span>
@@ -515,19 +506,15 @@ function LugarRankingItem({ lugar, onClick }) {
         <MapPin size={14} />
         {lugar.totalVisitas}
       </span>
-    </button>
+    </article>
   );
 }
 
-function LugarVotadoDestacado({ lugar, onClick }) {
+function LugarVotadoDestacado({ lugar }) {
   const categoria = categorias[lugar.categoria];
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="relative min-h-[190px] overflow-hidden rounded-3xl bg-white text-left shadow-sm active:scale-[0.99]"
-    >
+    <article className="relative min-h-[190px] overflow-hidden rounded-3xl bg-white text-left shadow-sm">
       <img
         src={lugar.foto || cargafail}
         alt={lugar.nombre}
@@ -550,19 +537,15 @@ function LugarVotadoDestacado({ lugar, onClick }) {
           <RatingSummary lugar={lugar} />
         </div>
       </div>
-    </button>
+    </article>
   );
 }
 
-function LugarVotadoRankingItem({ lugar, onClick }) {
+function LugarVotadoRankingItem({ lugar }) {
   const categoria = categorias[lugar.categoria];
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full min-w-0 items-center gap-3 py-3 text-left"
-    >
+    <article className="flex w-full min-w-0 items-center gap-3 py-3 text-left">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fucsia/10 font-fredoka text-fucsia">
         #{lugar.posicion}
       </span>
@@ -583,7 +566,7 @@ function LugarVotadoRankingItem({ lugar, onClick }) {
         </span>
       </span>
       <RatingSummary lugar={lugar} compact />
-    </button>
+    </article>
   );
 }
 

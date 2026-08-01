@@ -33,7 +33,22 @@ function getConfiguracionUsuarioLocal() {
   }
 }
 
-const RADIO_DESBLOQUEO_VISITA_METROS = 100;
+const RADIO_DESBLOQUEO_DEFAULT_METROS = 100;
+const RADIO_DESBLOQUEO_ESPACIOS_VERDES_METROS = 200;
+const CATEGORIAS_ESPACIOS_VERDES = new Set([
+  "espacios_verdes_publicos",
+  "espacios_verdes_privados",
+]);
+
+function getRadioDesbloqueoMetros(punto = {}) {
+  const esEspacioVerde = getCategoriasPunto(punto).some((categoria) =>
+    CATEGORIAS_ESPACIOS_VERDES.has(categoria)
+  );
+
+  return esEspacioVerde
+    ? RADIO_DESBLOQUEO_ESPACIOS_VERDES_METROS
+    : RADIO_DESBLOQUEO_DEFAULT_METROS;
+}
 
 export default function DescripcionPunto({
   punto,
@@ -140,15 +155,16 @@ export default function DescripcionPunto({
     }
   }
 
-  // Distancia
+  // Categorias y distancia
+  const categoriasPunto = getCategoriasPunto(punto).filter(
+    (categoria) => categorias[categoria]
+  );
+  const radioDesbloqueoMetros = getRadioDesbloqueoMetros(punto);
   let estaCerca = false;
   if (userCoords && lat && lon) {
     const dist = calcDistance(userCoords.lat, userCoords.lng, lat, lon);
-    estaCerca = dist <= RADIO_DESBLOQUEO_VISITA_METROS;
+    estaCerca = dist <= radioDesbloqueoMetros;
   }
-
-  // Categorias
-  const categoriasPunto = getCategoriasPunto(punto).filter((categoria) => categorias[categoria]);
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden bg-morado/10 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">

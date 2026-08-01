@@ -534,7 +534,12 @@ export default function Home() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ idPunto }),
+      body: JSON.stringify({
+        idPunto,
+        ubicacionActual: coords
+          ? { lat: coords.lat, lng: coords.lng }
+          : null,
+      }),
     });
     const data = await res.json().catch(() => null);
 
