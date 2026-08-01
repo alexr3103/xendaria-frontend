@@ -32,7 +32,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 function crearVarianteVacia() {
   return {
     color: "",
-    talle: "",
     diseno: "",
     stock: "",
     esNueva: true,
@@ -317,6 +316,11 @@ export default function EditarMerch() {
       setError("");
       setMensaje("");
 
+      if (String(producto.precio).trim() === "" || Number(producto.precio) <= 0) {
+        setError("Ingresá un precio válido.");
+        return;
+      }
+
       if (!producto.imagenes.length) {
         setError("Tenés que dejar al menos una imagen del producto.");
         return;
@@ -333,6 +337,11 @@ export default function EditarMerch() {
 
         if (colores.length !== coloresUnicos.size) {
           setError("No puede haber colores repetidos.");
+          return;
+        }
+
+        if (colores.length === 0) {
+          setError("Seleccioná al menos un color.");
           return;
         }
 
@@ -363,7 +372,6 @@ export default function EditarMerch() {
         variantesLimpias = producto.variantes
           .map((variante) => ({
             color: variante.color?.trim() || undefined,
-            talle: variante.talle?.trim() || undefined,
             diseno: variante.diseno?.trim() || undefined,
             stock:
               variante.stock === "" || variante.stock === null
@@ -373,7 +381,6 @@ export default function EditarMerch() {
           .filter(
             (variante) =>
               variante.color ||
-              variante.talle ||
               variante.diseno ||
               variante.stock !== undefined
           );
@@ -662,8 +669,7 @@ export default function EditarMerch() {
 
                           <div className="flex flex-wrap gap-2">
                             {MERCH_COLOR_OPTIONS.map((color) => {
-                              const seleccionado =
-                                grupo.color === color.nombre;
+                              const seleccionado = grupo.color === color.nombre;
 
                               return (
                                 <button
@@ -677,7 +683,11 @@ export default function EditarMerch() {
                                     seleccionado
                                       ? "scale-110 border-black ring-4 ring-vainilla shadow-md"
                                       : "border-uva/20 hover:border-morado/60"
-                                  } ${color.nombre === "Blanco" ? "ring-1 ring-uva/20" : ""}`}
+                                  } ${
+                                    color.nombre === "Blanco"
+                                      ? "ring-1 ring-uva/20"
+                                      : ""
+                                  }`}
                                 />
                               );
                             })}
@@ -804,7 +814,7 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
             {variante.esNueva ? "Nueva variante" : "Variante"}
           </h4>
           <p className="text-xs font-semibold text-uva/45">
-            Color, talle, diseño y stock.
+            Color, diseño y stock.
           </p>
         </div>
 
@@ -819,7 +829,7 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
         </button>
       </div>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(250px,1.2fr)_minmax(240px,1fr)_minmax(190px,.85fr)_120px]">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(250px,1.2fr)_minmax(190px,.85fr)_120px]">
         <div className="space-y-2">
           <span className="text-sm font-bold text-uva/80">Color</span>
           <div className="flex flex-wrap gap-2">
@@ -842,34 +852,9 @@ function VariantEditor({ variante, index, onChange, onDelete }) {
             })}
           </div>
           <p className="text-xs font-semibold text-uva/45">
-            {variante.color ? `Color seleccionado: ${variante.color}` : "Sin color"}
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <span className="text-sm font-bold text-uva/80">Talle</span>
-          <div className="flex flex-wrap gap-2">
-            {TALLES_DISPONIBLES.map((talle) => {
-              const seleccionado = variante.talle === talle;
-
-              return (
-                <button
-                  key={talle}
-                  type="button"
-                  onClick={() => onChange(index, "talle", talle)}
-                  className={`rounded-xl border px-3 py-2 text-xs font-extrabold transition ${
-                    seleccionado
-                      ? "border-morado bg-morado text-crema"
-                      : "border-uva/20 bg-white text-uva hover:border-morado/60"
-                  }`}
-                >
-                  {talle}
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-xs font-semibold text-uva/45">
-            {variante.talle ? `Talle seleccionado: ${variante.talle}` : "Sin talle"}
+            {variante.color
+              ? `Color seleccionado: ${variante.color}`
+              : "Sin color"}
           </p>
         </div>
 
