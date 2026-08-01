@@ -23,7 +23,9 @@ import BotonAccionUsuario from "../../components/BotonAccionUsuario.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
 import PildoraFiltro from "../../components/PildoraFiltro.jsx";
 import useGeolocation from "../../hooks/geo.js";
-import xendariaMapStyle from "../../map/xendariaMapStyle.js";
+import xendariaMapStyle, {
+  xendariaMapConfig,
+} from "../../map/xendariaMapStyle.js";
 import cargafail from "../../assets/cargafail.png";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -869,6 +871,7 @@ function RutaMapPreview({ puntos, coords }) {
     mapRef.current = new mapboxgl.Map({
       container: containerRef.current,
       style: xendariaMapStyle,
+      config: xendariaMapConfig,
       center: [-58.3816, -34.6037],
       zoom: 12,
       interactive: true,

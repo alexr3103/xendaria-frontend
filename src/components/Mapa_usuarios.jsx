@@ -4,7 +4,9 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import useGeolocation from "../hooks/geo.js";
 import pinHead from "../assets/pin-user.png";
 import pointPin from "../assets/pin-point.png";
-import xendariaMapStyle from "../map/xendariaMapStyle";
+import xendariaMapStyle, {
+  xendariaMapConfig,
+} from "../map/xendariaMapStyle";
 import { categorias as categoriasInfo } from "./CategoriasFiltros.jsx";
 import SelectorPuntosSuperpuestos from "./SelectorPuntosSuperpuestos.jsx";
 
@@ -210,6 +212,7 @@ export default function MapaUsuario({
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: xendariaMapStyle,
+      config: xendariaMapConfig,
       center: [-58.3816, -34.6037],
       zoom: 12,
     });
