@@ -938,7 +938,7 @@ export default function Perfil() {
 
               <button
                 onClick={logout}
-                className="w-full rounded-xl bg-rosa py-3 text-center font-bold text-white"
+                className="w-full rounded-xl bg-fucsia py-3 text-center font-bold text-white"
                 type="button"
               >
                 <span className="inline-flex items-center justify-center gap-2">
