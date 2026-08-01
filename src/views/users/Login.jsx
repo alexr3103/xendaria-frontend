@@ -6,7 +6,10 @@ import Alert from "../../components/Alertas.jsx";
 import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link, useNavigate } from "react-router-dom";
-import { obtenerDestinoSesion } from "../../lib/sesion.js";
+import {
+  marcarBienvenidaPostLogin,
+  obtenerDestinoSesion,
+} from "../../lib/sesion.js";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -38,6 +41,7 @@ export default function Login() {
 
     localStorage.setItem("token", token);
     localStorage.setItem("usuario", JSON.stringify(usuario));
+    marcarBienvenidaPostLogin();
 
     window.location.href =
       usuario.role === "admin" ? "/admin" : "/home";

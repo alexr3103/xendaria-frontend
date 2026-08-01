@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 
 import Login from "./views/users/Login.jsx";
@@ -40,7 +40,11 @@ import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
 import InstalacionPWA from "./components/InstalacionPWA.jsx";
 import ActivacionNotificacionesPWA from "./components/ActivacionNotificacionesPWA.jsx";
-import { obtenerDestinoSesion } from "./lib/sesion.js";
+import {
+  completarBienvenidaPostLogin,
+  hayBienvenidaPostLogin,
+  obtenerDestinoSesion,
+} from "./lib/sesion.js";
 
 function RutaInicial() {
   const destino = obtenerDestinoSesion();
@@ -48,24 +52,31 @@ function RutaInicial() {
 }
 
 export default function App() {
-  const [step, setStep] = useState("loading");
-  const initialized = useRef(false);
+  const [step, setStep] = useState(() =>
+    hayBienvenidaPostLogin() ? "loading" : "app"
+  );
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+    if (step !== "loading") return undefined;
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setStep("splash");
     }, 1000);
-  }, []);
+
+    return () => clearTimeout(timer);
+  }, [step]);
+
+  function completarBienvenida() {
+    completarBienvenidaPostLogin();
+    setStep("app");
+  }
 
   let contenido;
 
   if (step === "loading") {
     contenido = <Carga />;
   } else if (step === "splash") {
-    contenido = <Splash onContinue={() => setStep("app")} />;
+    contenido = <Splash onContinue={completarBienvenida} />;
   } else {
     contenido = (
       <Routes>

@@ -1,5 +1,18 @@
 const BASE64URL_DASH_REGEX = /-/g;
 const BASE64URL_UNDERSCORE_REGEX = /_/g;
+const CLAVE_BIENVENIDA_POST_LOGIN = "xendaria:bienvenida-post-login";
+
+export function marcarBienvenidaPostLogin() {
+  sessionStorage.setItem(CLAVE_BIENVENIDA_POST_LOGIN, "true");
+}
+
+export function hayBienvenidaPostLogin() {
+  return sessionStorage.getItem(CLAVE_BIENVENIDA_POST_LOGIN) === "true";
+}
+
+export function completarBienvenidaPostLogin() {
+  sessionStorage.removeItem(CLAVE_BIENVENIDA_POST_LOGIN);
+}
 
 export function decodificarToken(token) {
   try {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "xendaria-static-v3";
+const CACHE_NAME = "xendaria-static-v4";
 const LEGACY_CACHE_NAME = "xendaria-v1";
 
 const APP_SHELL = ["/", "/manifest.json"];
