@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 
 import Login from "./views/users/Login.jsx";
@@ -11,32 +11,8 @@ import Proximamente from "./layouts/Proximamente.jsx";
 import NotFound from "./layouts/404.jsx";
 import ErrorPage from "./layouts/Error.jsx";
 import PuntoDetalle from "./components/DetalleCompleto.jsx";
-import PuntosAdmin from "./views/admin/PuntosAdmin.jsx";
-import UsuariosAdmin from "./views/admin/UsuariosAdmin.jsx";
-import VistaMapa from "./views/admin/VistaMapa.jsx";
-import CrearPunto from "./views/admin/CrearPunto.jsx";
-import EditarPunto from "./views/admin/EditarPunto.jsx";
-import RutasAdmin from "./views/admin/RutasAdmin.jsx";
-import Perfil from "./views/users/Perfil.jsx";
-import EditarPerfil from "./views/users/EditarPerfil.jsx";
-import Configuraciones from "./views/users/Configuraciones.jsx";
 import Comunidad from "./views/users/Comunidad.jsx";
-import PerfilPublico from "./views/users/PerfilPublico.jsx";
-import AlbumInsignias from "./views/users/AlbumInsignias.jsx";
 import Ranking from "./views/users/Ranking.jsx";
-import Rutas from "./views/users/Rutas.jsx";
-import Merch from "./views/users/Merch.jsx";
-import DetalleMerch from "./views/users/DetalleMerch.jsx";
-import Carrito from "./views/users/Carrito.jsx";
-import Checkout from "./views/users/Checkout.jsx";
-import PagoExitoso from "./views/users/PagoExitoso.jsx";
-import PagoPendiente from "./views/users/PagoPendiente.jsx";
-import PagoFallido from "./views/users/PagoFallido.jsx";
-import MerchAdmin from "./views/admin/MerchAdmin.jsx";
-import CrearMerch from "./views/admin/CrearMerch.jsx";
-import EditarMerch from "./views/admin/EditarMerch.jsx";
-import DashboardAdmin from "./views/admin/DashboardAdmin.jsx";
-import ComerciosAdmin from "./views/admin/ComerciosAdmin.jsx";
 import ActualizacionPWA from "./components/ActualizacionPWA.jsx";
 import InstalacionPWA from "./components/InstalacionPWA.jsx";
 import ActivacionNotificacionesPWA from "./components/ActivacionNotificacionesPWA.jsx";
@@ -45,6 +21,46 @@ import {
   hayBienvenidaPostLogin,
   obtenerDestinoSesion,
 } from "./lib/sesion.js";
+
+const Rutas = lazy(() => import("./views/users/Rutas.jsx"));
+const Merch = lazy(() => import("./views/users/Merch.jsx"));
+const DetalleMerch = lazy(() => import("./views/users/DetalleMerch.jsx"));
+const Carrito = lazy(() => import("./views/users/Carrito.jsx"));
+const Checkout = lazy(() => import("./views/users/Checkout.jsx"));
+const PagoExitoso = lazy(() => import("./views/users/PagoExitoso.jsx"));
+const PagoPendiente = lazy(() => import("./views/users/PagoPendiente.jsx"));
+const PagoFallido = lazy(() => import("./views/users/PagoFallido.jsx"));
+const Perfil = lazy(() => import("./views/users/Perfil.jsx"));
+const EditarPerfil = lazy(() => import("./views/users/EditarPerfil.jsx"));
+const Configuraciones = lazy(
+  () => import("./views/users/Configuraciones.jsx")
+);
+const PerfilPublico = lazy(() => import("./views/users/PerfilPublico.jsx"));
+const AlbumInsignias = lazy(() => import("./views/users/AlbumInsignias.jsx"));
+
+const PuntosAdmin = lazy(() => import("./views/admin/PuntosAdmin.jsx"));
+const UsuariosAdmin = lazy(() => import("./views/admin/UsuariosAdmin.jsx"));
+const VistaMapa = lazy(() => import("./views/admin/VistaMapa.jsx"));
+const CrearPunto = lazy(() => import("./views/admin/CrearPunto.jsx"));
+const EditarPunto = lazy(() => import("./views/admin/EditarPunto.jsx"));
+const RutasAdmin = lazy(() => import("./views/admin/RutasAdmin.jsx"));
+const MerchAdmin = lazy(() => import("./views/admin/MerchAdmin.jsx"));
+const CrearMerch = lazy(() => import("./views/admin/CrearMerch.jsx"));
+const EditarMerch = lazy(() => import("./views/admin/EditarMerch.jsx"));
+const DashboardAdmin = lazy(() => import("./views/admin/DashboardAdmin.jsx"));
+const ComerciosAdmin = lazy(() => import("./views/admin/ComerciosAdmin.jsx"));
+
+function CargaRuta() {
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center bg-crema/40"
+      role="status"
+      aria-label="Cargando pantalla"
+    >
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-morado/25 border-t-morado" />
+    </div>
+  );
+}
 
 function RutaInicial() {
   const destino = obtenerDestinoSesion();
@@ -79,7 +95,8 @@ export default function App() {
     contenido = <Splash onContinue={completarBienvenida} />;
   } else {
     contenido = (
-      <Routes>
+      <Suspense fallback={<CargaRuta />}>
+        <Routes>
         <Route path="/" element={<RutaInicial />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -116,7 +133,7 @@ export default function App() {
           <Route path="/admin/merch/editar/:id" element={<EditarMerch />} />
           <Route path="/admin/envios" element={<MerchAdmin initialTab="envios" />} />
           <Route path="/admin/mapa" element={<VistaMapa />} />
-          <Route path="/admin/puntos/nuevopunto" element={<CrearPunto/>} />
+          <Route path="/admin/puntos/nuevopunto" element={<CrearPunto />} />
           <Route path="/admin/puntos/editar/:slug/:id" element={<EditarPunto />} />
           <Route path="/admin/puntos/:id" element={<EditarPunto />} />
         </Route>
@@ -127,7 +144,8 @@ export default function App() {
         <Route path="/perfil/editar" element={<EditarPerfil />} />
         <Route path="/perfil/configuracion" element={<Configuraciones />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     );
   }
 
