@@ -56,21 +56,29 @@ export default function CampoDireccionAdmin({
 
       try {
         const parametros = new URLSearchParams({
+          q: direccion,
           access_token: tokenMapbox,
           country: "ar",
           language: "es",
           limit: "1",
+          types: "address",
+          autocomplete: "false",
+          entrances: "true",
+          permanent: "true",
           proximity: "-58.3816,-34.6037",
         });
-        const endpoint =
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/` +
-          `${encodeURIComponent(direccion)}.json?${parametros}`;
+        const endpoint = `https://api.mapbox.com/search/geocode/v6/forward?${parametros}`;
         const respuesta = await fetch(endpoint);
 
         if (!respuesta.ok) throw new Error("No se pudo consultar la dirección");
 
         const data = await respuesta.json();
-        const [lon, lat] = data.features?.[0]?.center || [];
+        const resultado = data.features?.[0];
+        const coordenadasResultado = resultado?.properties?.coordinates;
+        const [lonGeometria, latGeometria] =
+          resultado?.geometry?.coordinates || [];
+        const lon = coordenadasResultado?.longitude ?? lonGeometria;
+        const lat = coordenadasResultado?.latitude ?? latGeometria;
 
         if (
           idPeticion !== ultimaPeticionRef.current ||
@@ -91,8 +99,25 @@ export default function CampoDireccionAdmin({
           lat: Number(lat),
           lon: Number(lon),
         });
-        setEstado("success");
-        setMensaje("Coordenadas actualizadas automáticamente.");
+
+        const precision = coordenadasResultado?.accuracy || "";
+        const esUbicacionExacta = ["rooftop", "parcel", "point"].includes(
+          precision
+        );
+
+        if (precision && !esUbicacionExacta) {
+          setEstado("warning");
+          setMensaje(
+            "Mapbox ubicó una posición aproximada. Revisá las coordenadas o ajustá el pin desde el mapa."
+          );
+        } else {
+          setEstado("success");
+          setMensaje(
+            esUbicacionExacta
+              ? "Coordenadas exactas actualizadas automáticamente."
+              : "Coordenadas actualizadas automáticamente. Revisá el pin antes de guardar."
+          );
+        }
       } catch {
         if (idPeticion !== ultimaPeticionRef.current) return;
         setEstado("error");
@@ -122,13 +147,19 @@ export default function CampoDireccionAdmin({
         <span
           id="estado-geocodificacion-admin"
           className={`flex items-center gap-2 text-xs font-semibold ${
-            estado === "error" ? "text-fucsia" : "text-uva/65"
+            estado === "error"
+              ? "text-fucsia"
+              : estado === "warning"
+                ? "text-uva"
+                : "text-uva/65"
           }`}
           aria-live="polite"
         >
           {estado === "loading" && <Loader2 size={14} className="animate-spin" />}
           {estado === "success" && <CheckCircle2 size={14} className="text-uva" />}
-          {(estado === "waiting" || estado === "error") && <MapPin size={14} />}
+          {(estado === "waiting" ||
+            estado === "warning" ||
+            estado === "error") && <MapPin size={14} />}
           {mensaje}
         </span>
       )}

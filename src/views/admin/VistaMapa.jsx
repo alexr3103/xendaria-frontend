@@ -755,10 +755,10 @@ function DuplicadosFusionModal({
 
                 <div className="grid grid-cols-2 gap-2 text-xs text-uva/65">
                   <span className="rounded-xl bg-crema px-3 py-2">
-                    Lat: {Number(punto.lat).toFixed(5)}
+                    Lat: {Number(punto.lat).toFixed(7)}
                   </span>
                   <span className="rounded-xl bg-crema px-3 py-2">
-                    Lon: {Number(punto.lon).toFixed(5)}
+                    Lon: {Number(punto.lon).toFixed(7)}
                   </span>
                 </div>
               </article>

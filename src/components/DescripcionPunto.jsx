@@ -3,6 +3,7 @@ import { categorias } from "./CategoriasFiltros";
 import { calcDistance } from "../lib/calcDistance";
 import cargafail from "../assets/cargafail.png";
 import { 
+  BadgeCheck,
   Loader2,
   MapPin, 
   Lock, 
@@ -237,61 +238,71 @@ export default function DescripcionPunto({
           <p className="text-gris text-sm leading-relaxed mb-6">
             {descripcion}
           </p>
-          <div className="flex items-center gap-3 mb-6 flex-wrap">
+          <div className="mb-6">
             {/* Insignia */}
             {!esPuntoPropio && punto.insignia && (
               !insigniaObtenida ? (
                 <button
+                  type="button"
                   disabled={!estaCerca || registrandoVisita}
                   onClick={desbloquearInsignia}
                   className={`
-                    px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 border shadow
+                    flex min-h-[54px] w-full items-center justify-center gap-2 rounded-[14px]
+                    px-4 py-3 text-center text-base font-bold shadow transition
                     ${
                       estaCerca
-                        ? "bg-uva text-crema border-uva"
-                        : "bg-rosa text-uva border-fucsia cursor-not-allowed"
+                        ? "bg-vainilla text-uva active:scale-[0.99]"
+                        : "cursor-not-allowed bg-gris/10 text-gris/60"
                     }
                   `}
                 >
                   {registrandoVisita ? (
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={20} className="shrink-0 animate-spin" />
+                  ) : estaCerca ? (
+                    <BadgeCheck size={21} className="shrink-0" />
                   ) : (
-                    <Lock size={16} />
+                    <Lock size={20} className="shrink-0" />
                   )}
-                  {registrandoVisita ? "Registrando visita..." : "Insignia desbloqueable"}
+                  <span>
+                    {registrandoVisita
+                      ? "Registrando visita..."
+                      : estaCerca
+                        ? "Desbloquear insignia"
+                        : "Acercate para desbloquearla"}
+                  </span>
                 </button>
               ) : (
                 <span
-                  className="
-                    px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 
-                    bg-uva text-crema border border-uva
-                  "
+                  className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[14px] bg-vainilla px-4 py-3 text-base font-bold text-uva shadow"
                 >
-                  ✔ Insignia obtenida
+                  <BadgeCheck size={21} className="shrink-0" />
+                  Insignia obtenida
                 </span>
               )
             )}
-            {/* Categoría */}
             {errorVisita && (
-              <p role="alert" className="w-full text-sm text-fucsia">
+              <p role="alert" className="mt-2 w-full text-sm text-fucsia">
                 {errorVisita}
               </p>
             )}
-            {categoriasPunto.map((categoriaKey) => {
-              const categoriaInfo = categorias[categoriaKey];
-              const Icon = categoriaInfo.icon;
+            {/* Categoría */}
+            <div className={`${!esPuntoPropio && punto.insignia ? "mt-3" : ""} flex flex-wrap gap-2`}>
+              {categoriasPunto.map((categoriaKey) => {
+                const categoriaInfo = categorias[categoriaKey];
+                const Icon = categoriaInfo.icon;
 
-              return (
-                <span
-                  key={categoriaKey}
-                  className="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 text-gris"
-                  style={{ backgroundColor: categoriaInfo.color }}
-                >
-                  {Icon && <Icon size={18} className="text-gris" />}
-                  {categoriaInfo.label}
-                </span>
-              );
-            })}
+                return (
+                  <span
+                    key={categoriaKey}
+                    className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-gris"
+                    style={{ backgroundColor: categoriaInfo.color }}
+                  >
+                    {Icon && <Icon size={18} className="text-gris" />}
+                    {categoriaInfo.label}
+                  </span>
+                );
+              })}
+            </div>
           </div>
           {/* Ver más */}
           {!esPuntoPropio && (
@@ -339,7 +350,7 @@ export default function DescripcionPunto({
                 w-full py-3 rounded-[16px] font-semibold text-base flex items-center justify-center gap-2 shadow mb-4
                 ${
                   !vistaVerificada || vistaDisponible
-                    ? "bg-menta text-uva hover:bg-menta/80"
+                    ? "bg-chicle text-uva hover:bg-chicle/80"
                     : "bg-gris/10 text-gris/60 cursor-not-allowed"
                 }
               `}

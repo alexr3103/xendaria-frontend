@@ -79,28 +79,33 @@ export function TarjetaVistaUsuario({ punto }) {
             {punto.descripcion || "Descripción breve visible para el usuario."}
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5">
             {insigniaUrl && (
-              <span className="inline-flex items-center gap-2 rounded-full bg-rosa px-3 py-2 text-xs font-bold text-uva">
-                <BadgeCheck size={15} />
-                Insignia desbloqueable
-              </span>
+              <button
+                type="button"
+                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[14px] bg-vainilla px-4 py-3 text-center text-sm font-bold text-uva shadow"
+              >
+                <BadgeCheck size={19} className="shrink-0" />
+                Desbloquear insignia
+              </button>
             )}
-            {categoriasPunto.map((categoriaKey) => {
-              const categoria = categorias[categoriaKey];
-              const Icon = categoria.icon;
+            <div className={`${insigniaUrl ? "mt-3" : ""} flex flex-wrap gap-2`}>
+              {categoriasPunto.map((categoriaKey) => {
+                const categoria = categorias[categoriaKey];
+                const Icon = categoria.icon;
 
-              return (
-                <span
-                  key={categoriaKey}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold text-uva"
-                  style={{ backgroundColor: categoria.color || "#F4EFFF" }}
-                >
-                  {Icon && <Icon size={15} />}
-                  {categoria.label || categoriaKey}
-                </span>
-              );
-            })}
+                return (
+                  <span
+                    key={categoriaKey}
+                    className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold text-uva"
+                    style={{ backgroundColor: categoria.color || "#F4EFFF" }}
+                  >
+                    {Icon && <Icon size={15} />}
+                    {categoria.label || categoriaKey}
+                  </span>
+                );
+              })}
+            </div>
           </div>
 
           <div className="mt-5 space-y-3">
@@ -113,7 +118,7 @@ export function TarjetaVistaUsuario({ punto }) {
             </button>
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-menta py-3 font-bold text-uva shadow"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-chicle py-3 font-bold text-uva shadow"
             >
               <Rotate3D size={18} />
               Vista del lugar
