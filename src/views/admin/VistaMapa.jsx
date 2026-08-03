@@ -1171,7 +1171,7 @@ function PuntoPanel({
           </div>
         </Field>
 
-        <Field label="Dirección">
+        <Field label="Dirección" required={modoNuevo}>
           <input
             className="w-full min-w-0 rounded-xl border border-uva/20 bg-crema p-3 text-uva"
             value={puntoSeleccionado.direccion || ""}

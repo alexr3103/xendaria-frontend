@@ -268,6 +268,7 @@ export default function CrearPunto() {
               <CampoDireccionAdmin
                 value={punto.direccion}
                 onChange={(direccion) => actualizarCampo("direccion", direccion)}
+                required
                 onCoordenadasChange={({ lat, lon }) =>
                   setPunto((prev) => ({ ...prev, lat, lon }))
                 }

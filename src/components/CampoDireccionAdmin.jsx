@@ -9,6 +9,7 @@ export default function CampoDireccionAdmin({
   onChange,
   onCoordenadasChange,
   placeholder = "Ej: Av. Córdoba 1234",
+  required = false,
 }) {
   const tokenMapbox = import.meta.env.VITE_MAPBOX_TOKEN;
   const primeraDireccionRef = useRef(true);
@@ -134,7 +135,7 @@ export default function CampoDireccionAdmin({
   }, [tokenMapbox, value]);
 
   return (
-    <CampoAdmin label="Dirección">
+    <CampoAdmin label="Dirección" required={required}>
       <input
         className={claseInputAdmin}
         placeholder={placeholder}
