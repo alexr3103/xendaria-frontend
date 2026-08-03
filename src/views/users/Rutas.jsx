@@ -27,6 +27,7 @@ import xendariaMapStyle, {
   xendariaMapConfig,
 } from "../../map/xendariaMapStyle.js";
 import cargafail from "../../assets/cargafail.png";
+import { getMensajeError } from "../../lib/errores.js";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -225,7 +226,7 @@ export default function Rutas() {
       } catch (error) {
         setMensaje({
           variant: "error",
-          text: error.message || "No se pudieron cargar las rutas.",
+          text: getMensajeError(error, "No se pudieron cargar las rutas."),
         });
       } finally {
         setLoading(false);
@@ -365,7 +366,7 @@ export default function Rutas() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo iniciar la ruta.",
+        text: getMensajeError(error, "No se pudo iniciar la ruta."),
       });
     } finally {
       setGuardandoProgreso(false);
@@ -392,7 +393,7 @@ export default function Rutas() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo descartar el progreso.",
+        text: getMensajeError(error, "No se pudo descartar el progreso."),
       });
     } finally {
       setGuardandoProgreso(false);

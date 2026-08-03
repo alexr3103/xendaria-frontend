@@ -4,6 +4,7 @@ import Alert from "../../components/Alertas.jsx";
 import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link } from "react-router-dom";
+import { getMensajeError } from "../../lib/errores.js";
 
 const API = import.meta.env.VITE_API_URL;
 const PASSWORD_INFO =
@@ -110,7 +111,7 @@ export default function Register() {
       setOk("Cuenta creada con éxito");
       setTimeout(() => (window.location.href = "/login"), 1500);
     } catch (e) {
-      setErr(e.message || "No se pudo crear la cuenta");
+      setErr(getMensajeError(e, "No se pudo crear la cuenta."));
     } finally {
       setLoading(false);
     }

@@ -27,6 +27,7 @@ export default function VistaDetallePuntoUsuario({
   miCalificacion = null,
   guardandoCalificacion = false,
   mensajeCalificacion = null,
+  mensajeGeneral = null,
   onToggleFavorito,
   onClose,
   onCalificar,
@@ -117,6 +118,12 @@ export default function VistaDetallePuntoUsuario({
           )}
         </div>
       </div>
+
+      {mensajeGeneral && (
+        <div className="mx-6 mt-5">
+          <Alert variant={mensajeGeneral.variant}>{mensajeGeneral.text}</Alert>
+        </div>
+      )}
 
       <div className="mt-6 px-6">
         <div className="mb-6 flex items-center gap-3 text-fucsia">

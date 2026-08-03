@@ -19,6 +19,7 @@ import {
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const RUTAS_LABELS = {
   imperdibles: "Imperdibles",
@@ -102,7 +103,7 @@ export default function DashboardAdmin() {
 
       setDashboard(data);
     } catch (err) {
-      setError(err.message || "No se pudo cargar el dashboard");
+      setError(getMensajeError(err, "No se pudo cargar el panel general."));
     } finally {
       setLoading(false);
     }

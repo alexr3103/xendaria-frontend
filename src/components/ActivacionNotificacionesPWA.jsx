@@ -5,6 +5,7 @@ import Alert from "./Alertas.jsx";
 import ModalXendaria from "./ModalXendaria.jsx";
 import { normalizarConfiguracionUsuario } from "../lib/configuracionUsuario.js";
 import { activarNotificacionesPush } from "../lib/notificacionesPush.js";
+import { getMensajeError } from "../lib/errores.js";
 
 const CLAVE_OFRECIDA = "xendaria:notificaciones-post-instalacion-ofrecidas";
 const CLAVE_PENDIENTE = "xendaria:notificaciones-post-instalacion-pendientes";
@@ -150,7 +151,7 @@ export default function ActivacionNotificacionesPWA({
       setActivadas(true);
     } catch (err) {
       setError(
-        err.message || "No se pudieron activar las notificaciones."
+        getMensajeError(err, "No se pudieron activar las notificaciones.")
       );
     } finally {
       setActivando(false);

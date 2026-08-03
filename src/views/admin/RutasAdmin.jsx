@@ -21,6 +21,7 @@ import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import { categorias as categoriasPuntos } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
+import { getMensajeError } from "../../lib/errores.js";
 
 const CATEGORIAS_RUTAS_LABELS = {
   imperdibles: "Imperdibles",
@@ -192,7 +193,7 @@ export default function RutasAdmin() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudieron cargar las rutas.",
+        text: getMensajeError(error, "No se pudieron cargar las rutas."),
       });
     } finally {
       setCargando(false);
@@ -322,7 +323,7 @@ export default function RutasAdmin() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo guardar la ruta.",
+        text: getMensajeError(error, "No se pudo guardar la ruta."),
       });
     } finally {
       setGuardando(false);
@@ -354,7 +355,7 @@ export default function RutasAdmin() {
       setRutaAEliminar(null);
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo eliminar la ruta.",
+        text: getMensajeError(error, "No se pudo eliminar la ruta."),
       });
     } finally {
       setEliminando(false);

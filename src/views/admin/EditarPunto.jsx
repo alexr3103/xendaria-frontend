@@ -38,6 +38,7 @@ import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
 import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
 import CampoDireccionAdmin from "../../components/CampoDireccionAdmin.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   normalizarRecompensaComercio,
   recompensaComercioInicial,
@@ -508,7 +509,10 @@ export default function EditarPunto() {
         fotos: [...(actual.fotos || []), data.foto || { url: data.url, publicId: data.publicId }],
       }));
     } catch (error) {
-      setMensaje({ variant: "error", text: error.message });
+      setMensaje({
+        variant: "error",
+        text: getMensajeError(error, "No se pudo guardar el punto."),
+      });
     } finally {
       setSubiendoFotoGaleria(false);
     }

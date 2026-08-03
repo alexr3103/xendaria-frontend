@@ -23,6 +23,7 @@ import PestanasAdmin from "../../components/PestanasAdmin.jsx";
 import EncabezadoOrdenableAdmin from "../../components/EncabezadoOrdenableAdmin.jsx";
 import InterruptorActivoAdmin from "../../components/InterruptorActivoAdmin.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
 
@@ -265,7 +266,7 @@ export default function UsuariosAdmin() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo guardar el titulo.",
+        text: getMensajeError(err, "No se pudo guardar el título."),
       });
     } finally {
       setGuardandoTitulo(false);
@@ -314,7 +315,7 @@ export default function UsuariosAdmin() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo cambiar el estado del titulo.",
+        text: getMensajeError(err, "No se pudo cambiar el estado del título."),
       });
     } finally {
       setGuardandoTitulo(false);
@@ -348,7 +349,7 @@ export default function UsuariosAdmin() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo eliminar el titulo.",
+        text: getMensajeError(err, "No se pudo eliminar el título."),
       });
     } finally {
       setEliminando(false);
@@ -387,7 +388,7 @@ export default function UsuariosAdmin() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "Error eliminando el usuario.",
+        text: getMensajeError(err, "No se pudo eliminar el usuario."),
       });
     } finally {
       setEliminando(false);
@@ -430,7 +431,7 @@ export default function UsuariosAdmin() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo reactivar el usuario.",
+        text: getMensajeError(err, "No se pudo reactivar el usuario."),
       });
     } finally {
       setReactivando(false);

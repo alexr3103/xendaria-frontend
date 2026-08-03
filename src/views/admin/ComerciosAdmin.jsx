@@ -16,6 +16,7 @@ import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
 import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
 import PestanasAdmin from "../../components/PestanasAdmin.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const API = import.meta.env.VITE_API_URL;
 const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
@@ -94,7 +95,7 @@ export default function ComerciosAdmin() {
 
       setSolicitudes(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
+      setError(getMensajeError(err, "No se pudieron cargar las solicitudes comerciales."));
     } finally {
       setCargando(false);
     }
@@ -174,7 +175,10 @@ export default function ComerciosAdmin() {
         text: "Estado de la solicitud actualizado.",
       });
     } catch (err) {
-      setMensaje({ variant: "error", text: err.message });
+      setMensaje({
+        variant: "error",
+        text: getMensajeError(err, "No se pudo actualizar la solicitud comercial."),
+      });
     } finally {
       setActualizando(null);
     }

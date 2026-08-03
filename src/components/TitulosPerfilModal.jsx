@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Sparkles, Trophy } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 import { categorias } from "./CategoriasFiltros.jsx";
+import { getMensajeError } from "../lib/errores.js";
 
 function getIdTitulo(titulo) {
   if (!titulo?._id) return "";
@@ -66,7 +67,9 @@ export default function TitulosPerfilModal({
       await onGuardar(tituloElegidoId);
       onClose();
     } catch (err) {
-      setError(err.message || "No pudimos cambiar el título visible.");
+      setError(
+        getMensajeError(err, "No pudimos cambiar el título visible.")
+      );
     } finally {
       setGuardando(false);
     }

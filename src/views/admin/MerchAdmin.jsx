@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
 import TituloFiltroAdmin from "../../components/TituloFiltroAdmin.jsx";
@@ -188,7 +189,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudieron cargar las órdenes",
+        text: getMensajeError(error, "No se pudieron cargar las órdenes."),
       });
     } finally {
       setCargandoOrdenes(false);
@@ -211,7 +212,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudieron cargar los productos",
+        text: getMensajeError(error, "No se pudieron cargar los productos."),
       });
     } finally {
       setCargandoProductos(false);
@@ -240,7 +241,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo cargar envíos",
+        text: getMensajeError(error, "No se pudieron cargar los envíos."),
       });
     } finally {
       setCargandoEnvios(false);
@@ -292,7 +293,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo actualizar la orden",
+        text: getMensajeError(error, "No se pudo actualizar la orden."),
       });
     } finally {
       setActualizandoOrden(null);
@@ -326,7 +327,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo eliminar el producto",
+        text: getMensajeError(error, "No se pudo eliminar el producto."),
       });
     } finally {
       setEliminando(false);
@@ -365,7 +366,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo cambiar la visibilidad",
+        text: getMensajeError(error, "No se pudo cambiar la visibilidad."),
       });
     } finally {
       setActualizandoProducto(null);
@@ -411,7 +412,7 @@ export default function MerchAdmin({ initialTab = "ordenes" }) {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo guardar envíos",
+        text: getMensajeError(error, "No se pudieron guardar los envíos."),
       });
     } finally {
       setGuardandoEnvios(false);

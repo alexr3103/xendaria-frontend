@@ -12,6 +12,7 @@ import {
   Youtube,
 } from "lucide-react";
 import Alert from "./Alertas.jsx";
+import { getMensajeError } from "../lib/errores.js";
 
 const TIPOS = [
   { value: "youtube", label: "YouTube", icon: Youtube },
@@ -78,7 +79,10 @@ export default function MultimediaAdmin({ punto, onChange }) {
       setForm(EMPTY_FORM);
       setMensaje({ variant: "success", text: "Contenido multimedia agregado." });
     } catch (error) {
-      setMensaje({ variant: "error", text: error.message });
+      setMensaje({
+        variant: "error",
+        text: getMensajeError(error, "No se pudo agregar el contenido multimedia."),
+      });
     } finally {
       setGuardando(false);
     }
@@ -110,7 +114,10 @@ export default function MultimediaAdmin({ punto, onChange }) {
       });
       setMensaje({ variant: "success", text: "Contenido multimedia eliminado." });
     } catch (error) {
-      setMensaje({ variant: "error", text: error.message });
+      setMensaje({
+        variant: "error",
+        text: getMensajeError(error, "No se pudo actualizar el contenido multimedia."),
+      });
     } finally {
       setEliminandoId(null);
     }
@@ -137,7 +144,10 @@ export default function MultimediaAdmin({ punto, onChange }) {
       if (!response.ok) throw new Error(data.message || "No se pudo verificar");
       onChange({ ...punto, vista360: data.vista360 });
     } catch (error) {
-      setMensaje({ variant: "error", text: error.message });
+      setMensaje({
+        variant: "error",
+        text: getMensajeError(error, "No se pudo eliminar el contenido multimedia."),
+      });
     } finally {
       setVerificando(false);
     }

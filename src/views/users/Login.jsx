@@ -6,6 +6,7 @@ import Alert from "../../components/Alertas.jsx";
 import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link, useNavigate } from "react-router-dom";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   marcarBienvenidaPostLogin,
   obtenerDestinoSesion,
@@ -60,7 +61,7 @@ export default function Login() {
       const data = await login({ email, password });
       guardarSesionYRedirigir(data);
     } catch (e) {
-      setErr(e.message || "No se pudo iniciar sesión");
+      setErr(getMensajeError(e, "No se pudo iniciar sesión."));
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ export default function Login() {
         setGoogleCredentialPendiente(credentialResponse.credential);
         setLegalesGoogleOpen(true);
       } else {
-        setErr(e.message || "Error con Google");
+        setErr(getMensajeError(e, "No se pudo iniciar sesión con Google."));
       }
     } finally {
       setGoogleLoading(false);
@@ -101,7 +102,7 @@ export default function Login() {
       guardarSesionYRedirigir(data);
     } catch (e) {
       setLegalesGoogleOpen(false);
-      setErr(e.message || "No se pudo crear la cuenta con Google");
+      setErr(getMensajeError(e, "No se pudo crear la cuenta con Google."));
     } finally {
       setGoogleLoading(false);
     }
@@ -134,7 +135,7 @@ export default function Login() {
 
       setTimeout(() => setMsg(""), 5000);
     } catch (err) {
-      setErr(err.message || "Error al enviar el correo");
+      setErr(getMensajeError(err, "No se pudo enviar el correo."));
     } finally {
       setRecLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 export default function EnviosAdmin() {
     const API = import.meta.env.VITE_API_URL;
@@ -46,7 +47,7 @@ export default function EnviosAdmin() {
             resto_pais: data.costos?.resto_pais ?? "",
             });
         } catch (err) {
-            setError(err.message || "No se pudo cargar la configuración");
+            setError(getMensajeError(err, "No se pudo cargar la configuración."));
         } finally {
             setCargando(false);
         }
@@ -99,7 +100,7 @@ export default function EnviosAdmin() {
 
         setMensaje("Configuración de envíos actualizada correctamente");
         } catch (err) {
-        setError(err.message || "No se pudo guardar la configuración");
+        setError(getMensajeError(err, "No se pudo guardar la configuración."));
         } finally {
         setGuardando(false);
         }

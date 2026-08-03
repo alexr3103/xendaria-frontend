@@ -11,6 +11,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const formatoPrecio = new Intl.NumberFormat("es-AR");
 
@@ -88,7 +89,7 @@ export default function Carrito() {
         );
 
       } catch (err) {
-        setError(err.message || "No se pudo cargar el carrito");
+        setError(getMensajeError(err, "No se pudo cargar el carrito."));
       } finally {
         setLoading(false);
       }
@@ -143,7 +144,7 @@ export default function Carrito() {
 
       window.dispatchEvent(new Event("carrito-actualizado"));
     } catch (err) {
-      setMensaje(err.message || "No se pudo actualizar la cantidad");
+      setMensaje(getMensajeError(err, "No se pudo actualizar la cantidad."));
     } finally {
       setActualizando(false);
     }
@@ -191,7 +192,7 @@ export default function Carrito() {
 
       window.dispatchEvent(new Event("carrito-actualizado"));
     } catch (err) {
-      setMensaje(err.message || "No se pudo eliminar el producto");
+      setMensaje(getMensajeError(err, "No se pudo eliminar el producto."));
     } finally {
       setActualizando(false);
     }

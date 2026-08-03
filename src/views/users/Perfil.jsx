@@ -36,6 +36,7 @@ import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js"
 import { getCategoriaImagen } from "../../lib/categoriaImagenes.js";
 import { desvincularDispositivoPush } from "../../lib/notificacionesPush.js";
 import { limpiarSesion } from "../../lib/sesion.js";
+import { getMensajeError } from "../../lib/errores.js";
 
 function getUsuarioLocal() {
   try {
@@ -382,9 +383,10 @@ export default function Perfil() {
         }
         setMensaje({
           variant: "error",
-          text:
-            error.message ||
-            "No pudimos cargar tu perfil. Revisá tu conexión e intentá nuevamente.",
+          text: getMensajeError(
+            error,
+            "No pudimos cargar tu perfil. Revisá tu conexión e intentá nuevamente."
+          ),
         });
       } finally {
         if (activo) setLoading(false);
@@ -484,7 +486,7 @@ export default function Perfil() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo eliminar el favorito.",
+        text: getMensajeError(error, "No se pudo eliminar el favorito."),
       });
     } finally {
       setFavoritoEliminando(null);
@@ -516,7 +518,7 @@ export default function Perfil() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo eliminar el punto propio.",
+        text: getMensajeError(error, "No se pudo eliminar el punto propio."),
       });
     } finally {
       setPuntoPropioEliminando(null);

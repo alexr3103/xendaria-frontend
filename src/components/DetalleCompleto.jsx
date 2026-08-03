@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import useGeolocation from "../hooks/geo.js";
 import VistaDetallePuntoUsuario from "./VistaDetallePuntoUsuario.jsx";
+import { getMensajeError } from "../lib/errores.js";
 
 function getUsuarioLocal() {
   try {
@@ -25,6 +26,7 @@ export default function PuntoDetalle() {
   const [miCalificacion, setMiCalificacion] = useState(null);
   const [guardandoCalificacion, setGuardandoCalificacion] = useState(false);
   const [mensajeCalificacion, setMensajeCalificacion] = useState(null);
+  const [mensajeGeneral, setMensajeGeneral] = useState(null);
 
   const user = useMemo(getUsuarioLocal, []);
   const idUsuario = user?.id;
@@ -103,11 +105,15 @@ export default function PuntoDetalle() {
 
   async function toggleFavorito() {
     if (!idUsuario) {
-      alert("Tenés que iniciar sesión para guardar favoritos.");
+      setMensajeGeneral({
+        variant: "error",
+        text: "Tenés que iniciar sesión para guardar favoritos.",
+      });
       return;
     }
 
     setLoadingFav(true);
+    setMensajeGeneral(null);
 
     try {
       const idPunto = punto._id;
@@ -130,8 +136,7 @@ export default function PuntoDetalle() {
 
       const data = await res.json();
       if (!res.ok) {
-        console.error("Error en favoritos:", data);
-        return;
+        throw new Error(data?.message || "No se pudo actualizar el favorito.");
       }
 
       const nuevoValor = !esFavorito;
@@ -152,6 +157,10 @@ export default function PuntoDetalle() {
       localStorage.setItem("usuario", JSON.stringify(updatedUser));
     } catch (error) {
       console.error(error);
+      setMensajeGeneral({
+        variant: "error",
+        text: getMensajeError(error, "No se pudo actualizar el favorito."),
+      });
     } finally {
       setLoadingFav(false);
     }
@@ -205,7 +214,10 @@ export default function PuntoDetalle() {
     } catch (error) {
       setMensajeCalificacion({
         variant: "error",
-        text: error.message || "No se pudo guardar la calificación.",
+        text: getMensajeError(
+          error,
+          "No se pudo guardar la calificación."
+        ),
       });
     } finally {
       setGuardandoCalificacion(false);
@@ -224,6 +236,7 @@ export default function PuntoDetalle() {
       miCalificacion={miCalificacion}
       guardandoCalificacion={guardandoCalificacion}
       mensajeCalificacion={mensajeCalificacion}
+      mensajeGeneral={mensajeGeneral}
       onToggleFavorito={toggleFavorito}
       onClose={() => navigate("/home", { state: { recenterUser: Date.now() } })}
       onCalificar={calificarPunto}

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import BotonCerrar from "./BotonCerrar";
 import { normalizarConfiguracionUsuario } from "../lib/configuracionUsuario";
+import { getMensajeError } from "../lib/errores.js";
 
 function getCategoriasPunto(punto = {}) {
   const valores = [
@@ -113,7 +114,9 @@ export default function DescripcionPunto({
         setMostrarVistaLugar(true);
       }
     } catch (error) {
-      setErrorVista(error.message);
+      setErrorVista(
+        getMensajeError(error, "No se pudo consultar la vista del lugar.")
+      );
     } finally {
       setConsultandoVista(false);
     }
@@ -150,7 +153,9 @@ export default function DescripcionPunto({
         setMostrarCelebracionInsignia(true);
       }
     } catch (error) {
-      setErrorVisita(error.message || "No se pudo registrar la visita.");
+      setErrorVisita(
+        getMensajeError(error, "No se pudo registrar la visita.")
+      );
     } finally {
       setRegistrandoVisita(false);
     }

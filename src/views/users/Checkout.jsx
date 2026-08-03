@@ -11,6 +11,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const formatoPrecio = new Intl.NumberFormat("es-AR");
 const NON_DIGIT_REGEX = /\D/g;
@@ -196,7 +197,7 @@ export default function Checkout() {
 
         setConfigEnvios(dataEnvios);
       } catch (err) {
-        setError(err.message || "No se pudo cargar el checkout");
+        setError(getMensajeError(err, "No se pudo cargar el checkout."));
       } finally {
         setLoading(false);
       }
@@ -300,7 +301,7 @@ export default function Checkout() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo finalizar la compra",
+        text: getMensajeError(err, "No se pudo finalizar la compra."),
       });
     } finally {
       setProcesando(false);

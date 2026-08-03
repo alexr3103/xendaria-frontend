@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 import Alert from "./Alertas.jsx";
+import { getMensajeError } from "../lib/errores.js";
 
 const ICONOS_TIPO = {
   seguidor: UserPlus,
@@ -78,7 +79,7 @@ export default function BuzonNotificaciones({
       setMensaje({
         variant: "error",
         text:
-          error.message || "No se pudieron cargar las notificaciones.",
+          getMensajeError(error, "No se pudieron cargar las notificaciones."),
       });
     } finally {
       setLoading(false);

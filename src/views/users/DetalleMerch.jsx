@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   getMerchCategoryInfo,
 } from "../../constants/merchOptions.js";
@@ -268,7 +269,7 @@ export default function DetalleMerch() {
       window.dispatchEvent(new Event("carrito-actualizado"));
       setMensaje("Producto agregado al carrito.");
     } catch (err) {
-      setMensaje(err.message || "No se pudo agregar al carrito.");
+      setMensaje(getMensajeError(err, "No se pudo agregar al carrito."));
     } finally {
       setAgregando(false);
     }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createElement, useCallback, useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 import {
   BadgeCheck,
@@ -20,6 +20,7 @@ import BotonAccionUsuario from "../../components/BotonAccionUsuario.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { resolveAvatarSrc, getFallbackAvatar } from "../../lib/avatarOptions.js";
+import { getMensajeError } from "../../lib/errores.js";
 
 async function fetchJSON(url, options) {
   const response = await fetch(url, options);
@@ -52,17 +53,24 @@ export default function Ranking() {
   const API = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
-  const [usuarios, setUsuarios] = useState([]);
+  const [usuariosVisitas, setUsuariosVisitas] = useState([]);
+  const [usuariosInsignias, setUsuariosInsignias] = useState([]);
   const [lugares, setLugares] = useState([]);
   const [mejorVotados, setMejorVotados] = useState([]);
-  const [miPosicion, setMiPosicion] = useState(null);
+  const [posicionVisitas, setPosicionVisitas] = useState(null);
+  const [posicionInsignias, setPosicionInsignias] = useState(null);
   const [tab, setTab] = useState("usuarios");
+  const [criterioUsuarios, setCriterioUsuarios] = useState("visitas");
   const [minEstrellas, setMinEstrellas] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [actualizado, setActualizado] = useState(null);
 
+  const usuarios =
+    criterioUsuarios === "insignias" ? usuariosInsignias : usuariosVisitas;
+  const miPosicion =
+    criterioUsuarios === "insignias" ? posicionInsignias : posicionVisitas;
   const top3 = usuarios.slice(0, 3);
   const restoUsuarios = usuarios.slice(3);
   const podio = useMemo(() => getPodioOrdenado(top3), [top3]);
@@ -81,25 +89,46 @@ export default function Ranking() {
         const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
         const filtroVotados =
           Number(minEstrellas) > 0 ? `&minEstrellas=${minEstrellas}` : "";
-        const [usuariosData, lugaresData, mejorVotadosData, posicionData] =
+        const [
+          usuariosVisitasData,
+          usuariosInsigniasData,
+          lugaresData,
+          mejorVotadosData,
+          posicionVisitasData,
+          posicionInsigniasData,
+        ] =
           await Promise.all([
-            fetchJSON(`${API}/api/ranking/usuarios?limit=20`),
+            fetchJSON(`${API}/api/ranking/usuarios?limit=20&criterio=visitas`),
+            fetchJSON(`${API}/api/ranking/usuarios?limit=20&criterio=insignias`),
             fetchJSON(`${API}/api/ranking/lugares?limit=20`),
             fetchJSON(`${API}/api/ranking/mejor-votados?limit=20${filtroVotados}`),
             token
-              ? fetchJSON(`${API}/api/ranking/me`, { headers })
+              ? fetchJSON(`${API}/api/ranking/me?criterio=visitas`, { headers })
+              : Promise.resolve(null),
+            token
+              ? fetchJSON(`${API}/api/ranking/me?criterio=insignias`, { headers })
               : Promise.resolve(null),
           ]);
 
-        setUsuarios(Array.isArray(usuariosData.usuarios) ? usuariosData.usuarios : []);
+        setUsuariosVisitas(
+          Array.isArray(usuariosVisitasData.usuarios)
+            ? usuariosVisitasData.usuarios
+            : []
+        );
+        setUsuariosInsignias(
+          Array.isArray(usuariosInsigniasData.usuarios)
+            ? usuariosInsigniasData.usuarios
+            : []
+        );
         setLugares(Array.isArray(lugaresData.lugares) ? lugaresData.lugares : []);
         setMejorVotados(
           Array.isArray(mejorVotadosData.lugares) ? mejorVotadosData.lugares : []
         );
-        setMiPosicion(posicionData);
+        setPosicionVisitas(posicionVisitasData);
+        setPosicionInsignias(posicionInsigniasData);
         setActualizado(new Date());
       } catch (err) {
-        setError(err.message || "No se pudo cargar el ranking.");
+        setError(getMensajeError(err, "No se pudo cargar el ranking."));
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -171,21 +200,6 @@ export default function Ranking() {
             </div>
           )}
 
-          {miPosicion?.visible === false && (
-            <div className="mt-4">
-              <Alert variant="info">
-                <span className="inline-flex items-center gap-2">
-                  <EyeOff size={17} />
-                  {miPosicion.message}
-                </span>
-              </Alert>
-            </div>
-          )}
-
-          {miPosicion?.visible !== false && miPosicion && (
-            <PosicionActualRanking miPosicion={miPosicion} />
-          )}
-
           <div className="mt-8 grid grid-cols-3 rounded-2xl bg-white p-1 shadow-sm">
             <TabButton active={tab === "usuarios"} onClick={() => setTab("usuarios")}>
               Exploradores
@@ -200,15 +214,61 @@ export default function Ranking() {
 
           {tab === "usuarios" ? (
             <section className="mt-5">
+              <div
+                className="grid grid-cols-2 rounded-2xl bg-white p-1 shadow-sm"
+                role="group"
+                aria-label="Orden del ranking de exploradores"
+              >
+                <CriterioRankingButton
+                  active={criterioUsuarios === "visitas"}
+                  onClick={() => setCriterioUsuarios("visitas")}
+                  icon={MapPin}
+                >
+                  Por visitas
+                </CriterioRankingButton>
+                <CriterioRankingButton
+                  active={criterioUsuarios === "insignias"}
+                  onClick={() => setCriterioUsuarios("insignias")}
+                  icon={BadgeCheck}
+                >
+                  Por insignias
+                </CriterioRankingButton>
+              </div>
+
+              {miPosicion?.visible === false && (
+                <div className="mt-4">
+                  <Alert variant="info">
+                    <span className="inline-flex items-center gap-2">
+                      <EyeOff size={17} />
+                      {miPosicion.message}
+                    </span>
+                  </Alert>
+                </div>
+              )}
+
+              {miPosicion?.visible !== false && miPosicion && (
+                <PosicionActualRanking
+                  miPosicion={miPosicion}
+                  criterio={criterioUsuarios}
+                />
+              )}
+
               {usuarios.length === 0 ? (
                 <EmptyState text="Todavía no hay exploradores en el ranking." />
               ) : (
                 <>
-                  <PodioExploradores podio={podio} />
+                  <PodioExploradores
+                    podio={podio}
+                    criterio={criterioUsuarios}
+                  />
 
                   <div className="mt-5 divide-y divide-uva/10 rounded-3xl bg-white px-3 shadow-sm">
                     {restoUsuarios.map((usuario) => (
-                      <UsuarioRankingItem key={usuario.usuarioId} usuario={usuario} />
+                      <UsuarioRankingItem
+                        key={usuario.usuarioId}
+                        usuario={usuario}
+                        criterio={criterioUsuarios}
+                      />
                     ))}
                   </div>
                 </>
@@ -292,6 +352,7 @@ function TabButton({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-xl py-2.5 text-sm font-bold transition ${
         active ? "bg-morado text-crema shadow" : "text-uva"
       }`}
@@ -301,10 +362,29 @@ function TabButton({ active, onClick, children }) {
   );
 }
 
-function PosicionActualRanking({ miPosicion }) {
+function CriterioRankingButton({ active, onClick, icon, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-2.5 text-sm font-bold transition ${
+        active
+          ? "bg-uva text-crema shadow-sm"
+          : "text-uva hover:bg-crema"
+      }`}
+    >
+      {createElement(icon, { size: 17, "aria-hidden": true })}
+      <span className="truncate">{children}</span>
+    </button>
+  );
+}
+
+function PosicionActualRanking({ miPosicion, criterio }) {
   const totalVisitados = miPosicion.totalVisitados || 0;
   const totalInsignias = miPosicion.totalInsignias || 0;
   const posicionTexto = miPosicion.posicion ? `#${miPosicion.posicion}` : "--";
+  const esRankingVisitas = criterio === "visitas";
 
   return (
     <section className="mt-8">
@@ -334,14 +414,22 @@ function PosicionActualRanking({ miPosicion }) {
 
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
             <RankChip
-              label="Insignias"
-              value={totalInsignias}
-              color={categorias.curiosos.color}
-            />
-            <RankChip
               label="Visitados"
               value={totalVisitados}
-              color={categorias.espacios_verdes_publicos.color}
+              color={
+                esRankingVisitas
+                  ? categorias.espacios_verdes_publicos.color
+                  : categorias.paradas_de_bus_turistico.color
+              }
+            />
+            <RankChip
+              label="Insignias"
+              value={totalInsignias}
+              color={
+                esRankingVisitas
+                  ? categorias.paradas_de_bus_turistico.color
+                  : categorias.curiosos.color
+              }
             />
           </div>
         </div>
@@ -362,16 +450,19 @@ function RankChip({ label, value, color }) {
   );
 }
 
-function PodioExploradores({ podio }) {
+function PodioExploradores({ podio, criterio }) {
+  const titulo =
+    criterio === "insignias" ? "Podio de insignias" : "Podio por visitas";
+
   return (
-    <section className="rounded-[32px] border border-morado/10 bg-white p-4 shadow-sm">
+    <section className="mt-5 rounded-[32px] border border-morado/10 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-wide text-uva/60">
             Top 3
           </p>
           <h2 className="font-fredoka text-2xl leading-none text-uva">
-            Podio de exploradores
+            {titulo}
           </h2>
         </div>
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-morado/10 text-morado shadow-sm">
@@ -381,16 +472,28 @@ function PodioExploradores({ podio }) {
 
       <div className="grid grid-cols-3 items-end gap-2 sm:gap-4">
         {podio.map((usuario) => (
-          <PodioUsuario key={usuario.usuarioId} usuario={usuario} />
+          <PodioUsuario
+            key={usuario.usuarioId}
+            usuario={usuario}
+            criterio={criterio}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-function PodioUsuario({ usuario }) {
+function PodioUsuario({ usuario, criterio }) {
   const esPrimero = usuario.posicion === 1;
   const Icono = esPrimero ? Crown : Medal;
+  const esRankingInsignias = criterio === "insignias";
+  const valorPrincipal = esRankingInsignias
+    ? usuario.totalInsignias
+    : usuario.totalVisitados;
+  const etiquetaPrincipal = esRankingInsignias ? "insignias" : "visitas";
+  const valorSecundario = esRankingInsignias
+    ? `${usuario.totalVisitados} visitas`
+    : `${usuario.totalInsignias} insignias`;
   const estilos = {
     1: {
       avatar: "h-20 w-20 border-vainilla",
@@ -440,20 +543,25 @@ function PodioUsuario({ usuario }) {
         className={`mt-2 flex w-full flex-col items-center justify-end rounded-t-3xl border px-1 py-3 ${estilos.pedestal}`}
       >
         <p className="font-fredoka text-xl leading-none text-uva">
-          {usuario.totalInsignias}
+          {valorPrincipal}
         </p>
         <p className="text-[10px] font-extrabold uppercase text-uva/75">
-          insignias
+          {etiquetaPrincipal}
         </p>
         <p className="text-[10px] font-bold text-uva/60">
-          {usuario.totalVisitados} visitas
+          {valorSecundario}
         </p>
       </div>
     </article>
   );
 }
 
-function UsuarioRankingItem({ usuario }) {
+function UsuarioRankingItem({ usuario, criterio }) {
+  const detalle =
+    criterio === "insignias"
+      ? `${usuario.totalInsignias} insignias - ${usuario.totalVisitados} visitados`
+      : `${usuario.totalVisitados} visitados - ${usuario.totalInsignias} insignias`;
+
   return (
     <div className="flex min-w-0 items-center gap-3 py-3">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-morado/10 font-fredoka text-morado">
@@ -469,9 +577,7 @@ function UsuarioRankingItem({ usuario }) {
       />
       <div className="min-w-0 flex-1">
         <p className="truncate font-fredoka text-morado">{usuario.nombre}</p>
-        <p className="truncate text-xs text-uva">
-          {usuario.totalInsignias} insignias - {usuario.totalVisitados} visitados
-        </p>
+        <p className="truncate text-xs text-uva">{detalle}</p>
       </div>
       <Trophy size={20} className="shrink-0 text-fucsia" />
     </div>

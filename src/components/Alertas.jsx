@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { getMensajeError } from "../lib/errores.js";
 
 export default function Alert({
   variant = "error",
@@ -28,6 +29,13 @@ export default function Alert({
     info:   "bg-morado/10 text-uva border border-morado/30",
   }[variant];
 
+  const contenido =
+    variant === "error" &&
+    (typeof children === "string" ||
+      (Array.isArray(children) && children.every((item) => typeof item === "string")))
+      ? getMensajeError(children)
+      : children;
+
   return (
     <div
       ref={alertRef}
@@ -36,7 +44,7 @@ export default function Alert({
       tabIndex={autoFocus ? -1 : undefined}
       className={`rounded-lg px-3 py-2 text-sm ${styles}`}
     >
-      {children}
+      {contenido}
     </div>
   );
 }

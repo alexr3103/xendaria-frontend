@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import CampoGaleriaMerch from "../../components/CampoGaleriaMerch.jsx";
 import InterruptorProductoMerch from "../../components/InterruptorProductoMerch.jsx";
 import {
@@ -190,7 +191,7 @@ export default function CrearMerch() {
 
       agregarImagen(data);
     } catch (err) {
-      setError(err.message || "No se pudo subir la imagen");
+      setError(getMensajeError(err, "No se pudo subir la imagen."));
     } finally {
       setSubiendoImagen(false);
     }
@@ -229,7 +230,7 @@ export default function CrearMerch() {
         imagenes: prev.imagenes.filter((_, i) => i !== index),
       }));
     } catch (err) {
-      setError(err.message || "No se pudo eliminar la imagen");
+      setError(getMensajeError(err, "No se pudo eliminar la imagen."));
     }
   }
 
@@ -242,7 +243,7 @@ export default function CrearMerch() {
       imagenesTemporalesRef.current = [];
       navigate("/admin/merch");
     } catch (err) {
-      setError(err.message || "No se pudieron limpiar las imágenes subidas");
+      setError(getMensajeError(err, "No se pudieron limpiar las imágenes subidas."));
     }
   }
 
@@ -341,7 +342,7 @@ export default function CrearMerch() {
       setOk("Producto creado correctamente");
       setTimeout(() => navigate("/admin/merch"), 900);
     } catch (err) {
-      setError(err.message || "No se pudo crear el producto");
+      setError(getMensajeError(err, "No se pudo crear el producto."));
     } finally {
       setGuardando(false);
     }

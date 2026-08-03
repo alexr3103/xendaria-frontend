@@ -8,6 +8,7 @@ import Alert from "../../components/Alertas.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { categorias } from "../../components/CategoriasFiltros.jsx";
 import { getCategoriaImagen } from "../../lib/categoriaImagenes.js";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   DEFAULT_AVATARS,
   getFallbackAvatar,
@@ -99,7 +100,7 @@ export default function EditarPerfil() {
           configuracion: data.configuracion || {},
         });
       } catch (err) {
-        if (activo) setError(err.message || "No se pudo cargar el perfil");
+        if (activo) setError(getMensajeError(err, "No se pudo cargar el perfil."));
       } finally {
         if (activo) setLoading(false);
       }
@@ -182,7 +183,7 @@ export default function EditarPerfil() {
 
       navigate("/perfil");
     } catch (err) {
-      setError(err.message || "No se pudo guardar el perfil");
+      setError(getMensajeError(err, "No se pudo guardar el perfil."));
     } finally {
       setSaving(false);
     }

@@ -11,6 +11,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   getMerchCategoryInfo,
   MERCH_CATEGORY_OPTIONS,
@@ -245,7 +246,7 @@ export default function Merch() {
     } catch (err) {
       setMensaje({
         variant: "error",
-        text: err.message || "No se pudo agregar al carrito.",
+        text: getMensajeError(err, "No se pudo agregar al carrito."),
       });
     } finally {
       setAgregandoId("");

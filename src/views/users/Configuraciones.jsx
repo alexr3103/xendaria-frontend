@@ -30,6 +30,7 @@ import Alert from "../../components/Alertas.jsx";
 import ModalXendaria from "../../components/ModalXendaria.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { normalizarConfiguracionUsuario } from "../../lib/configuracionUsuario.js";
+import { getMensajeError } from "../../lib/errores.js";
 import {
   activarNotificacionesPush,
   desactivarNotificacionesPush,
@@ -124,7 +125,7 @@ export default function Configuraciones() {
         if (activo) {
           setMensaje({
             variant: "error",
-            text: error.message || "No se pudo cargar la configuración",
+            text: getMensajeError(error, "No se pudo cargar la configuración."),
           });
         }
       } finally {
@@ -281,7 +282,7 @@ export default function Configuraciones() {
     } catch (error) {
       setPasswordMensaje({
         variant: "error",
-        text: error.message || "No se pudo cambiar la contraseña.",
+        text: getMensajeError(error, "No se pudo cambiar la contraseña."),
       });
     } finally {
       setCambiandoPassword(false);
@@ -335,7 +336,7 @@ export default function Configuraciones() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo guardar la configuración.",
+        text: getMensajeError(error, "No se pudo guardar la configuración."),
       });
     } finally {
       setSaving(false);
@@ -383,7 +384,7 @@ export default function Configuraciones() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo borrar el historial.",
+        text: getMensajeError(error, "No se pudo borrar el historial."),
       });
     } finally {
       setBorrandoHistorial(false);
@@ -424,9 +425,10 @@ export default function Configuraciones() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text:
-          error.message ||
-          "No se pudo cambiar la configuración de notificaciones.",
+        text: getMensajeError(
+          error,
+          "No se pudo cambiar la configuración de notificaciones."
+        ),
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
@@ -448,9 +450,10 @@ export default function Configuraciones() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text:
-          error.message ||
-          "No se pudieron activar las notificaciones en este dispositivo.",
+        text: getMensajeError(
+          error,
+          "No se pudieron activar las notificaciones en este dispositivo."
+        ),
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
@@ -502,7 +505,7 @@ export default function Configuraciones() {
     } catch (error) {
       setCuentaMensaje({
         variant: "error",
-        text: error.message || "No se pudo desactivar la cuenta.",
+        text: getMensajeError(error, "No se pudo desactivar la cuenta."),
       });
     } finally {
       setDesactivandoCuenta(false);

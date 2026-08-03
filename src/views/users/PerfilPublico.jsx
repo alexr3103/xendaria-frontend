@@ -11,6 +11,7 @@ import { categorias } from "../../components/CategoriasFiltros.jsx";
 import cargafail from "../../assets/cargafail.png";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
 import { getCategoriaImagen } from "../../lib/categoriaImagenes.js";
+import { getMensajeError } from "../../lib/errores.js";
 
 function getUsuarioLocal() {
   try {
@@ -161,7 +162,7 @@ export default function PerfilPublico() {
         }
         setMensaje({
           variant: "error",
-          text: error.message || "No se pudo cargar el perfil.",
+          text: getMensajeError(error, "No se pudo cargar el perfil."),
         });
       } finally {
         if (activo) setLoading(false);
@@ -244,7 +245,7 @@ export default function PerfilPublico() {
       }
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo actualizar tu comunidad.",
+        text: getMensajeError(error, "No se pudo actualizar tu comunidad."),
       });
     } finally {
       setProcesando(false);

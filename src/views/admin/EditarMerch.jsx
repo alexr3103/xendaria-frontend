@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import CampoGaleriaMerch from "../../components/CampoGaleriaMerch.jsx";
 import InterruptorProductoMerch from "../../components/InterruptorProductoMerch.jsx";
@@ -135,7 +136,7 @@ export default function EditarMerch() {
 
         setGruposColor(agruparVariantesPorColor(variantesPreparadas));
       } catch (err) {
-        setError(err.message || "No se pudo cargar el producto");
+        setError(getMensajeError(err, "No se pudo cargar el producto."));
       } finally {
         setCargando(false);
       }
@@ -304,7 +305,7 @@ export default function EditarMerch() {
 
       agregarImagen(data);
     } catch (err) {
-      setError(err.message || "No se pudo subir la imagen");
+      setError(getMensajeError(err, "No se pudo subir la imagen."));
     } finally {
       setSubiendoImagen(false);
     }
@@ -434,7 +435,7 @@ export default function EditarMerch() {
       setMensaje("Producto actualizado correctamente");
       setTimeout(() => navigate("/admin/merch"), 900);
     } catch (err) {
-      setError(err.message || "No se pudo editar el producto");
+      setError(getMensajeError(err, "No se pudo editar el producto."));
     } finally {
       setGuardando(false);
     }
@@ -460,7 +461,7 @@ export default function EditarMerch() {
 
       navigate("/admin/merch");
     } catch (err) {
-      setError(err.message || "No se pudo eliminar el producto");
+      setError(getMensajeError(err, "No se pudo eliminar el producto."));
     }
   }
 

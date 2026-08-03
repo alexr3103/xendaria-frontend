@@ -10,6 +10,7 @@ import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx"
 import PaginacionUsuario from "../../components/PaginacionUsuario.jsx";
 import BotonAccionUsuario from "../../components/BotonAccionUsuario.jsx";
 import cargafail from "../../assets/cargafail.png";
+import { getMensajeError } from "../../lib/errores.js";
 
 const Motion = motion;
 const INSIGNIAS_POR_PAGINA = 6;
@@ -117,7 +118,7 @@ export default function AlbumInsignias() {
         }
         setMensaje({
           variant: "error",
-          text: error.message || "No se pudo cargar el album de insignias.",
+          text: getMensajeError(error, "No se pudo cargar el álbum de insignias."),
         });
       } finally {
         if (activo) setLoading(false);

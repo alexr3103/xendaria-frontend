@@ -22,6 +22,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { categorias as categoriasInfo } from "../../components/CategoriasFiltros.jsx";
+import { getMensajeError } from "../../lib/errores.js";
 
 const CATEGORIA_DEFAULT = "propios";
 const FOTO_KEY_DEFAULT = "propios";
@@ -508,7 +509,9 @@ export default function Home() {
         setDestino(null);
         setMensajeFocoPunto("Ruta completada.");
       } catch (error) {
-        setMensajeFocoPunto(error.message || "No se pudo completar la ruta.");
+        setMensajeFocoPunto(
+          getMensajeError(error, "No se pudo completar la ruta.")
+        );
       } finally {
         setGuardandoRuta(false);
         setTimeout(() => setMensajeFocoPunto(""), 1600);
@@ -556,7 +559,9 @@ export default function Home() {
     } catch (error) {
       if (opciones.quedarseEnModal) throw error;
 
-      setMensajeFocoPunto(error.message || "No se pudo registrar la visita.");
+      setMensajeFocoPunto(
+        getMensajeError(error, "No se pudo registrar la visita.")
+      );
       setTimeout(() => setMensajeFocoPunto(""), 1600);
       return;
     }
@@ -602,7 +607,9 @@ export default function Home() {
       setDestino(null);
       setMensajeFocoPunto("Ruta pausada.");
     } catch (error) {
-      setMensajeFocoPunto(error.message || "No se pudo pausar la ruta.");
+      setMensajeFocoPunto(
+        getMensajeError(error, "No se pudo pausar la ruta.")
+      );
     } finally {
       setGuardandoRuta(false);
       setTimeout(() => setMensajeFocoPunto(""), 1400);
@@ -631,7 +638,9 @@ export default function Home() {
       setRutaCompletados([]);
       setDestino(null);
     } catch (error) {
-      setMensajeFocoPunto(error.message || "No se pudo cancelar la ruta.");
+      setMensajeFocoPunto(
+        getMensajeError(error, "No se pudo cancelar la ruta.")
+      );
     } finally {
       setGuardandoRuta(false);
       setTimeout(() => setMensajeFocoPunto(""), 1600);
@@ -948,7 +957,7 @@ export default function Home() {
     } catch (error) {
       setMensajePuntoPropio({
         variant: "error",
-        text: error.message,
+        text: getMensajeError(error, "No se pudo guardar el punto."),
       });
     } finally {
       setGuardandoPuntoPropio(false);

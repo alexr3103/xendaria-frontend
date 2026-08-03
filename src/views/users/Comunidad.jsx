@@ -11,6 +11,7 @@ import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx"
 import PaginacionUsuario from "../../components/PaginacionUsuario.jsx";
 import BotonAccionUsuario from "../../components/BotonAccionUsuario.jsx";
 import { getFallbackAvatar, resolveAvatarSrc } from "../../lib/avatarOptions.js";
+import { getMensajeError } from "../../lib/errores.js";
 
 const Motion = motion;
 const USUARIOS_POR_PAGINA = 8;
@@ -91,7 +92,7 @@ export default function Comunidad() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo cargar tu comunidad.",
+        text: getMensajeError(error, "No se pudo cargar tu comunidad."),
       });
     } finally {
       setLoading(false);
@@ -123,7 +124,7 @@ export default function Comunidad() {
       } catch (error) {
         setMensaje({
           variant: "error",
-          text: error.message || "No se pudo buscar usuarios.",
+          text: getMensajeError(error, "No se pudo buscar usuarios."),
         });
       } finally {
         setBuscando(false);
@@ -199,7 +200,7 @@ export default function Comunidad() {
     } catch (error) {
       setMensaje({
         variant: "error",
-        text: error.message || "No se pudo actualizar tu comunidad.",
+        text: getMensajeError(error, "No se pudo actualizar tu comunidad."),
       });
     } finally {
       setProcesandoId(null);
