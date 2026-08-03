@@ -692,25 +692,31 @@ export default function Perfil() {
               </div>
 
               {insignias.length > 0 ? (
-                <div className="flex justify-center gap-4">
-                  {insignias.map((insignia) => (
-                    <div
-                      key={insignia.id || insignia.imagen}
-                      className="flex w-28 flex-col items-center gap-2"
-                    >
-                      <img
-                        src={insignia.imagen || cargafail}
-                        alt={insignia.titulo}
-                        onError={(event) => {
-                          event.currentTarget.src = cargafail;
-                        }}
-                        className="h-24 w-24 rounded-full border-4 border-rosa object-cover shadow-lg"
-                      />
-                      <p className="w-full truncate text-center text-xs font-bold text-uva">
-                        {insignia.titulo}
-                      </p>
-                    </div>
-                  ))}
+                <div className="snap-x snap-mandatory overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div
+                    className={`flex min-w-full w-max gap-4 px-1 ${
+                      insignias.length < 3 ? "justify-center" : "justify-start"
+                    }`}
+                  >
+                    {insignias.map((insignia) => (
+                      <div
+                        key={insignia.id || insignia.imagen}
+                        className="flex w-28 shrink-0 snap-center flex-col items-center gap-2"
+                      >
+                        <img
+                          src={insignia.imagen || cargafail}
+                          alt={insignia.titulo}
+                          onError={(event) => {
+                            event.currentTarget.src = cargafail;
+                          }}
+                          className="h-24 w-24 rounded-full border-4 border-rosa object-cover shadow-lg"
+                        />
+                        <p className="w-full truncate text-center text-xs font-bold text-uva">
+                          {insignia.titulo}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <p className="px-4 py-3 text-center text-sm text-uva">

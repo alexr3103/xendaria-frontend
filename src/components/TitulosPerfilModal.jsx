@@ -11,8 +11,16 @@ function getIdTitulo(titulo) {
 }
 
 function getCategoriaTitulo(titulo) {
-  if (titulo?.esDefault) {
+  if (titulo?.categoria === "sin_visitas") {
     return { label: "Título inicial", icon: Sparkles, color: "#F4EFFF" };
+  }
+
+  if (titulo?.categoria === "con_visitas_sin_titulo") {
+    return {
+      label: "Por puntos visitados",
+      icon: Trophy,
+      color: "#D8B6FF",
+    };
   }
 
   return categorias[titulo?.categoria] || {
@@ -121,11 +129,12 @@ export default function TitulosPerfilModal({
           </h3>
           <div className="mt-2 space-y-2 text-sm font-semibold leading-relaxed text-uva/70">
             <p>
-              Tu primera visita desbloquea el título Explorador petite.
+              Los títulos que desbloqueás quedan disponibles para que elijas
+              cuál mostrar.
             </p>
             <p>
-              Después, cada 5 visitas dentro de una categoría te acercan a un
-              nuevo título de esa especialidad.
+              Algunos dependen del total de puntos visitados y otros de tus
+              visitas dentro de cada categoría.
             </p>
           </div>
         </section>
