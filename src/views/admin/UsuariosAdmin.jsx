@@ -1002,7 +1002,12 @@ function TitulosAdminSection({
       >
         <div className="grid gap-3 lg:grid-cols-[1.1fr_1.2fr_0.55fr_auto] lg:items-end">
           <label className="text-sm font-extrabold text-uva">
-            Categoria
+            <span>
+              Categoria
+              {!formTitulo._id && (
+                <span className="ml-1 text-fucsia">*</span>
+              )}
+            </span>
             <select
               value={formTitulo.categoria}
               onChange={(event) => actualizarCampo("categoria", event.target.value)}
@@ -1018,7 +1023,12 @@ function TitulosAdminSection({
           </label>
 
           <label className="text-sm font-extrabold text-uva">
-            Titulo
+            <span>
+              Titulo
+              {!formTitulo._id && (
+                <span className="ml-1 text-fucsia">*</span>
+              )}
+            </span>
             <input
               value={formTitulo.titulo}
               onChange={(event) => actualizarCampo("titulo", event.target.value)}
@@ -1028,7 +1038,12 @@ function TitulosAdminSection({
           </label>
 
           <label className="text-sm font-extrabold text-uva">
-            Visitas
+            <span>
+              Visitas
+              {!formTitulo._id && (
+                <span className="ml-1 text-fucsia">*</span>
+              )}
+            </span>
             <input
               type="number"
               min="0"

@@ -37,27 +37,47 @@ export function FormularioEditorAdmin({ children, onSubmit, className = "" }) {
   );
 }
 
-export function TituloSeccionAdmin({ icon: Icon, title, subtitle }) {
+export function TituloSeccionAdmin({
+  icon: Icon,
+  title,
+  subtitle,
+  required = false,
+}) {
   return (
     <div className="flex items-start gap-3">
       <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-morado/10 text-morado">
         {Icon && <Icon size={20} />}
       </span>
       <div>
-        <h3 className="font-fredoka text-2xl leading-none text-uva sm:text-[1.65rem]">{title}</h3>
+        <h3 className="font-fredoka text-2xl leading-none text-uva sm:text-[1.65rem]">
+          {title}
+          {required && <span className="ml-1 text-fucsia">*</span>}
+        </h3>
         {subtitle && <p className="mt-1 text-sm text-uva/55">{subtitle}</p>}
       </div>
     </div>
   );
 }
 
-export function SeccionPlanaAdmin({ icon, title, description, children, contentClassName = "space-y-10" }) {
+export function SeccionPlanaAdmin({
+  icon,
+  title,
+  description,
+  children,
+  contentClassName = "space-y-10",
+  required = false,
+}) {
   return (
     <section
       className="border-t border-uva/10"
       style={{ marginTop: "64px", paddingTop: "56px" }}
     >
-      <TituloSeccionAdmin icon={icon} title={title} subtitle={description} />
+      <TituloSeccionAdmin
+        icon={icon}
+        title={title}
+        subtitle={description}
+        required={required}
+      />
       <div className={contentClassName} style={{ marginTop: "32px" }}>
         {children}
       </div>

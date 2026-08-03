@@ -400,7 +400,7 @@ export default function CrearMerch() {
             />
 
             <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(260px,1.35fr)_220px_160px_180px]">
-              <CampoAdmin label="Nombre del producto">
+              <CampoAdmin label="Nombre del producto" required>
                 <input
                   className={claseInputAdmin}
                   value={producto.nombre}
@@ -410,7 +410,7 @@ export default function CrearMerch() {
                 />
               </CampoAdmin>
 
-              <CampoAdmin label="Categoría">
+              <CampoAdmin label="Categoría" required>
                 <select
                   className={claseInputAdmin}
                   value={producto.categoria}
@@ -427,7 +427,7 @@ export default function CrearMerch() {
                 </select>
               </CampoAdmin>
 
-              <CampoAdmin label="Precio">
+              <CampoAdmin label="Precio" required>
                 <input
                   type="number"
                   className={claseInputAdmin}
@@ -451,7 +451,7 @@ export default function CrearMerch() {
               </div>
             </div>
 
-            <CampoAdmin label="Descripción">
+            <CampoAdmin label="Descripción" required>
               <textarea
                 className={`${claseInputAdmin} min-h-36 resize-y`}
                 value={producto.descripcion}
@@ -466,6 +466,7 @@ export default function CrearMerch() {
             title="Imágenes"
             description="La primera imagen se usa como imagen principal del producto."
             icon={Image}
+            required
           >
             {producto.imagenes.length === 0 && (
               <p className="text-sm font-semibold text-fucsia">
@@ -493,7 +494,9 @@ export default function CrearMerch() {
             {usaTalles ? (
               <div className="rounded-[26px] border border-uva/10 bg-crema/70 p-4 sm:p-5">
                 <div className="space-y-3">
-                  <span className="text-sm font-bold text-uva/80">Color</span>
+                  <span className="text-sm font-bold text-uva/80">
+                    Color<span className="ml-1 text-fucsia">*</span>
+                  </span>
 
                   <div className="flex flex-wrap gap-2">
                     {MERCH_COLOR_OPTIONS.map((color) => {
@@ -524,7 +527,7 @@ export default function CrearMerch() {
 
                 <div className="mt-6">
                   <span className="text-sm font-bold text-uva/80">
-                    Talles y stock
+                    Talles y stock<span className="ml-1 text-fucsia">*</span>
                   </span>
 
                   <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">

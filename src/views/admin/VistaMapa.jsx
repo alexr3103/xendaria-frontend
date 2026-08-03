@@ -1115,7 +1115,7 @@ function PuntoPanel({
           </div>
         </div>
 
-        <Field label="Nombre">
+        <Field label="Nombre" required={modoNuevo}>
           <input
             className="w-full min-w-0 rounded-xl border border-uva/20 bg-crema p-3 text-uva"
             value={puntoSeleccionado.nombre || ""}
@@ -1123,7 +1123,7 @@ function PuntoPanel({
           />
         </Field>
 
-        <Field label="Categoría">
+        <Field label="Categoría" required={modoNuevo}>
           <div className="flex flex-wrap gap-2">
             {Object.entries(categorias)
               .filter(([key]) => key !== "propios")
@@ -1179,7 +1179,7 @@ function PuntoPanel({
           />
         </Field>
 
-        <Field label="Descripción breve">
+        <Field label="Descripción breve" required={modoNuevo}>
           <textarea
             className="h-28 w-full min-w-0 resize-none rounded-xl border border-uva/20 bg-crema p-3 text-uva"
             value={puntoSeleccionado.descripcion || ""}
@@ -1187,7 +1187,7 @@ function PuntoPanel({
           />
         </Field>
 
-        <Field label="Coordenadas">
+        <Field label="Coordenadas" required={modoNuevo}>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               className="w-full min-w-0 rounded-xl border border-uva/20 bg-crema p-3 text-uva"
@@ -1244,11 +1244,12 @@ function PuntoPanel({
   );
 }
 
-function Field({ label, children }) {
+function Field({ label, children, required = false }) {
   return (
     <div className="flex flex-col gap-1">
       <label className="font-nunito text-sm font-semibold text-uva/80">
         {label}
+        {required && <span className="ml-1 text-fucsia">*</span>}
       </label>
       {children}
     </div>

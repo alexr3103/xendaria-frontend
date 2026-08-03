@@ -7,7 +7,11 @@ const HISTORIA_VACIA = {
   foto: null,
 };
 
-export default function HistoriasAdmin({ historias = [], onChange }) {
+export default function HistoriasAdmin({
+  historias = [],
+  onChange,
+  showRequired = false,
+}) {
   function agregarHistoria() {
     if (historias.length >= 3) return;
     onChange([...historias, { ...HISTORIA_VACIA }]);
@@ -46,7 +50,10 @@ export default function HistoriasAdmin({ historias = [], onChange }) {
           </div>
 
           <label className="flex flex-col gap-1 text-sm font-semibold text-uva/80">
-            Titulo
+            <span>
+              Titulo
+              {showRequired && <span className="ml-1 text-fucsia">*</span>}
+            </span>
             <input
               value={historia.titulo}
               maxLength={120}
@@ -58,7 +65,10 @@ export default function HistoriasAdmin({ historias = [], onChange }) {
           </label>
 
           <label className="flex flex-col gap-1 text-sm font-semibold text-uva/80">
-            Contenido
+            <span>
+              Contenido
+              {showRequired && <span className="ml-1 text-fucsia">*</span>}
+            </span>
             <textarea
               value={historia.contenido}
               maxLength={2000}

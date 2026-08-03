@@ -440,7 +440,10 @@ export default function RutasAdmin() {
             <form onSubmit={guardarRuta} className="grid gap-6 p-5 sm:p-6">
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                 <label className="grid gap-1">
-                  <span className="text-sm font-bold text-uva">Nombre</span>
+                  <span className="text-sm font-bold text-uva">
+                    Nombre
+                    {!editandoId && <span className="ml-1 text-fucsia">*</span>}
+                  </span>
                   <input
                     value={form.nombre}
                     onChange={(event) =>
@@ -453,7 +456,10 @@ export default function RutasAdmin() {
                 </label>
 
                 <label className="grid gap-1">
-                  <span className="text-sm font-bold text-uva">Categoría</span>
+                  <span className="text-sm font-bold text-uva">
+                    Categoría
+                    {!editandoId && <span className="ml-1 text-fucsia">*</span>}
+                  </span>
                   <select
                     value={form.categoria}
                     onChange={(event) =>
@@ -487,6 +493,7 @@ export default function RutasAdmin() {
                   <div>
                     <h3 className="font-fredoka text-2xl text-uva">
                       Puntos de la ruta
+                      {!editandoId && <span className="ml-1 text-fucsia">*</span>}
                     </h3>
                     <p className="text-sm text-uva/65">
                       Minimo 3 puntos. No tienen orden fijo para el usuario.

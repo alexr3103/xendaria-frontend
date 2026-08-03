@@ -256,7 +256,7 @@ export default function CrearPunto() {
             />
 
             <div className="grid min-w-0 gap-4 lg:grid-cols-2">
-              <CampoAdmin label="Nombre del punto">
+              <CampoAdmin label="Nombre del punto" required>
                 <input
                   className={claseInputAdmin}
                   value={punto.nombre}
@@ -274,7 +274,7 @@ export default function CrearPunto() {
               />
             </div>
 
-            <CampoAdmin label="Categorías">
+            <CampoAdmin label="Categorías" required>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(categorias)
                   .filter(([key]) => key !== "propios")
@@ -323,7 +323,7 @@ export default function CrearPunto() {
             icon={FileText}
             contentClassName="space-y-10"
           >
-            <CampoAdmin label="Descripción breve">
+            <CampoAdmin label="Descripción breve" required>
               <textarea
                 className={`${claseInputAdmin} min-h-28 resize-y`}
                 placeholder="Texto corto, resumen..."
@@ -371,6 +371,7 @@ export default function CrearPunto() {
 
           {esComercio && (
             <RecompensaComercioAdmin
+              showRequired
               value={punto.recompensaComercio}
               onChange={(recompensaComercio) =>
                 actualizarCampo("recompensaComercio", recompensaComercio)
@@ -394,7 +395,7 @@ export default function CrearPunto() {
             </CampoAdmin>
 
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-              <CampoAdmin label="Latitud">
+              <CampoAdmin label="Latitud" required>
                 <input
                   className={claseInputAdmin}
                   placeholder="Latitud"
@@ -402,7 +403,7 @@ export default function CrearPunto() {
                   onChange={(event) => actualizarCampo("lat", event.target.value)}
                 />
               </CampoAdmin>
-              <CampoAdmin label="Longitud">
+              <CampoAdmin label="Longitud" required>
                 <input
                   className={claseInputAdmin}
                   placeholder="Longitud"
@@ -420,6 +421,7 @@ export default function CrearPunto() {
             contentClassName="space-y-10"
           >
             <HistoriasAdmin
+              showRequired
               historias={punto.historias}
               onChange={(historias) => actualizarCampo("historias", historias)}
             />

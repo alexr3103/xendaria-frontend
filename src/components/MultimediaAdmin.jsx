@@ -47,6 +47,14 @@ export default function MultimediaAdmin({ punto, onChange }) {
   }
 
   async function agregarContenido() {
+    if (!String(form.tipo || "").trim() || !String(form.url || "").trim()) {
+      setMensaje({
+        variant: "error",
+        text: "Completá el tipo y la URL para agregar el contenido.",
+      });
+      return;
+    }
+
     setGuardando(true);
     setMensaje(null);
 
@@ -191,7 +199,7 @@ export default function MultimediaAdmin({ punto, onChange }) {
 
       <button
         type="button"
-        disabled={guardando || !form.url}
+        disabled={guardando}
         onClick={agregarContenido}
         className="self-start flex items-center gap-2 bg-morado text-crema px-4 py-2.5 rounded-xl font-semibold disabled:opacity-50"
       >

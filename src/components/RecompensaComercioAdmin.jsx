@@ -9,7 +9,11 @@ import {
 import InterruptorActivoAdmin from "./InterruptorActivoAdmin.jsx";
 import { normalizarRecompensaComercio } from "../lib/recompensaComercio.js";
 
-export default function RecompensaComercioAdmin({ value, onChange }) {
+export default function RecompensaComercioAdmin({
+  value,
+  onChange,
+  showRequired = false,
+}) {
   const recompensa = normalizarRecompensaComercio(value);
 
   function actualizar(campo, nuevoValor) {
@@ -32,7 +36,7 @@ export default function RecompensaComercioAdmin({ value, onChange }) {
         </span>
       </Alert>
 
-      <CampoAdmin label="Beneficio para el usuario">
+      <CampoAdmin label="Beneficio para el usuario" required={showRequired}>
         <textarea
           className={`${claseInputAdmin} min-h-24 resize-y`}
           maxLength={180}
@@ -43,7 +47,10 @@ export default function RecompensaComercioAdmin({ value, onChange }) {
       </CampoAdmin>
 
       <div className="grid min-w-0 gap-5 md:grid-cols-2">
-        <CampoAdmin label="Código que mostrará el usuario">
+        <CampoAdmin
+          label="Código que mostrará el usuario"
+          required={showRequired}
+        >
           <div className="relative">
             <TicketCheck
               size={19}
@@ -59,7 +66,7 @@ export default function RecompensaComercioAdmin({ value, onChange }) {
           </div>
         </CampoAdmin>
 
-        <CampoAdmin label="Vigente hasta">
+        <CampoAdmin label="Vigente hasta" required={showRequired}>
           <div className="relative">
             <CalendarDays
               size={19}
