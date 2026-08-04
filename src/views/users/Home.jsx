@@ -1501,6 +1501,7 @@ export default function Home() {
       <ModalConfirmacion
         open={confirmarCancelacionRuta}
         title="Cancelar ruta"
+        eyebrow="Ruta en curso"
         message={
           rutaCompletados.length > 0
             ? "¿Seguro que querés cancelar esta ruta? Guardaremos los puntos que ya visitaste para que puedas retomarla después."
@@ -1509,6 +1510,8 @@ export default function Home() {
         confirmText="Cancelar ruta"
         cancelText="Seguir recorriendo"
         danger
+        icon={Flag}
+        confirmIcon={XCircle}
         onConfirm={cancelarRutaEnCurso}
         onCancel={() => setConfirmarCancelacionRuta(false)}
       />
