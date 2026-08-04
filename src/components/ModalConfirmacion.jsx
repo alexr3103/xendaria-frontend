@@ -12,6 +12,7 @@ export default function ModalConfirmacion({
   danger = false,
   icon = AlertTriangle,
   confirmIcon: ConfirmIcon,
+  cancelIcon: CancelIcon = X,
   onConfirm,
   onCancel,
 }) {
@@ -51,7 +52,7 @@ export default function ModalConfirmacion({
             onClick={onCancel}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-crema px-3 font-bold text-uva transition active:scale-[0.98]"
           >
-            <X size={17} aria-hidden="true" />
+            {CancelIcon && <CancelIcon size={17} aria-hidden="true" />}
             <span className="min-w-0 leading-tight">{cancelText}</span>
           </button>
 

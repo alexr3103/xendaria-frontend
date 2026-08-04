@@ -1512,6 +1512,7 @@ export default function Home() {
         danger
         icon={Flag}
         confirmIcon={XCircle}
+        cancelIcon={null}
         onConfirm={cancelarRutaEnCurso}
         onCancel={() => setConfirmarCancelacionRuta(false)}
       />
