@@ -226,7 +226,7 @@ export default function Comunidad() {
             icon={Users}
             etiqueta="Comunidad"
             titulo="Personas"
-            descripcion="Busca perfiles publicos y segui a otros exploradores."
+            descripcion="Buscá perfiles públicos y seguí a otros exploradores."
             action={
               <BotonAccionUsuario onClick={() => navigate("/perfil")} icon={User}>
                 Ir al perfil

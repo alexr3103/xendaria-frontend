@@ -54,7 +54,7 @@ function getAlertaProducto(producto, stockDisponible) {
   if (producto?.alertaStock === "ultima_unidad") {
     return {
       tipo: "ultima_unidad",
-      label: "Ultima unidad",
+      label: "Última unidad",
       className: "bg-vainilla text-uva",
     };
   }

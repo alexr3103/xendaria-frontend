@@ -2,6 +2,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCallback } from "react";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   EyeOff,
@@ -14,8 +15,10 @@ import {
   PanelLeftOpen,
   Plus,
   Search,
+  Save,
   Share2,
   Trash2,
+  X,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
@@ -367,7 +370,7 @@ export default function MapaAdminWrapper() {
       setModalDuplicadosOpen(restantes.length > 0);
       setPuntoSeleccionado(null);
     } catch {
-      setErrorFusionDuplicados("No se pudo fusionar este grupo. Proba de nuevo.");
+      setErrorFusionDuplicados("No se pudo fusionar este grupo. Probá de nuevo.");
     } finally {
       setFusionandoDuplicados(false);
     }
@@ -813,22 +816,24 @@ function ConfirmarMovimientoPuntoModal({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-uva/15 bg-crema px-5 py-2.5 font-bold text-uva transition hover:bg-crema/70"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/15 bg-crema px-5 py-2.5 font-bold text-uva transition hover:bg-crema/70"
           >
+            <X size={18} aria-hidden="true" />
             Cancelar
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="rounded-xl bg-uva px-5 py-2.5 font-bold text-crema shadow-md transition hover:bg-uva/90"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-uva px-5 py-2.5 font-bold text-crema shadow-md transition hover:bg-uva/90"
           >
+            <Check size={18} aria-hidden="true" />
             Ajustar igual
           </button>
         </>
       }
     >
       <p className="text-sm leading-relaxed text-uva/75">
-        Moviste el punto mas de una cuadra
+        Moviste el punto más de una cuadra
         {Number.isFinite(distanciaMetros)
           ? ` (${Math.round(distanciaMetros)} m aprox.)`
           : ""}
@@ -1107,7 +1112,7 @@ function PuntoPanel({
           </span>
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-wide text-uva/45">
-              Edicion rapida
+              Edición rápida
             </p>
             <h2 className="font-fredoka text-2xl leading-none text-morado">
               {modoNuevo ? "Nuevo Punto" : "Editar Punto"}
@@ -1222,8 +1227,9 @@ function PuntoPanel({
         <div className="mt-1 flex flex-col gap-2 border-t border-crema pt-4 sm:flex-row">
           <button
             type="submit"
-            className="flex flex-1 items-center justify-center rounded-xl bg-uva px-5 py-2.5 font-semibold text-crema shadow-sm transition hover:bg-uva/90"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-uva px-5 py-2.5 font-semibold text-crema shadow-sm transition hover:bg-uva/90"
           >
+            <Save size={18} aria-hidden="true" />
             Guardar
           </button>
 

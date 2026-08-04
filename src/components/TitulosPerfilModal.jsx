@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Sparkles, Trophy } from "lucide-react";
+import { Check, Loader2, Sparkles, Trophy, X } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 import { categorias } from "./CategoriasFiltros.jsx";
 import { getMensajeError } from "../lib/errores.js";
@@ -107,16 +107,22 @@ export default function TitulosPerfilModal({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-11 flex-1 rounded-xl bg-crema px-4 font-bold text-uva"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-crema px-4 font-bold text-uva"
           >
+            <X size={17} aria-hidden="true" />
             Cancelar
           </button>
           <button
             type="button"
             onClick={guardarTitulo}
             disabled={guardando || !tituloElegidoId}
-            className="min-h-11 flex-1 rounded-xl bg-morado px-4 font-bold text-white disabled:opacity-55"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-morado px-4 font-bold text-white disabled:opacity-55"
           >
+            {guardando ? (
+              <Loader2 size={17} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Check size={17} aria-hidden="true" />
+            )}
             {guardando ? "Guardando..." : "Mostrar título"}
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Clock3, RefreshCw } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 import {
   descartarActualizacionPendiente,
@@ -92,16 +92,22 @@ export default function ActualizacionPWA() {
             type="button"
             onClick={posponer}
             disabled={actualizando}
-            className="min-h-11 rounded-xl bg-rosa px-3 font-bold text-uva shadow-sm transition active:scale-[0.98] disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-rosa px-3 font-bold text-uva shadow-sm transition active:scale-[0.98] disabled:opacity-50"
           >
+            <Clock3 size={17} aria-hidden="true" />
             Más tarde
           </button>
           <button
             type="button"
             onClick={actualizar}
             disabled={actualizando}
-            className="min-h-11 rounded-xl bg-morado px-3 font-bold text-crema shadow-md transition active:scale-[0.98] disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-morado px-3 font-bold text-crema shadow-md transition active:scale-[0.98] disabled:opacity-60"
           >
+            <RefreshCw
+              size={17}
+              className={actualizando ? "animate-spin" : ""}
+              aria-hidden="true"
+            />
             {actualizando ? "Actualizando..." : "Actualizar ahora"}
           </button>
         </div>

@@ -1,3 +1,5 @@
+import { Check, Trash2, X } from "lucide-react";
+
 export default function ModalConfirmacion({
   open,
   title = "Confirmar acción",
@@ -21,20 +23,26 @@ export default function ModalConfirmacion({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-uva/20 bg-white px-4 py-2.5 font-semibold text-uva transition hover:bg-white/70"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/20 bg-white px-4 py-2.5 font-semibold text-uva transition hover:bg-white/70"
           >
+            <X size={17} aria-hidden="true" />
             {cancelText}
           </button>
 
           <button
             type="button"
             onClick={onConfirm}
-            className={`rounded-xl px-4 py-2.5 font-semibold text-crema transition ${
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-crema transition ${
               danger
                 ? "bg-fucsia hover:bg-fucsia/80"
                 : "bg-morado hover:bg-morado/80"
             }`}
           >
+            {danger ? (
+              <Trash2 size={17} aria-hidden="true" />
+            ) : (
+              <Check size={17} aria-hidden="true" />
+            )}
             {confirmText}
           </button>
         </div>

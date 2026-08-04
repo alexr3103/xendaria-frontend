@@ -7,6 +7,7 @@ import DescripcionPunto from "../../components/DescripcionPunto.jsx";
 import Alert from "../../components/Alertas.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
 import CargadorMapa from "../../components/CargadorMapa.jsx";
+import ModalConfirmacion from "../../components/ModalConfirmacion.jsx";
 import {
   Check,
   CheckCircle2,
@@ -17,6 +18,7 @@ import {
   MapPin,
   Pause,
   Plus,
+  Save,
   Share2,
   X,
   XCircle,
@@ -74,7 +76,7 @@ const FOTOS_PUNTO_PROPIO = [
   },
   {
     id: "lugares_de_esparcimiento",
-    label: "Recreacion",
+    label: "Recreación",
     fotoKey: "lugares_de_esparcimiento",
   },
   {
@@ -235,6 +237,8 @@ export default function Home() {
   const [rutaEnCurso, setRutaEnCurso] = useState(null);
   const [rutaCompletados, setRutaCompletados] = useState([]);
   const [guardandoRuta, setGuardandoRuta] = useState(false);
+  const [confirmarCancelacionRuta, setConfirmarCancelacionRuta] =
+    useState(false);
   const [esperandoGeoInicial, setEsperandoGeoInicial] = useState(true);
   const finalizarCargaMapa = useCallback(() => setCargandoMapa(false), []);
 
@@ -576,7 +580,7 @@ export default function Home() {
     setPuntoEnFoco(null);
     setPuntoSeleccionado(null);
     setDestino(null);
-    setMensajeFocoPunto("Volviendo a tu ubicacion...");
+    setMensajeFocoPunto("Volviendo a tu ubicación...");
     setRecenterManualToken(Date.now());
     setTimeout(() => setMensajeFocoPunto(""), 1200);
   }
@@ -619,11 +623,7 @@ export default function Home() {
   async function cancelarRutaEnCurso() {
     if (!rutaEnCurso) return;
 
-    const confirmar = window.confirm(
-      "Seguro que queres cancelar esta ruta? Si ya pasaste por puntos, guardamos ese avance para retomarla despues."
-    );
-    if (!confirmar) return;
-
+    setConfirmarCancelacionRuta(false);
     setGuardandoRuta(true);
     try {
       if (rutaCompletados.length > 0) {
@@ -716,7 +716,7 @@ export default function Home() {
     if (!puntoPropioCoords) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "Todavia no hay una ubicacion para ajustar.",
+        text: "Todavía no hay una ubicación para ajustar.",
       });
       return;
     }
@@ -761,7 +761,7 @@ export default function Home() {
     if (!MAPBOX_TOKEN) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "No esta configurado el buscador de direcciones.",
+        text: "No está configurado el buscador de direcciones.",
       });
       return;
     }
@@ -841,7 +841,7 @@ export default function Home() {
     if (!puntoPropioForm.nombre.trim() || !puntoPropioForm.descripcion.trim()) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "Nombre y descripcion son obligatorios.",
+        text: "Nombre y descripción son obligatorios.",
       });
       return;
     }
@@ -849,7 +849,7 @@ export default function Home() {
     if (!puntoPropioForm.direccion.trim()) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "La direccion es obligatoria.",
+        text: "La dirección es obligatoria.",
       });
       return;
     }
@@ -857,7 +857,7 @@ export default function Home() {
     if (!puntoPropioCoords) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "Todavia no hay una ubicacion para el punto.",
+        text: "Todavía no hay una ubicación para el punto.",
       });
       return;
     }
@@ -876,7 +876,7 @@ export default function Home() {
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       setMensajePuntoPropio({
         variant: "error",
-        text: "La ubicacion del punto no es valida.",
+        text: "La ubicación del punto no es válida.",
       });
       return;
     }
@@ -1073,7 +1073,7 @@ export default function Home() {
           "
         >
           <XCircle size={20} className="text-crema" />
-          Cancelar navegacion
+          Cancelar navegación
         </button>
       )}
 
@@ -1106,7 +1106,7 @@ export default function Home() {
         <CargadorMapa
           text={
             mostrarCargandoGeo
-              ? "Buscando ubicacion..."
+              ? "Buscando ubicación..."
               : "Buscando puntos..."
           }
           className="top-24 z-[999]"
@@ -1114,7 +1114,7 @@ export default function Home() {
       )}
 
       {!cargandoMapa && mostrarCargandoGeo && (
-        <CargadorMapa text="Buscando ubicacion..." className="top-24 z-[999]" />
+        <CargadorMapa text="Buscando ubicación..." className="top-24 z-[999]" />
       )}
 
       {rutaEnCurso && (
@@ -1126,7 +1126,7 @@ export default function Home() {
           siguiente={siguientePuntoRuta}
           guardando={guardandoRuta}
           onPausar={pausarRutaEnCurso}
-          onCancelar={cancelarRutaEnCurso}
+          onCancelar={() => setConfirmarCancelacionRuta(true)}
         />
       )}
 
@@ -1158,8 +1158,8 @@ export default function Home() {
               type="button"
               onClick={volverAMiUbicacion}
               className="flex h-12 w-12 items-center justify-center rounded-full border border-uva/10 bg-crema text-morado shadow-xl transition active:scale-95"
-              aria-label="Volver a mi ubicacion"
-              title="Volver a mi ubicacion"
+              aria-label="Volver a mi ubicación"
+              title="Volver a mi ubicación"
             >
               <LocateFixed size={23} />
             </button>
@@ -1197,8 +1197,9 @@ export default function Home() {
               <button
                 type="button"
                 onClick={cancelarAjusteUbicacion}
-                className="bg-fucsia text-white py-3 rounded-2xl font-bold shadow active:scale-95 transition"
+                className="inline-flex items-center justify-center gap-2 bg-fucsia text-white py-3 rounded-2xl font-bold shadow active:scale-95 transition"
               >
+                <X size={18} aria-hidden="true" />
                 Cancelar
               </button>
               <button
@@ -1270,7 +1271,7 @@ export default function Home() {
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-semibold text-uva/80">
-              Categoria
+              Categoría
               <select
                 value={puntoPropioForm.categoria}
                 onChange={(event) =>
@@ -1354,7 +1355,7 @@ export default function Home() {
             </div>
 
             <label className="flex flex-col gap-1 text-sm font-semibold text-uva/80">
-              Descripcion
+              Descripción
               <textarea
                 value={puntoPropioForm.descripcion}
                 onChange={(event) =>
@@ -1476,16 +1477,19 @@ export default function Home() {
                 disabled={guardandoPuntoPropio || !ubicacionConfirmada}
                 className="flex-1 bg-morado text-crema py-3 rounded-xl font-bold shadow disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                {guardandoPuntoPropio && (
-                  <Loader2 size={18} className="animate-spin" />
+                {guardandoPuntoPropio ? (
+                  <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Save size={18} aria-hidden="true" />
                 )}
                 {puntoPropioEditando ? "Actualizar" : "Guardar"}
               </button>
               <button
                 type="button"
                 onClick={cerrarModalPuntoPropio}
-                className="px-4 bg-crema text-uva py-3 rounded-xl font-bold"
+                className="inline-flex items-center justify-center gap-2 px-4 bg-crema text-uva py-3 rounded-xl font-bold"
               >
+                <X size={18} aria-hidden="true" />
                 Cancelar
               </button>
             </div>
@@ -1493,6 +1497,21 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      <ModalConfirmacion
+        open={confirmarCancelacionRuta}
+        title="Cancelar ruta"
+        message={
+          rutaCompletados.length > 0
+            ? "¿Seguro que querés cancelar esta ruta? Guardaremos los puntos que ya visitaste para que puedas retomarla después."
+            : "¿Seguro que querés cancelar esta ruta? Todavía no registraste puntos del recorrido."
+        }
+        confirmText="Cancelar ruta"
+        cancelText="Seguir recorriendo"
+        danger
+        onConfirm={cancelarRutaEnCurso}
+        onCancel={() => setConfirmarCancelacionRuta(false)}
+      />
 
       <UserNav />
     </div>

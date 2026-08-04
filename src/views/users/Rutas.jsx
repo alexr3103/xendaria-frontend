@@ -415,7 +415,7 @@ export default function Rutas() {
             icon={Share2}
             etiqueta="Rutas recomendadas"
             titulo="Recorridos"
-            descripcion="Mira el recorrido completo, elegi una version corta o larga, y empezala desde el mapa principal."
+            descripcion="Mirá el recorrido completo, elegí una versión corta o larga, y empezala desde el mapa principal."
             action={
               <BotonAccionUsuario
                 onClick={() => cargarRutas({ silencioso: true })}
@@ -552,8 +552,8 @@ function TabButton({ active, onClick, children }) {
 }
 
 function getEmptyText(tab) {
-  if (tab === "pausadas") return "No tenes rutas pausadas.";
-  if (tab === "terminadas") return "Todavia no hay rutas terminadas.";
+  if (tab === "pausadas") return "No tenés rutas pausadas.";
+  if (tab === "terminadas") return "Todavía no hay rutas terminadas.";
   return "No hay rutas disponibles con esos filtros.";
 }
 
@@ -755,7 +755,7 @@ function RutaDetalle({
             {progreso?.versionDesactualizada && (
               <div className="mt-4">
                 <Alert variant="info">
-                  Esta ruta cambio desde que la pausaste. Conviene empezarla de
+                  Esta ruta cambió desde que la pausaste. Conviene empezarla de
                   nuevo para ver los puntos actualizados.
                 </Alert>
               </div>
@@ -998,7 +998,7 @@ function RutaMapPreview({ puntos, coords }) {
   if (!mapboxgl.accessToken) {
     return (
       <div className="flex h-56 items-center justify-center bg-crema text-center text-sm font-semibold text-uva">
-        No esta configurado el mapa para previsualizar la ruta.
+        No está configurado el mapa para previsualizar la ruta.
       </div>
     );
   }

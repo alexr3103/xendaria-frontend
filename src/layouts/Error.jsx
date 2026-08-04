@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowLeft, Home } from "lucide-react";
 
 const ERROR_CONTENT = {
   401: {
-    title: "Sesion requerida",
+    title: "Sesión requerida",
     message: "Necesitás iniciar sesión para acceder a esta sección.",
     actionLabel: "Ir al login",
     actionTo: "/login",
@@ -16,7 +16,7 @@ const ERROR_CONTENT = {
   },
   500: {
     title: "Error del servidor",
-    message: "Algo fallo del lado del servidor. Proba de nuevo en unos minutos.",
+    message: "Algo falló del lado del servidor. Probá de nuevo en unos minutos.",
     actionLabel: "Volver al inicio",
     actionTo: "/home",
   },

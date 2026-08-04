@@ -456,7 +456,7 @@ export default function DescripcionPunto({
             <p className="mx-auto mt-2 max-w-[260px] text-sm font-semibold leading-relaxed text-uva/70">
               {insigniaRecienDesbloqueada
                 ? "Sumaste esta insignia a tu álbum. Ya queda guardada en tu perfil."
-                : "¡Ya has conseguido esta insignia! Sigue explorando para desbloquear más."}
+                : "¡Ya conseguiste esta insignia! Seguí explorando para desbloquear más."}
             </p>
 
             <button

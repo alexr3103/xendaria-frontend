@@ -677,7 +677,7 @@ export default function Perfil() {
             <section className="mt-6">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-fredoka text-2xl text-morado">
-                  Ultimas insignias
+                  Últimas insignias
                 </h2>
                 <button
                   type="button"
@@ -720,7 +720,7 @@ export default function Perfil() {
                 </div>
               ) : (
                 <p className="px-4 py-3 text-center text-sm text-uva">
-                  Todavia no tenes insignias.
+                  Todavía no tenés insignias.
                 </p>
               )}
             </section>
@@ -788,7 +788,7 @@ export default function Perfil() {
               >
                 {ordenes.length === 0 ? (
                   <p className="px-4 py-3 text-center text-sm text-uva">
-                    Todavia no tenes compras registradas.
+                    Todavía no tenés compras registradas.
                   </p>
                 ) : (
                   <div className="divide-y divide-uva/10">
@@ -829,7 +829,7 @@ export default function Perfil() {
               >
                 {visitados.length === 0 ? (
                   <p className="px-4 py-3 text-center text-sm text-uva">
-                    Todavia no registraste visitas.
+                    Todavía no registraste visitas.
                   </p>
                 ) : (
                   <div className="divide-y divide-uva/10">
@@ -852,7 +852,7 @@ export default function Perfil() {
               >
                 {calificaciones.length === 0 ? (
                   <p className="px-4 py-3 text-center text-sm text-uva">
-                    Todavia no calificaste puntos.
+                    Todavía no calificaste puntos.
                   </p>
                 ) : (
                   <div className="divide-y divide-uva/10">
@@ -881,7 +881,7 @@ export default function Perfil() {
               >
                 {favoritos.length === 0 ? (
                   <p className="px-4 py-3 text-center text-sm text-uva">
-                    Todavia no tenes favoritos.
+                    Todavía no tenés favoritos.
                   </p>
                 ) : (
                   <div className="divide-y divide-uva/10">
@@ -906,7 +906,7 @@ export default function Perfil() {
               >
                 {puntosPropios.length === 0 ? (
                   <p className="px-4 py-3 text-center text-sm text-uva">
-                    Todavia no creaste puntos.
+                    Todavía no creaste puntos.
                   </p>
                 ) : (
                   <div className="divide-y divide-uva/10">
@@ -951,7 +951,7 @@ export default function Perfil() {
               >
                 <span className="inline-flex items-center justify-center gap-2">
                   <LogOut size={19} />
-                  Cerrar sesion
+                  Cerrar sesión
                 </span>
               </button>
             </div>
@@ -1191,7 +1191,7 @@ function getResumenCompra(orden) {
   if (!primerItem) return "Sin productos";
   if (restantes === 0) return primerItem.nombre || "Producto";
 
-  return `${primerItem.nombre || "Producto"} + ${restantes} mas`;
+  return `${primerItem.nombre || "Producto"} + ${restantes} más`;
 }
 
 function CompraItem({ orden }) {
@@ -1294,7 +1294,7 @@ function VisitadoItem({ visitado, onOpen }) {
           {visitado.nombre || "Punto sin nombre"}
         </span>
         <span className="block truncate text-xs text-uva">
-          {categoria?.label || visitado.categoria || "Categoria"}
+          {categoria?.label || visitado.categoria || "Categoría"}
         </span>
       </span>
       <span className="shrink-0 text-right text-[11px] font-bold text-fucsia">
@@ -1328,7 +1328,7 @@ function CalificacionItem({ calificacion, onOpen }) {
           {punto.nombre || "Punto sin nombre"}
         </span>
         <span className="block truncate text-xs text-uva">
-          {categoria?.label || punto.categoria || "Categoria"}
+          {categoria?.label || punto.categoria || "Categoría"}
         </span>
         <span className="mt-1 flex items-center gap-0.5 text-fucsia">
           {[1, 2, 3, 4, 5].map((numero) => (
@@ -1371,7 +1371,7 @@ function FavoritoItem({ favorito, eliminando, onOpen, onDelete }) {
             {favorito.nombre || "Punto sin nombre"}
           </span>
           <span className="block truncate text-xs text-uva">
-            {categoria?.label || favorito.categoria || "Categoria"}
+            {categoria?.label || favorito.categoria || "Categoría"}
           </span>
         </span>
       </button>

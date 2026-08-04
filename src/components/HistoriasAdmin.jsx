@@ -51,7 +51,7 @@ export default function HistoriasAdmin({
 
           <label className="flex flex-col gap-1 text-sm font-semibold text-uva/80">
             <span>
-              Titulo
+              Título
               {showRequired && <span className="ml-1 text-fucsia">*</span>}
             </span>
             <input

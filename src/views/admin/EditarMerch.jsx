@@ -493,7 +493,7 @@ export default function EditarMerch() {
           <div className="mb-10 flex flex-wrap items-start justify-between gap-8">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-uva/45">
-                Panel de edicion
+                Panel de edición
               </p>
               <h2 className="font-fredoka text-3xl leading-none text-morado">
                 {producto.nombre || "Producto sin nombre"}

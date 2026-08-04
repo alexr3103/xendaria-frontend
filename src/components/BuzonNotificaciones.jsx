@@ -221,7 +221,7 @@ export default function BuzonNotificaciones({
                   onClick={borrarLeidas}
                   className="rounded-lg px-2 py-2 text-xs font-bold text-uva/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uva"
                 >
-                  Borrar leidas
+                  Borrar leídas
                 </button>
               )}
             </div>
@@ -297,7 +297,7 @@ export default function BuzonNotificaciones({
                       eliminarNotificacion(event, notificacion)
                     }
                     className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-rosa transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rosa"
-                    title="Eliminar notificacion"
+                    title="Eliminar notificación"
                     aria-label={`Eliminar ${notificacion.titulo}`}
                   >
                     <Trash2 size={17} />

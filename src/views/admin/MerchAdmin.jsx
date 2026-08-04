@@ -12,6 +12,7 @@ import {
   Pencil,
   Plus,
   ReceiptText,
+  Save,
   Send,
   ShoppingBasket,
   Tag,
@@ -83,6 +84,9 @@ const ESTADO_ORDEN = {
     icon: Send,
   },
 };
+
+const CLASE_ETIQUETA_ESTADO =
+  "inline-flex w-[148px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-center text-xs font-extrabold";
 
 const inputClass =
   "rounded-xl border border-uva/20 bg-crema px-3 py-3 text-uva outline-none transition focus:border-morado focus:ring-2 focus:ring-morado/20";
@@ -706,18 +710,18 @@ function OrdenesPanel({ ordenes, cargando, actualizandoOrden, onEstadoChange }) 
 
                     <td className="p-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+                        className={`${CLASE_ETIQUETA_ESTADO} ${
                           pagoOk ? "bg-menta/35 text-uva" : "bg-fucsia/10 text-fucsia"
                         }`}
                       >
                         <CreditCard size={13} />
-                        {pagoOk ? "Procesado" : "No procesado"}
+                        {pagoOk ? "Pago procesado" : "Pago no procesado"}
                       </span>
                     </td>
 
                     <td className="p-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${estado.className}`}
+                        className={`${CLASE_ETIQUETA_ESTADO} ${estado.className}`}
                       >
                         <EstadoIcon size={13} />
                         {estado.label}
@@ -836,7 +840,7 @@ function OrdenCardMovil({
 
         <span className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+            className={`${CLASE_ETIQUETA_ESTADO} ${
               pagoOk ? "bg-menta/35 text-uva" : "bg-fucsia/10 text-fucsia"
             }`}
           >
@@ -844,7 +848,7 @@ function OrdenCardMovil({
             {pagoOk ? "Pago procesado" : "Pago no procesado"}
           </span>
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${estado.className}`}
+            className={`${CLASE_ETIQUETA_ESTADO} ${estado.className}`}
           >
             <EstadoIcon size={13} />
             {estado.label}
@@ -1534,7 +1538,7 @@ function EnviosPanel({ form, setForm, cargando, guardando, onSubmit }) {
             disabled={guardando}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-morado px-5 py-3 font-bold text-crema shadow transition hover:bg-morado/85 disabled:opacity-50"
           >
-            <Check size={18} />
+            <Save size={18} aria-hidden="true" />
             {guardando ? "Guardando..." : "Guardar cambios"}
           </button>
         </div>

@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { to: "/ranking", label: "Ranking", icon: Crown },
   { to: "/perfil", label: "Perfil", icon: User, end: true },
   { to: "/comunidad", label: "Comunidad", icon: Users },
-  { to: "/perfil/insignias", label: "Album", icon: BookOpen },
+  { to: "/perfil/insignias", label: "Álbum", icon: BookOpen },
 ];
 
 export default function UserNav() {
@@ -55,7 +55,7 @@ export default function UserNav() {
   return (
     <nav
       className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[82%] max-w-[300px] -translate-x-1/2"
-      aria-label="Menu principal"
+      aria-label="Menú principal"
     >
       <div className="relative rounded-3xl bg-gris px-3 py-2 text-crema shadow-xl">
         <span className="pointer-events-none absolute inset-y-2 right-3 z-10 w-7 rounded-r-3xl bg-gradient-to-l from-gris to-transparent" />

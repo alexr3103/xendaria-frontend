@@ -54,7 +54,7 @@ async function guardarSuscripcion(API, token, suscripcion) {
 
   if (!res.ok) {
     throw new Error(
-      data?.message || "No se pudo activar la notificacion push."
+      data?.message || "No se pudo activar la notificación push."
     );
   }
 

@@ -163,14 +163,14 @@ export default function AlbumInsignias() {
       </div>
 
       {loading ? (
-        <CargadorMapa text="Cargando album..." className="top-24 z-[999]" />
+        <CargadorMapa text="Cargando álbum..." className="top-24 z-[999]" />
       ) : (
         <main className="mx-auto w-full max-w-5xl px-4 pt-5 sm:px-6 lg:px-8">
           <EncabezadoVistaUsuario
             icon={BookOpen}
             etiqueta="Insignias"
-            titulo="Album"
-            descripcion="Visita lugares y desbloquea sus insignias."
+            titulo="Álbum"
+            descripcion="Visitá lugares y desbloqueá sus insignias."
             action={
               <BotonAccionUsuario
                 onClick={() => navigate(esPerfilPropio ? "/perfil" : `/perfil/${id}`)}
@@ -194,7 +194,7 @@ export default function AlbumInsignias() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
                 <p className="text-xs font-extrabold uppercase tracking-wide text-uva/55">
-                  Progreso del album
+                  Progreso del álbum
                 </p>
                 <h2 className="mt-1 font-fredoka text-2xl leading-tight text-morado">
                   {desbloqueadas} de {total} insignias ganadas
@@ -224,7 +224,7 @@ export default function AlbumInsignias() {
           <section className="mt-5">
             {insignias.length === 0 ? (
               <p className="rounded-3xl bg-white px-4 py-8 text-center text-sm font-bold text-uva/65 shadow-sm ring-1 ring-uva/10">
-                Todavia no hay insignias cargadas.
+                Todavía no hay insignias cargadas.
               </p>
             ) : (
               <Motion.div

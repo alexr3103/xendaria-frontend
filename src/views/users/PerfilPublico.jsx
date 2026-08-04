@@ -374,7 +374,7 @@ export default function PerfilPublico() {
                   <section className="mt-6">
                     <div className="mb-3 flex items-center justify-between">
                       <h2 className="font-fredoka text-2xl text-morado">
-                        Ultimas insignias
+                        Últimas insignias
                       </h2>
                       {albumInsigniasVisible && (
                         <button

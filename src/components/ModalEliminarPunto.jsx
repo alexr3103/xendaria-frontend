@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Loader2, LockKeyhole, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, Trash2, X } from "lucide-react";
 import Alert from "./Alertas.jsx";
 import ModalXendaria from "./ModalXendaria.jsx";
 
@@ -112,8 +112,9 @@ export default function ModalEliminarPunto({
             type="button"
             onClick={onCancel}
             disabled={loading}
-            className="rounded-xl border border-uva/20 bg-white px-5 py-3 font-bold text-uva transition active:bg-uva/5 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/20 bg-white px-5 py-3 font-bold text-uva transition active:bg-uva/5 disabled:opacity-60"
           >
+            <X size={18} aria-hidden="true" />
             Cancelar
           </button>
 

@@ -29,7 +29,7 @@ export default function PaginacionUsuario({
           Anterior
         </button>
         <span className="px-1 text-xs font-extrabold uppercase tracking-wide text-uva/55">
-          Pagina {pagina} de {totalPaginas}
+          Página {pagina} de {totalPaginas}
         </span>
         <button
           type="button"

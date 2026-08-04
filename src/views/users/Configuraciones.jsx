@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   Bell,
   BookOpen,
+  Check,
   Crown,
   Gift,
   Globe2,
@@ -12,6 +13,7 @@ import {
   LocateFixed,
   Loader2,
   MapPin,
+  MapPinOff,
   MapPinned,
   Medal,
   Rotate3D,
@@ -22,6 +24,7 @@ import {
   Trash2,
   UserX,
   UserRound,
+  X,
 } from "lucide-react";
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
@@ -828,8 +831,9 @@ export default function Configuraciones() {
               type="button"
               onClick={cerrarModalPassword}
               disabled={cambiandoPassword}
-              className="rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition disabled:opacity-60"
             >
+              <X size={18} aria-hidden="true" />
               Cancelar
             </button>
             <button
@@ -886,8 +890,9 @@ export default function Configuraciones() {
                   type="button"
                   onClick={cerrarModalDesactivarCuenta}
                   disabled={desactivandoCuenta}
-                  className="rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva disabled:opacity-60"
                 >
+                  <X size={18} aria-hidden="true" />
                   Cancelar
                 </button>
                 <button
@@ -896,8 +901,10 @@ export default function Configuraciones() {
                   disabled={desactivandoCuenta}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-fucsia py-3 font-bold text-crema shadow disabled:opacity-60"
                 >
-                  {desactivandoCuenta && (
-                    <Loader2 size={18} className="animate-spin" />
+                  {desactivandoCuenta ? (
+                    <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                  ) : (
+                    <UserX size={18} aria-hidden="true" />
                   )}
                   Desactivar
                 </button>
@@ -1054,15 +1061,17 @@ function ConfirmarUbicacion({ onCancel, onConfirm }) {
             <button
               type="button"
               onClick={onConfirm}
-              className="rounded-full bg-uva px-4 py-2 text-xs font-bold text-crema shadow"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-uva px-4 py-2 text-xs font-bold text-crema shadow"
             >
+              <MapPinOff size={15} aria-hidden="true" />
               Desactivar
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-full border border-uva/15 bg-white px-4 py-2 text-xs font-bold text-uva"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-uva/15 bg-white px-4 py-2 text-xs font-bold text-uva"
             >
+              <X size={15} aria-hidden="true" />
               Cancelar
             </button>
           </div>
@@ -1095,15 +1104,20 @@ function DangerRow({ confirmar, loading, onStart, onCancel, onConfirm }) {
                 disabled={loading}
                 className="inline-flex items-center gap-2 rounded-full bg-fucsia px-4 py-2 text-xs font-bold text-crema shadow disabled:opacity-60"
               >
-                {loading && <Loader2 size={15} className="animate-spin" />}
+                {loading ? (
+                  <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Trash2 size={15} aria-hidden="true" />
+                )}
                 Confirmar
               </button>
               <button
                 type="button"
                 onClick={onCancel}
                 disabled={loading}
-                className="rounded-full border border-uva/15 bg-white px-4 py-2 text-xs font-bold text-uva"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-uva/15 bg-white px-4 py-2 text-xs font-bold text-uva"
               >
+                <X size={15} aria-hidden="true" />
                 Cancelar
               </button>
             </div>

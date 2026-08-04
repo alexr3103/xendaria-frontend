@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { Loader2, Save } from "lucide-react";
 
 export default function EnviosAdmin() {
     const API = import.meta.env.VITE_API_URL;
@@ -212,8 +213,13 @@ export default function EnviosAdmin() {
                 <button
                     type="submit"
                     disabled={guardando}
-                    className="bg-morado text-crema px-5 py-3 rounded-2xl font-bold hover:bg-morado/85 transition disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 bg-morado text-crema px-5 py-3 rounded-2xl font-bold hover:bg-morado/85 transition disabled:opacity-50"
                 >
+                    {guardando ? (
+                        <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                    ) : (
+                        <Save size={18} aria-hidden="true" />
+                    )}
                     {guardando ? "Guardando..." : "Guardar cambios"}
                 </button>
                 </div>

@@ -3,9 +3,12 @@ import {
   Eye,
   EyeOff,
   Heart,
+  Loader2,
   Mail,
   MapPinned,
   Pencil,
+  Plus,
+  Save,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -13,6 +16,7 @@ import {
   UserRound,
   UserX,
   Users,
+  X,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import BuscadorAdmin from "../../components/BuscadorAdmin.jsx";
@@ -43,7 +47,7 @@ const CATEGORIAS_TITULOS_ESPECIALES = {
     icon: Sparkles,
   },
   con_visitas_sin_titulo: {
-    label: "Con visitas sin titulo",
+    label: "Con visitas sin título",
     color: "#D8B6FF",
     icon: Sparkles,
   },
@@ -206,7 +210,7 @@ export default function UsuariosAdmin() {
       setTitulos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("[cargarTitulos]", err);
-      setErrorTitulos("No se pudieron cargar los titulos.");
+      setErrorTitulos("No se pudieron cargar los títulos.");
     } finally {
       setCargandoTitulos(false);
     }
@@ -254,14 +258,14 @@ export default function UsuariosAdmin() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.message || "No se pudo guardar el titulo.");
+        throw new Error(data.message || "No se pudo guardar el título.");
       }
 
       setFormTitulo(FORM_TITULO_INICIAL);
       await cargarTitulos();
       setMensaje({
         variant: "success",
-        text: editando ? "Titulo actualizado." : "Titulo creado.",
+        text: editando ? "Título actualizado." : "Título creado.",
       });
     } catch (err) {
       setMensaje({
@@ -298,7 +302,7 @@ export default function UsuariosAdmin() {
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.message || "No se pudo cambiar el estado del titulo.");
+        throw new Error(data.message || "No se pudo cambiar el estado del título.");
       }
 
       await cargarTitulos();
@@ -310,7 +314,7 @@ export default function UsuariosAdmin() {
       }
       setMensaje({
         variant: "success",
-        text: titulo.activo === false ? "Titulo activado." : "Titulo desactivado.",
+        text: titulo.activo === false ? "Título activado." : "Título desactivado.",
       });
     } catch (err) {
       setMensaje({
@@ -337,7 +341,7 @@ export default function UsuariosAdmin() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.message || "No se pudo eliminar el titulo.");
+        throw new Error(data.message || "No se pudo eliminar el título.");
       }
 
       setTituloAEliminar(null);
@@ -345,7 +349,7 @@ export default function UsuariosAdmin() {
         setFormTitulo(FORM_TITULO_INICIAL);
       }
       await cargarTitulos();
-      setMensaje({ variant: "success", text: "Titulo eliminado." });
+      setMensaje({ variant: "success", text: "Título eliminado." });
     } catch (err) {
       setMensaje({
         variant: "error",
@@ -523,7 +527,7 @@ export default function UsuariosAdmin() {
               key: "titulos",
               active: tab === "titulos",
               icon: Sparkles,
-              label: "Titulos",
+              label: "Títulos",
               count: titulos.length,
               onClick: () => setTab("titulos"),
             },
@@ -955,8 +959,8 @@ export default function UsuariosAdmin() {
       />
       <ModalConfirmacion
         open={Boolean(tituloAEliminar)}
-        title="Eliminar titulo"
-        message={`Se va a eliminar "${tituloAEliminar?.titulo || ""}". Los usuarios no pierden visitas, solo deja de existir esta regla de titulo.`}
+        title="Eliminar título"
+        message={`Se va a eliminar "${tituloAEliminar?.titulo || ""}". Los usuarios no pierden visitas, solo deja de existir esta regla de título.`}
         confirmText={eliminando ? "Eliminando..." : "Eliminar"}
         cancelText="Cancelar"
         danger
@@ -990,10 +994,10 @@ function TitulosAdminSection({
   return (
     <>
       <div className="mb-5 flex flex-col gap-2">
-        <h2 className="font-fredoka text-3xl text-uva">Titulos por visitas</h2>
+        <h2 className="font-fredoka text-3xl text-uva">Títulos por visitas</h2>
         <p className="max-w-3xl text-sm font-semibold text-uva/65">
-          Defini los nombres que se desbloquean cuando una persona visita una
-          cantidad minima de puntos en una categoria.
+          Definí los nombres que se desbloquean cuando una persona visita una
+          cantidad mínima de puntos en una categoría.
         </p>
       </div>
 
@@ -1004,7 +1008,7 @@ function TitulosAdminSection({
         <div className="grid gap-3 lg:grid-cols-[1.1fr_1.2fr_0.55fr_auto] lg:items-end">
           <label className="text-sm font-extrabold text-uva">
             <span>
-              Categoria
+              Categoría
               {!formTitulo._id && (
                 <span className="ml-1 text-fucsia">*</span>
               )}
@@ -1025,7 +1029,7 @@ function TitulosAdminSection({
 
           <label className="text-sm font-extrabold text-uva">
             <span>
-              Titulo
+              Título
               {!formTitulo._id && (
                 <span className="ml-1 text-fucsia">*</span>
               )}
@@ -1064,7 +1068,7 @@ function TitulosAdminSection({
 
         <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_auto_auto] lg:items-end">
           <label className="text-sm font-extrabold text-uva">
-            Descripcion breve
+            Descripción breve
             <input
               value={formTitulo.descripcion}
               onChange={(event) => actualizarCampo("descripcion", event.target.value)}
@@ -1077,18 +1081,26 @@ function TitulosAdminSection({
             <button
               type="button"
               onClick={onCancelar}
-              className="rounded-2xl bg-crema px-5 py-3 font-extrabold text-uva"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-crema px-5 py-3 font-extrabold text-uva"
             >
-              Cancelar edicion
+              <X size={18} aria-hidden="true" />
+              Cancelar edición
             </button>
           )}
 
           <button
             type="submit"
             disabled={guardando}
-            className="rounded-2xl bg-morado px-6 py-3 font-extrabold text-crema shadow-md transition active:scale-95 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-morado px-6 py-3 font-extrabold text-crema shadow-md transition active:scale-95 disabled:opacity-60"
           >
-            {guardando ? "Guardando..." : formTitulo._id ? "Guardar cambios" : "Crear titulo"}
+            {guardando ? (
+              <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+            ) : formTitulo._id ? (
+              <Save size={18} aria-hidden="true" />
+            ) : (
+              <Plus size={18} aria-hidden="true" />
+            )}
+            {guardando ? "Guardando..." : formTitulo._id ? "Guardar cambios" : "Crear título"}
           </button>
         </div>
       </form>
@@ -1110,8 +1122,8 @@ function TitulosAdminSection({
           <table className="w-full min-w-[860px] border-collapse text-left">
             <thead>
               <tr className="border-b-2 border-morado/25 text-base font-extrabold uppercase tracking-wide text-uva">
-                <th className="px-3 py-4">Titulo</th>
-                <th className="p-3">Categoria</th>
+                <th className="px-3 py-4">Título</th>
+                <th className="p-3">Categoría</th>
                 <th className="p-3">Visitas</th>
                 <th className="p-3">Estado</th>
                 <th className="p-3 text-center">Acciones</th>
@@ -1175,13 +1187,13 @@ function TitulosAdminSection({
                           }`}
                           title={
                             titulo.activo !== false
-                              ? "Desactivar titulo"
-                              : "Activar titulo"
+                              ? "Desactivar título"
+                              : "Activar título"
                           }
                           aria-label={
                             titulo.activo !== false
-                              ? "Desactivar titulo"
-                              : "Activar titulo"
+                              ? "Desactivar título"
+                              : "Activar título"
                           }
                         >
                           {titulo.activo !== false ? (
@@ -1195,8 +1207,8 @@ function TitulosAdminSection({
                           type="button"
                           onClick={() => onEditar(titulo)}
                           className="rounded-lg bg-morado/20 p-2 text-morado transition hover:bg-morado/30 active:scale-95"
-                          title="Editar titulo"
-                          aria-label="Editar titulo"
+                          title="Editar título"
+                          aria-label="Editar título"
                         >
                           <Pencil size={18} />
                         </button>
@@ -1204,8 +1216,8 @@ function TitulosAdminSection({
                           type="button"
                           onClick={() => onEliminar(titulo)}
                           className="rounded-lg bg-fucsia p-2 text-crema transition hover:bg-fucsia/80 active:scale-95"
-                          title="Eliminar titulo"
-                          aria-label="Eliminar titulo"
+                          title="Eliminar título"
+                          aria-label="Eliminar título"
                         >
                           <Trash2 size={18} />
                         </button>

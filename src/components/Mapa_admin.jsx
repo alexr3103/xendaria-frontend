@@ -331,14 +331,17 @@ export default function MapaAdmin({
         const distancia = distanciaKm(origen, destino);
 
         if (distancia > UNA_CUADRA_KM) {
-          const aceptar = onConfirmarMovimientoLargo
-            ? await onConfirmarMovimientoLargo({
-                punto: puntoActual,
-                origen,
-                destino,
-                distanciaMetros: distancia * 1000,
-              })
-            : window.confirm("Moviste el punto más de una cuadra. ¿Confirmás el ajuste?");
+          if (!onConfirmarMovimientoLargo) {
+            marker.setLngLat(posicionPreviaCoords || origenCoords);
+            return;
+          }
+
+          const aceptar = await onConfirmarMovimientoLargo({
+            punto: puntoActual,
+            origen,
+            destino,
+            distanciaMetros: distancia * 1000,
+          });
 
           if (!aceptar) {
             marker.setLngLat(posicionPreviaCoords || origenCoords);

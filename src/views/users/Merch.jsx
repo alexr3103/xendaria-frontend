@@ -42,7 +42,7 @@ function getAlertaStock(producto = {}) {
   const stock = getStockTotal(producto);
 
   if (stock <= 0) return { tipo: "sin_stock", label: "Sin stock" };
-  if (stock === 1) return { tipo: "ultima_unidad", label: "Ultima unidad" };
+  if (stock === 1) return { tipo: "ultima_unidad", label: "Última unidad" };
   if (stock <= 3) return { tipo: "ultimas_unidades", label: "Quedan pocas" };
 
   return null;
@@ -639,8 +639,9 @@ function SelectorRapido({
           <button
             type="button"
             onClick={onClose}
-            className="h-12 flex-1 rounded-2xl bg-crema font-extrabold text-uva"
+            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-crema font-extrabold text-uva"
           >
+            <X size={18} aria-hidden="true" />
             Cancelar
           </button>
           <button

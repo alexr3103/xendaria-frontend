@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { Check, Loader2, ShieldCheck, X } from "lucide-react";
 import ModalXendaria from "./ModalXendaria.jsx";
 
 export const VERSION_TERMINOS = "2026-07-30";
@@ -35,16 +35,22 @@ export default function DocumentosLegales({
           type="button"
           onClick={onClose}
           disabled={accepting}
-          className="min-h-11 rounded-xl bg-rosa px-3 font-bold text-uva transition active:scale-[0.98] disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-rosa px-3 font-bold text-uva transition active:scale-[0.98] disabled:opacity-50"
         >
+          <X size={17} aria-hidden="true" />
           Cancelar
         </button>
         <button
           type="button"
           onClick={onAccept}
           disabled={!aceptados || accepting}
-          className="min-h-11 rounded-xl bg-morado px-3 font-bold text-crema shadow-sm transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-morado px-3 font-bold text-crema shadow-sm transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
         >
+          {accepting ? (
+            <Loader2 size={17} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Check size={17} aria-hidden="true" />
+          )}
           {accepting ? "Creando cuenta..." : "Aceptar y continuar"}
         </button>
       </div>
@@ -53,8 +59,9 @@ export default function DocumentosLegales({
     <button
       type="button"
       onClick={onClose}
-      className="min-h-11 w-full rounded-xl bg-morado px-4 font-bold text-crema shadow-sm transition active:scale-[0.98]"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-morado px-4 font-bold text-crema shadow-sm transition active:scale-[0.98]"
     >
+      <Check size={17} aria-hidden="true" />
       Entendido
     </button>
   );

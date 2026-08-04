@@ -7,6 +7,7 @@ import DocumentosLegales from "../../components/DocumentosLegales.jsx";
 import TextField from "../../components/Textfield.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import { getMensajeError } from "../../lib/errores.js";
+import { Loader2, Mail, X } from "lucide-react";
 import {
   marcarBienvenidaPostLogin,
   obtenerDestinoSesion,
@@ -232,16 +233,22 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={recLoading}
-                  className="flex-1 bg-morado text-crema px-4 py-2 rounded-xl font-semibold hover:bg-morado/80 transition disabled:opacity-50"
+                  className="inline-flex flex-1 items-center justify-center gap-2 bg-morado text-crema px-4 py-2 rounded-xl font-semibold hover:bg-morado/80 transition disabled:opacity-50"
                 >
+                  {recLoading ? (
+                    <Loader2 size={17} className="animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Mail size={17} aria-hidden="true" />
+                  )}
                   {recLoading ? "Enviando..." : "Recuperar"}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setRecuperando(false)}
-                  className="flex-1 bg-crema text-uva px-4 py-2 rounded-xl font-semibold hover:bg-crema/80 transition"
+                  className="inline-flex flex-1 items-center justify-center gap-2 bg-crema text-uva px-4 py-2 rounded-xl font-semibold hover:bg-crema/80 transition"
                 >
+                  <X size={17} aria-hidden="true" />
                   Cancelar
                 </button>
               </div>

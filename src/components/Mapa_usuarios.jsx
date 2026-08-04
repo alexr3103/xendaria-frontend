@@ -233,7 +233,7 @@ export default function MapaUsuario({
         const data = await res.json();
 
         if (!Array.isArray(data)) {
-          throw new Error("La respuesta de puntos no es valida");
+        throw new Error("La respuesta de puntos no es válida");
         }
 
         puntosRef.current = data;

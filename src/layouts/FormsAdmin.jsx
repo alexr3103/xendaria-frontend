@@ -1,5 +1,5 @@
 // src/layouts/FormsAdmin.jsx
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Save, X } from "lucide-react";
 
 export default function FormsAdmin({
   title = "Formulario",
@@ -76,16 +76,18 @@ export default function FormsAdmin({
             <>
               <button
                 type="submit"
-                className="bg-morado text-crema px-5 py-2.5 rounded-xl hover:bg-morado/80 transition font-semibold shadow-sm"
+                className="inline-flex items-center justify-center gap-2 bg-morado text-crema px-5 py-2.5 rounded-xl hover:bg-morado/80 transition font-semibold shadow-sm"
               >
+                <Save size={18} aria-hidden="true" />
                 Guardar cambios
               </button>
 
               <button
                 type="button"
-                className="bg-crema text-uva px-5 py-2.5 rounded-xl hover:bg-crema/80 transition font-semibold shadow-sm"
+                className="inline-flex items-center justify-center gap-2 bg-crema text-uva px-5 py-2.5 rounded-xl hover:bg-crema/80 transition font-semibold shadow-sm"
                 onClick={() => window.history.back()}
               >
+                <X size={18} aria-hidden="true" />
                 Cancelar
               </button>
             </>

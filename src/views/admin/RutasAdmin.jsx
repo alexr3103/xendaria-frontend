@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Bookmark,
-  Check,
   Compass,
   Edit3,
   Eye,
   EyeOff,
+  Loader2,
   MapPin,
   Plus,
+  Save,
   Share2,
   Trash2,
 } from "lucide-react";
@@ -497,7 +498,7 @@ export default function RutasAdmin() {
                       {!editandoId && <span className="ml-1 text-fucsia">*</span>}
                     </h3>
                     <p className="text-sm text-uva/65">
-                      Minimo 3 puntos. No tienen orden fijo para el usuario.
+                      Mínimo 3 puntos. No tienen orden fijo para el usuario.
                     </p>
                   </div>
                   <span
@@ -547,7 +548,13 @@ export default function RutasAdmin() {
                   disabled={guardando}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-morado px-5 py-3 font-bold text-crema shadow transition hover:bg-morado/85 disabled:opacity-60"
                 >
-                  <Check size={19} />
+                  {guardando ? (
+                    <Loader2 size={19} className="animate-spin" aria-hidden="true" />
+                  ) : editandoId ? (
+                    <Save size={19} aria-hidden="true" />
+                  ) : (
+                    <Plus size={19} aria-hidden="true" />
+                  )}
                   {guardando
                     ? "Guardando..."
                     : editandoId

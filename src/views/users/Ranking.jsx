@@ -61,7 +61,6 @@ export default function Ranking() {
   const [posicionInsignias, setPosicionInsignias] = useState(null);
   const [tab, setTab] = useState("usuarios");
   const [criterioUsuarios, setCriterioUsuarios] = useState("visitas");
-  const [minEstrellas, setMinEstrellas] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -87,8 +86,6 @@ export default function Ranking() {
 
       try {
         const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-        const filtroVotados =
-          Number(minEstrellas) > 0 ? `&minEstrellas=${minEstrellas}` : "";
         const [
           usuariosVisitasData,
           usuariosInsigniasData,
@@ -101,7 +98,7 @@ export default function Ranking() {
             fetchJSON(`${API}/api/ranking/usuarios?limit=20&criterio=visitas`),
             fetchJSON(`${API}/api/ranking/usuarios?limit=20&criterio=insignias`),
             fetchJSON(`${API}/api/ranking/lugares?limit=20`),
-            fetchJSON(`${API}/api/ranking/mejor-votados?limit=20${filtroVotados}`),
+            fetchJSON(`${API}/api/ranking/mejor-votados?limit=20`),
             token
               ? fetchJSON(`${API}/api/ranking/me?criterio=visitas`, { headers })
               : Promise.resolve(null),
@@ -134,7 +131,7 @@ export default function Ranking() {
         setRefreshing(false);
       }
     },
-    [API, minEstrellas, token]
+    [API, token]
   );
 
   useEffect(() => {
@@ -291,31 +288,8 @@ export default function Ranking() {
             </section>
           ) : (
             <section className="mt-7">
-              <div className="mb-6 flex gap-3 overflow-x-auto pb-1 pt-1">
-                {[
-                  { label: "1", value: 1 },
-                  { label: "2", value: 2 },
-                  { label: "3", value: 3 },
-                  { label: "4", value: 4 },
-                  { label: "5", value: 5 },
-                ].map((filtro) => (
-                  <button
-                    key={filtro.value}
-                    type="button"
-                    onClick={() => setMinEstrellas(filtro.value)}
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${
-                      minEstrellas === filtro.value
-                        ? "bg-fucsia text-white shadow"
-                        : "bg-white text-uva"
-                    }`}
-                  >
-                    {filtro.label}
-                  </button>
-                ))}
-              </div>
-
               {mejorVotados.length === 0 ? (
-                <EmptyState text="Todavía no hay lugares calificados con ese filtro." />
+                <EmptyState text="Todavía no hay lugares calificados." />
               ) : (
                 <>
                   <div className="grid gap-3 sm:grid-cols-3">

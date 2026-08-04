@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, X } from "lucide-react";
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import BotonCerrar from "../../components/BotonCerrar.jsx";
@@ -318,7 +318,7 @@ export default function EditarPerfil() {
 
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-semibold text-uva">
-                    Categoria favorita
+                    Categoría favorita
                   </span>
                   <div className="-mx-1 overflow-x-auto pb-1">
                     <div className="flex min-w-max gap-3 px-1">
@@ -375,8 +375,9 @@ export default function EditarPerfil() {
                   <button
                     type="button"
                     onClick={() => navigate("/perfil")}
-                    className="rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition hover:bg-crema"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-uva/20 bg-white py-3 font-bold text-uva transition hover:bg-crema"
                   >
+                    <X size={18} aria-hidden="true" />
                     Cancelar
                   </button>
                   <button

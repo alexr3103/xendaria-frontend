@@ -66,7 +66,7 @@ export function getMerchCategoryInfo(categoria = "") {
       (opcion) => normalizarCategoriaMerch(opcion.value) === normalizada
     ) || {
       value: categoria,
-      label: categoria || "Sin categoria",
+      label: categoria || "Sin categoría",
       color: "grisaceo",
       claseActiva: "border-grisaceo bg-grisaceo text-uva shadow",
       claseInactiva: "border-grisaceo bg-grisaceo/45 text-uva shadow-sm hover:bg-grisaceo/65",
