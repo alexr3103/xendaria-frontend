@@ -26,8 +26,27 @@ function youtubeEmbedUrl(value) {
 function spotifyEmbedUrl(value) {
   try {
     const url = new URL(value);
-    if (url.hostname !== "open.spotify.com") return null;
-    return `https://open.spotify.com/embed${url.pathname}`;
+    const hostname = url.hostname.replace(/^www\./, "");
+    if (hostname !== "open.spotify.com") return null;
+
+    const segmentos = url.pathname.split("/").filter(Boolean);
+
+    if (segmentos[0] === "embed") segmentos.shift();
+    if (segmentos[0]?.startsWith("intl-")) segmentos.shift();
+
+    const [tipo, id] = segmentos;
+    const tiposPermitidos = new Set([
+      "album",
+      "artist",
+      "episode",
+      "playlist",
+      "show",
+      "track",
+    ]);
+
+    if (!tiposPermitidos.has(tipo) || !id) return null;
+
+    return `https://open.spotify.com/embed/${tipo}/${id}`;
   } catch {
     return null;
   }

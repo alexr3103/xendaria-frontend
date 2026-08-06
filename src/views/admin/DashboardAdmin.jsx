@@ -4,17 +4,12 @@ import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
-  CheckCircle2,
-  Clock3,
   MapPinned,
-  MessageCircleMore,
   ReceiptText,
   RefreshCw,
   Share2,
   Star,
   Store,
-  TicketCheck,
-  Users,
 } from "lucide-react";
 import AdminStyle from "../../layouts/AdminStyle.jsx";
 import Alert from "../../components/Alertas.jsx";
@@ -125,33 +120,25 @@ export default function DashboardAdmin() {
         label: "Usuarios",
         value: resumen.usuarios,
         detail: "registrados",
-        icon: Users,
         to: "/admin/usuarios",
-        color: "bg-rosa/45",
       },
       {
         label: "Puntos",
         value: resumen.puntos?.activos,
         detail: `${number(resumen.puntos?.inactivos)} inactivos`,
-        icon: MapPinned,
         to: "/admin/puntos",
-        color: "bg-morado/15",
       },
       {
         label: "Visitas",
         value: resumen.visitas?.total,
         detail: `${number(dashboard?.actividadReciente?.visitas)} en 7 días`,
-        icon: TicketCheck,
         to: "/ranking",
-        color: "bg-menta/45",
       },
       {
         label: "Rutas",
         value: resumen.rutas?.activas,
         detail: `${number(resumen.rutas?.pausadas)} pausadas`,
-        icon: Share2,
         to: "/admin/rutas",
-        color: "bg-celeste/55",
       },
     ],
     [dashboard, resumen]
@@ -222,7 +209,6 @@ export default function DashboardAdmin() {
           <div className="flex flex-wrap items-center gap-3">
             {dashboard?.updatedAt && (
               <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-uva shadow-sm">
-                <Clock3 size={15} className="text-morado" />
                 {date(dashboard.updatedAt)}
               </span>
             )}
@@ -312,13 +298,11 @@ function ComerciosPanel({ comercios = {} }) {
         <CommerceMetric
           label="Contactadas"
           value={estados.contactado}
-          icon={MessageCircleMore}
         />
         <CommerceMetric
           label="Aprobadas"
           value={estados.aprobado}
           tone="success"
-          icon={CheckCircle2}
         />
         <CommerceMetric label="Nuevas 7 días" value={comercios.recientes} />
       </div>
@@ -326,7 +310,7 @@ function ComerciosPanel({ comercios = {} }) {
   );
 }
 
-function CommerceMetric({ label, value, tone = "normal", icon: Icon }) {
+function CommerceMetric({ label, value, tone = "normal" }) {
   const toneClass =
     tone === "warm"
       ? "border-vainilla bg-vainilla/45"
@@ -336,7 +320,6 @@ function CommerceMetric({ label, value, tone = "normal", icon: Icon }) {
 
   return (
     <div className={`min-w-0 rounded-2xl border px-3 py-4 text-center ${toneClass}`}>
-      {Icon && <Icon size={17} className="mx-auto mb-1 text-uva" />}
       <p className="font-fredoka text-3xl leading-none text-morado sm:text-4xl">
         {number(value)}
       </p>
@@ -464,8 +447,7 @@ function AlertasAdminPanel({ items, highlight = false }) {
       </div>
 
       {items.length === 0 ? (
-        <div className="inline-flex items-center gap-2 rounded-full bg-menta/55 px-4 py-2 text-sm font-extrabold text-uva">
-          <CheckCircle2 size={18} />
+        <div className="inline-flex rounded-full bg-menta/55 px-4 py-2 text-sm font-extrabold text-uva">
           Todo está ordenado
         </div>
       ) : (
@@ -517,17 +499,12 @@ function PrioridadesPanel({ items }) {
   );
 }
 
-function PriorityCard({ label, value, detail, icon: Icon, to, color }) {
+function PriorityCard({ label, value, detail, to }) {
   return (
     <Link
       to={to}
-      className="group grid min-w-0 grid-cols-[44px_minmax(0,1fr)] items-center gap-2 rounded-3xl border border-uva/10 bg-crema/50 px-3 py-5 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm sm:grid-cols-[56px_minmax(0,1fr)_56px] sm:px-5 sm:py-6"
+      className="group flex min-w-0 items-center justify-center rounded-3xl border border-uva/10 bg-crema/50 px-3 py-5 text-center transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm sm:px-5 sm:py-6"
     >
-      <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-uva sm:h-12 sm:w-12 ${color}`}
-      >
-        {Icon && <Icon size={22} />}
-      </span>
       <span className="min-w-0 text-center">
         <span className="block font-fredoka text-4xl leading-none text-morado sm:text-5xl">
           {number(value)}
@@ -539,7 +516,6 @@ function PriorityCard({ label, value, detail, icon: Icon, to, color }) {
           {detail}
         </span>
       </span>
-      <span className="hidden sm:block" aria-hidden="true" />
     </Link>
   );
 }
@@ -715,9 +691,7 @@ function CategoryBars({ items }) {
   );
 }
 
-function PointRow({ title, category, image, value, detail }) {
-  const info = getCategoriaInfo(category);
-
+function PointRow({ title, image, value, detail }) {
   return (
     <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-crema px-3 py-2">
       {image ? (
@@ -726,14 +700,7 @@ function PointRow({ title, category, image, value, detail }) {
           alt={title}
           className="h-11 w-11 shrink-0 rounded-xl object-cover"
         />
-      ) : (
-        <span
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-uva"
-          style={{ backgroundColor: info.color }}
-        >
-          <MapPinned size={20} />
-        </span>
-      )}
+      ) : null}
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-extrabold text-uva">{title}</p>
         <p className="truncate text-sm font-bold text-uva">{detail}</p>
@@ -749,13 +716,10 @@ function RouteRow({ title, category, value, detail }) {
   const info = getRutaInfo(category);
 
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-crema px-3 py-2">
-      <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-uva"
-        style={{ backgroundColor: info.color }}
-      >
-        <Share2 size={20} />
-      </span>
+    <div
+      className="flex min-w-0 items-center gap-3 rounded-2xl border-l-4 bg-crema px-3 py-2"
+      style={{ borderLeftColor: info.color }}
+    >
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-extrabold text-uva">{title}</p>
         <p className="truncate text-sm font-bold text-uva">
