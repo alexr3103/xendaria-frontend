@@ -40,7 +40,9 @@ export default function PuntoDetalle() {
   });
 
   useEffect(() => {
-    fetch(`${API}/api/puntos/${id}`)
+    fetch(`${API}/api/puntos/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => {
         if (res.status === 404) {
           navigate("/404", { replace: true });
@@ -65,7 +67,7 @@ export default function PuntoDetalle() {
         setEsFavorito(Boolean(user?.lugares_favoritos?.includes(data._id)));
       })
       .catch(() => navigate("/404"));
-  }, [id, API, navigate, user?.lugares_favoritos]);
+  }, [id, API, navigate, token, user?.lugares_favoritos]);
 
   useEffect(() => {
     let activo = true;

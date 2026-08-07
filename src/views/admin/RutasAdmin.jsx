@@ -162,7 +162,10 @@ export default function RutasAdmin() {
 
   const cargarCategorias = useCallback(async () => {
     try {
-      const data = await fetchJSON(`${API}/api/rutas/categorias`);
+      const token = getToken();
+      const data = await fetchJSON(`${API}/api/rutas/categorias`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (Array.isArray(data.categorias) && data.categorias.length > 0) {
         setCategoriasRutas(data.categorias);
         setForm((actual) => ({
@@ -208,7 +211,10 @@ export default function RutasAdmin() {
 
     try {
       setCargandoPuntos(true);
-      const data = await fetchJSON(`${API}/api/puntos?${query.toString()}`);
+      const token = getToken();
+      const data = await fetchJSON(`${API}/api/puntos?${query.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setPuntos(Array.isArray(data) ? data : []);
     } catch {
       setPuntos([]);

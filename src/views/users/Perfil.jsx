@@ -122,7 +122,7 @@ async function fetchJSON(url, options) {
   return data;
 }
 
-async function cargarFavoritosDesdePerfil(API, perfilData) {
+async function cargarFavoritosDesdePerfil(API, perfilData, headers) {
   const favoritosApi = Array.isArray(perfilData?.lugares_favoritos)
     ? perfilData.lugares_favoritos
     : [];
@@ -141,7 +141,7 @@ async function cargarFavoritosDesdePerfil(API, perfilData) {
   if (ids.length === 0) return [];
 
   const resultados = await Promise.allSettled(
-    ids.map((id) => fetchJSON(`${API}/api/puntos/${id}`))
+    ids.map((id) => fetchJSON(`${API}/api/puntos/${id}`, { headers }))
   );
 
   return resultados
@@ -150,7 +150,7 @@ async function cargarFavoritosDesdePerfil(API, perfilData) {
     .filter(Boolean);
 }
 
-async function cargarVisitadosDesdePerfil(API, perfilData) {
+async function cargarVisitadosDesdePerfil(API, perfilData, headers) {
   const visitados = getListaVisitadosPerfil(perfilData);
   const ids = [...new Set(visitados.map(getIdPuntoVisitado).filter(Boolean))];
   if (ids.length === 0) return [];
@@ -165,7 +165,7 @@ async function cargarVisitadosDesdePerfil(API, perfilData) {
   );
 
   const resultados = await Promise.allSettled(
-    ids.map((id) => fetchJSON(`${API}/api/puntos/${id}`))
+    ids.map((id) => fetchJSON(`${API}/api/puntos/${id}`, { headers }))
   );
 
   return resultados
@@ -177,7 +177,7 @@ async function cargarVisitadosDesdePerfil(API, perfilData) {
     .filter(Boolean);
 }
 
-async function cargarInsigniasDesbloqueadas(API, perfilData) {
+async function cargarInsigniasDesbloqueadas(API, perfilData, headers) {
   const insigniasPerfil = Array.isArray(perfilData?.insignias)
     ? perfilData.insignias.map(normalizarInsignia)
     : [];
@@ -191,7 +191,9 @@ async function cargarInsigniasDesbloqueadas(API, perfilData) {
   }
 
   const resultados = await Promise.allSettled(
-    idsDesbloqueados.map((id) => fetchJSON(`${API}/api/puntos/${id}`))
+    idsDesbloqueados.map((id) =>
+      fetchJSON(`${API}/api/puntos/${id}`, { headers })
+    )
   );
 
   const insigniasLocal = resultados
@@ -294,7 +296,7 @@ export default function Perfil() {
             }),
             fetchJSON(`${API}/api/usuarios/${usuarioId}/visitados`, { headers }),
             fetchJSON(`${API}/api/rutas/mis-realizadas`, { headers }),
-            cargarInsigniasDesbloqueadas(API, perfilData),
+            cargarInsigniasDesbloqueadas(API, perfilData, headers),
             fetchJSON(`${API}/api/calificaciones/mias`, { headers }),
             fetchJSON(`${API}/api/ordenes/mis-ordenes`, { headers }),
             fetchJSON(`${API}/api/comercios/recompensas/mis-canjes`, {
@@ -311,7 +313,7 @@ export default function Perfil() {
             : [];
         const favoritosFallback =
           favoritosApi.length === 0
-            ? await cargarFavoritosDesdePerfil(API, perfilData)
+            ? await cargarFavoritosDesdePerfil(API, perfilData, headers)
             : [];
 
         if (!activo) return;
@@ -328,7 +330,7 @@ export default function Perfil() {
           visitadosResult.status === "fulfilled" &&
             Array.isArray(visitadosResult.value)
             ? visitadosResult.value
-            : await cargarVisitadosDesdePerfil(API, perfilData)
+            : await cargarVisitadosDesdePerfil(API, perfilData, headers)
         );
         setRutasRealizadas(
           rutasRealizadasResult.status === "fulfilled" &&

@@ -7,6 +7,7 @@ import Home from "./views/users/Home.jsx";
 import Carga from "./components/PantallaCarga.jsx";
 import Splash from "./components/Splash.jsx";
 import ProteccionAdmin from "./components/ProteccionAdmin.jsx";
+import ProteccionUsuario from "./components/ProteccionUsuario.jsx";
 import Proximamente from "./layouts/Proximamente.jsx";
 import NotFound from "./layouts/404.jsx";
 import ErrorPage from "./layouts/Error.jsx";
@@ -100,9 +101,7 @@ export default function App() {
         <Route path="/" element={<RutaInicial />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/ranking" element={<Ranking />} />
-        <Route path="/rutas" element={<Rutas />} />
         <Route path="/comunidad" element={<Comunidad />} />
         <Route path="/merch" element={<Merch />} />
         <Route path="/merch/:id" element={<DetalleMerch />} />
@@ -117,7 +116,11 @@ export default function App() {
         <Route path="/checkout/failure" element={<PagoFallido />} />
         <Route path="/checkout/fallo" element={<PagoFallido />} />
         <Route path="/checkout/fallido" element={<PagoFallido />} />
-        <Route path="/punto/:id" element={<PuntoDetalle />} />
+        <Route element={<ProteccionUsuario />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/rutas" element={<Rutas />} />
+          <Route path="/punto/:id" element={<PuntoDetalle />} />
+        </Route>
         <Route path="/proximamente" element={<Proximamente />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/error/:code" element={<ErrorPage />} />

@@ -101,7 +101,7 @@ export default function DescripcionPunto({
       const url = esPuntoPropio && usuario?.id
         ? `${import.meta.env.VITE_API_URL}/api/usuarios/${usuario.id}/puntos-propios/${_id}/vista-360/consultar`
         : `${import.meta.env.VITE_API_URL}/api/puntos/${_id}/vista-360/consultar`;
-      const headers = esPuntoPropio && token
+      const headers = token
         ? { Authorization: `Bearer ${token}` }
         : undefined;
 

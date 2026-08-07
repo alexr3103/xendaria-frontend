@@ -216,7 +216,7 @@ export default function Rutas() {
         const headers = { Authorization: `Bearer ${token}` };
         const [rutasData, categoriasData] = await Promise.all([
           fetchJSON(`${API}/api/rutas/con-estado`, { headers }),
-          fetchJSON(`${API}/api/rutas/categorias`),
+          fetchJSON(`${API}/api/rutas/categorias`, { headers }),
         ]);
 
         setRutas(Array.isArray(rutasData) ? rutasData : []);

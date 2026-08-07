@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   LogOut,
@@ -31,7 +31,27 @@ function getAdminName() {
 export default function AdminLayout({ children, title }) {
   const adminName = getAdminName();
   const navigate = useNavigate();
+  const location = useLocation();
+  const navRef = useRef(null);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!window.matchMedia("(max-width: 1023px)").matches) return undefined;
+
+    const frame = requestAnimationFrame(() => {
+      const enlaceActivo = navRef.current?.querySelector(
+        '[aria-current="page"]'
+      );
+
+      enlaceActivo?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname]);
 
   function cerrarSesion() {
     localStorage.removeItem("token");
@@ -58,7 +78,10 @@ export default function AdminLayout({ children, title }) {
         </div>
 
         {/* NAV PRINCIPAL */}
-        <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 text-sm font-medium lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 lg:text-base">
+        <nav
+          ref={navRef}
+          className="-mx-1 flex scroll-smooth gap-1 overflow-x-auto px-1 pb-1 text-sm font-medium [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 lg:text-base"
+        >
 
           <AdminLink to="/admin" icon={<LayoutDashboard size={20} />}>
             Dashboard

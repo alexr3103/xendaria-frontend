@@ -202,6 +202,7 @@ export default function Home() {
   const location = useLocation();
   const API = import.meta.env.VITE_API_URL;
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+  const token = localStorage.getItem("token");
   const recenterDesdeDetalle = location.state?.recenterUser || 0;
   const puntoPropioIdDesdePerfil = location.state?.puntoPropioId || null;
   const puntoDesdePerfil = location.state?.puntoEnFoco || null;
@@ -242,12 +243,6 @@ export default function Home() {
   const [esperandoGeoInicial, setEsperandoGeoInicial] = useState(true);
   const finalizarCargaMapa = useCallback(() => setCargandoMapa(false), []);
 
-  // login
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/login");
-  }, [navigate]);
-
   useEffect(() => {
     if (coords) {
       setEsperandoGeoInicial(false);
@@ -284,8 +279,14 @@ export default function Home() {
   }, [navigate, rutaDesdeRutas]);
 
   useEffect(() => {
-    fetch(`${API}/api/puntos`, { cache: "no-store" })
-      .then((res) => res.json())
+    fetch(`${API}/api/puntos`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("No se pudieron cargar los puntos");
+        return res.json();
+      })
       .then((data) => {
         const cats = [
           ...new Set([
@@ -302,7 +303,7 @@ export default function Home() {
         setCategorias(cats);
       })
       .catch(() => setCategorias([CATEGORIA_COMERCIOS, "propios"]));
-  }, [API]);
+  }, [API, token]);
 
   useEffect(() => {
     if (!puntoPropioIdDesdePerfil) return;

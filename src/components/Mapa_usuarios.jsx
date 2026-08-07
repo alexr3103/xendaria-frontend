@@ -115,6 +115,7 @@ export default function MapaUsuario({
   onListo,
 }) {
   const API = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
 
   const { coords } = useGeolocation({
     distanceThresholdMeters: 75,
@@ -225,9 +226,14 @@ export default function MapaUsuario({
       try {
         onListoRef.current?.(false);
 
-        const res = await fetch(`${API}/api/puntos`, { cache: "no-store" });
+        const res = await fetch(`${API}/api/puntos`, {
+          cache: "no-store",
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!res.ok) {
-          throw new Error("No se pudieron cargar los puntos");
+          const error = new Error("No se pudieron cargar los puntos");
+          error.status = res.status;
+          throw error;
         }
 
         const data = await res.json();
@@ -240,7 +246,14 @@ export default function MapaUsuario({
         setPuntosVersion((version) => version + 1);
         localStorage.setItem("puntos_xendaria", JSON.stringify(data));
         onListoRef.current?.(true);
-      } catch {
+      } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+          puntosRef.current = [];
+          localStorage.removeItem("puntos_xendaria");
+          onListoRef.current?.(true);
+          return;
+        }
+
         const guardados = localStorage.getItem("puntos_xendaria");
 
         if (guardados) {
@@ -260,7 +273,7 @@ export default function MapaUsuario({
     });
 
     return () => mapRef.current?.remove();
-  }, [API]);
+  }, [API, token]);
 
   const renderMarkers = useCallback((puntos) => {
     if (!mapRef.current) return;

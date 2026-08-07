@@ -3,6 +3,17 @@ import { CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { CampoAdmin, claseInputAdmin } from "./EditorAdmin.jsx";
 
 const DEMORA_BUSQUEDA_MS = 800;
+const CENTRO_CABA = "-58.3816,-34.6037";
+const LIMITES_CABA = "-58.5315,-34.7058,-58.3351,-34.5265";
+const CONTEXTO_CABA_REGEX = /buenos aires|caba|ciudad aut[oó]noma/i;
+
+function agregarContextoCaba(direccion) {
+  const tieneContextoCaba = CONTEXTO_CABA_REGEX.test(direccion);
+
+  return tieneContextoCaba
+    ? direccion
+    : `${direccion}, Ciudad Autonoma de Buenos Aires, Argentina`;
+}
 
 export default function CampoDireccionAdmin({
   value,
@@ -57,16 +68,17 @@ export default function CampoDireccionAdmin({
 
       try {
         const parametros = new URLSearchParams({
-          q: direccion,
+          q: agregarContextoCaba(direccion),
           access_token: tokenMapbox,
           country: "ar",
+          bbox: LIMITES_CABA,
           language: "es",
           limit: "1",
           types: "address",
           autocomplete: "false",
           entrances: "true",
           permanent: "true",
-          proximity: "-58.3816,-34.6037",
+          proximity: CENTRO_CABA,
         });
         const endpoint = `https://api.mapbox.com/search/geocode/v6/forward?${parametros}`;
         const respuesta = await fetch(endpoint);
@@ -102,6 +114,11 @@ export default function CampoDireccionAdmin({
         });
 
         const precision = coordenadasResultado?.accuracy || "";
+        const direccionEncontrada =
+          resultado?.properties?.full_address ||
+          resultado?.properties?.name_preferred ||
+          resultado?.properties?.name ||
+          direccion;
         const esUbicacionExacta = ["rooftop", "parcel", "point"].includes(
           precision
         );
@@ -109,14 +126,14 @@ export default function CampoDireccionAdmin({
         if (precision && !esUbicacionExacta) {
           setEstado("warning");
           setMensaje(
-            "Mapbox ubicó una posición aproximada. Revisá las coordenadas o ajustá el pin desde el mapa."
+            `Mapbox ubicó aproximadamente: ${direccionEncontrada}. Revisá las coordenadas antes de guardar.`
           );
         } else {
           setEstado("success");
           setMensaje(
             esUbicacionExacta
-              ? "Coordenadas exactas actualizadas automáticamente."
-              : "Coordenadas actualizadas automáticamente. Revisá el pin antes de guardar."
+              ? `Ubicación encontrada: ${direccionEncontrada}.`
+              : `Coordenadas actualizadas para: ${direccionEncontrada}. Revisalas antes de guardar.`
           );
         }
       } catch {

@@ -31,6 +31,17 @@ function renderVariante(variante) {
   return partes.join(" · ");
 }
 
+function getClaveItem(item) {
+  return [
+    item.idProducto,
+    item.variante?.color,
+    item.variante?.talle,
+    item.variante?.diseno,
+  ]
+    .filter(Boolean)
+    .join("-");
+}
+
 export default function Carrito() {
   const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL;
@@ -40,7 +51,7 @@ export default function Carrito() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
-  const [actualizando, setActualizando] = useState(false);
+  const [operacionItem, setOperacionItem] = useState(null);
 
   useEffect(() => {
     if (!mensaje) return;
@@ -99,11 +110,11 @@ export default function Carrito() {
   }, [API, navigate, token]);
 
   async function cambiarCantidad(item, nuevaCantidad) {
-    if (nuevaCantidad < 1 || actualizando) return;
+    if (nuevaCantidad < 1 || operacionItem) return;
 
     try {
       setMensaje("");
-      setActualizando(true);
+      setOperacionItem({ clave: getClaveItem(item), tipo: "cantidad" });
 
       const body = {
         cantidad: nuevaCantidad,
@@ -146,16 +157,16 @@ export default function Carrito() {
     } catch (err) {
       setMensaje(getMensajeError(err, "No se pudo actualizar la cantidad."));
     } finally {
-      setActualizando(false);
+      setOperacionItem(null);
     }
   }
 
   async function eliminarItem(item) {
-    if (actualizando) return;
+    if (operacionItem) return;
 
     try {
       setMensaje("");
-      setActualizando(true);
+      setOperacionItem({ clave: getClaveItem(item), tipo: "eliminar" });
 
       const options = {
         method: "DELETE",
@@ -194,7 +205,7 @@ export default function Carrito() {
     } catch (err) {
       setMensaje(getMensajeError(err, "No se pudo eliminar el producto."));
     } finally {
-      setActualizando(false);
+      setOperacionItem(null);
     }
   }
 
@@ -285,7 +296,15 @@ export default function Carrito() {
                 <ItemCarrito
                   key={`${item.idProducto}-${index}-${renderVariante(item.variante)}`}
                   item={item}
-                  actualizando={actualizando}
+                  bloqueado={Boolean(operacionItem)}
+                  cambiandoCantidad={
+                    operacionItem?.clave === getClaveItem(item) &&
+                    operacionItem?.tipo === "cantidad"
+                  }
+                  eliminando={
+                    operacionItem?.clave === getClaveItem(item) &&
+                    operacionItem?.tipo === "eliminar"
+                  }
                   onMenos={() => cambiarCantidad(item, item.cantidad - 1)}
                   onMas={() => cambiarCantidad(item, item.cantidad + 1)}
                   onEliminar={() => eliminarItem(item)}
@@ -308,7 +327,15 @@ export default function Carrito() {
   );
 }
 
-function ItemCarrito({ item, actualizando, onMenos, onMas, onEliminar }) {
+function ItemCarrito({
+  item,
+  bloqueado,
+  cambiandoCantidad,
+  eliminando,
+  onMenos,
+  onMas,
+  onEliminar,
+}) {
   const varianteTexto = renderVariante(item.variante);
 
   return (
@@ -335,13 +362,17 @@ function ItemCarrito({ item, actualizando, onMenos, onMas, onEliminar }) {
 
             <button
               type="button"
-              disabled={actualizando}
+              disabled={bloqueado}
               onClick={onEliminar}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fucsia/10 text-fucsia transition active:scale-95 disabled:opacity-45"
               aria-label="Eliminar producto"
               title="Eliminar producto"
             >
-              <Trash2 size={17} />
+              {eliminando ? (
+                <Loader2 className="animate-spin" size={17} />
+              ) : (
+                <Trash2 size={17} />
+              )}
             </button>
           </div>
 
@@ -349,18 +380,29 @@ function ItemCarrito({ item, actualizando, onMenos, onMas, onEliminar }) {
             <div className="flex items-center rounded-full border border-uva/10 bg-white/70 p-1">
               <button
                 type="button"
-                disabled={actualizando || item.cantidad <= 1}
+                disabled={bloqueado || item.cantidad <= 1}
                 onClick={onMenos}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-uva disabled:opacity-35"
               >
                 <Minus size={15} />
               </button>
-              <span className="min-w-[34px] text-center font-fredoka text-lg text-uva">
-                {item.cantidad}
+              <span
+                className="flex h-8 min-w-[34px] items-center justify-center text-center font-fredoka text-lg text-uva"
+                aria-live="polite"
+              >
+                {cambiandoCantidad ? (
+                  <Loader2
+                    className="animate-spin text-morado"
+                    size={18}
+                    aria-label="Actualizando cantidad"
+                  />
+                ) : (
+                  item.cantidad
+                )}
               </span>
               <button
                 type="button"
-                disabled={actualizando}
+                disabled={bloqueado}
                 onClick={onMas}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-uva disabled:opacity-35"
               >
