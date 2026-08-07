@@ -362,7 +362,6 @@ export default function PerfilPublico() {
                           <FavoritoPublicoItem
                             key={getId(favorito)}
                             favorito={favorito}
-                            onOpen={() => navigate(`/punto/${getId(favorito)}`)}
                           />
                         ))}
                       </div>
@@ -467,15 +466,11 @@ function Metric({ label, value, highlight = false }) {
   );
 }
 
-function FavoritoPublicoItem({ favorito, onOpen }) {
+function FavoritoPublicoItem({ favorito }) {
   const categoria = categorias[favorito.categoria];
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex w-full min-w-0 items-center gap-3 py-3 text-left"
-    >
+    <div className="flex w-full min-w-0 items-center gap-3 py-3 text-left">
       <img
         src={favorito.foto || cargafail}
         alt={favorito.nombre || "Favorito"}
@@ -492,6 +487,6 @@ function FavoritoPublicoItem({ favorito, onOpen }) {
           {categoria?.label || favorito.categoria || "Categoría"}
         </span>
       </span>
-    </button>
+    </div>
   );
 }

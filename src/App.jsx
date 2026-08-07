@@ -101,27 +101,33 @@ export default function App() {
         <Route path="/" element={<RutaInicial />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/ranking" element={<Ranking />} />
-        <Route path="/comunidad" element={<Comunidad />} />
-        <Route path="/merch" element={<Merch />} />
-        <Route path="/merch/:id" element={<DetalleMerch />} />
-        <Route path="/carrito" element={<Carrito />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/checkout/exito" element={<PagoExitoso />} />
-        <Route path="/checkout/success" element={<PagoExitoso />} />
-        <Route path="/checkout/aprobado" element={<PagoExitoso />} />
-        <Route path="/checkout/pendiente" element={<PagoPendiente />} />
-        <Route path="/checkout/pending" element={<PagoPendiente />} />
-        <Route path="/checkout/error" element={<PagoFallido />} />
-        <Route path="/checkout/failure" element={<PagoFallido />} />
-        <Route path="/checkout/fallo" element={<PagoFallido />} />
-        <Route path="/checkout/fallido" element={<PagoFallido />} />
         <Route element={<ProteccionUsuario />}>
+          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/comunidad" element={<Comunidad />} />
+          <Route path="/merch" element={<Merch />} />
+          <Route path="/merch/:id" element={<DetalleMerch />} />
+          <Route path="/carrito" element={<Carrito />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/exito" element={<PagoExitoso />} />
+          <Route path="/checkout/success" element={<PagoExitoso />} />
+          <Route path="/checkout/aprobado" element={<PagoExitoso />} />
+          <Route path="/checkout/pendiente" element={<PagoPendiente />} />
+          <Route path="/checkout/pending" element={<PagoPendiente />} />
+          <Route path="/checkout/error" element={<PagoFallido />} />
+          <Route path="/checkout/failure" element={<PagoFallido />} />
+          <Route path="/checkout/fallo" element={<PagoFallido />} />
+          <Route path="/checkout/fallido" element={<PagoFallido />} />
           <Route path="/home" element={<Home />} />
           <Route path="/rutas" element={<Rutas />} />
           <Route path="/punto/:id" element={<PuntoDetalle />} />
+          <Route path="/proximamente" element={<Proximamente />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/perfil/insignias" element={<AlbumInsignias />} />
+          <Route path="/perfil/:id/insignias" element={<AlbumInsignias />} />
+          <Route path="/perfil/:id" element={<PerfilPublico />} />
+          <Route path="/perfil/editar" element={<EditarPerfil />} />
+          <Route path="/perfil/configuracion" element={<Configuraciones />} />
         </Route>
-        <Route path="/proximamente" element={<Proximamente />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="/error/:code" element={<ErrorPage />} />
         <Route element={<ProteccionAdmin />}>
@@ -140,12 +146,6 @@ export default function App() {
           <Route path="/admin/puntos/editar/:slug/:id" element={<EditarPunto />} />
           <Route path="/admin/puntos/:id" element={<EditarPunto />} />
         </Route>
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/perfil/insignias" element={<AlbumInsignias />} />
-        <Route path="/perfil/:id/insignias" element={<AlbumInsignias />} />
-        <Route path="/perfil/:id" element={<PerfilPublico />} />
-        <Route path="/perfil/editar" element={<EditarPerfil />} />
-        <Route path="/perfil/configuracion" element={<Configuraciones />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </Suspense>

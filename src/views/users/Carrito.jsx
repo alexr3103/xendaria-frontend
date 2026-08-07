@@ -12,6 +12,7 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 
 const formatoPrecio = new Intl.NumberFormat("es-AR");
 
@@ -80,9 +81,8 @@ export default function Carrito() {
         });
 
         if (resCarrito.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("usuario");
-          navigate("/login");
+          limpiarSesion({ avisar: true });
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -136,9 +136,8 @@ export default function Carrito() {
       const data = await res.json();
 
       if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
-        navigate("/login");
+        limpiarSesion({ avisar: true });
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -184,9 +183,8 @@ export default function Carrito() {
       const data = await res.json();
 
       if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
-        navigate("/login");
+        limpiarSesion({ avisar: true });
+        navigate("/login", { replace: true });
         return;
       }
 

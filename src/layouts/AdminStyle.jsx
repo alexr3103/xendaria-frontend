@@ -18,6 +18,7 @@ import {
 
 import logoWhite from "../assets/logo_white.png";
 import FlechaSubir from "../components/FlechaSubir.jsx";
+import { limpiarSesion } from "../lib/sesion.js";
 
 function getAdminName() {
   try {
@@ -54,8 +55,7 @@ export default function AdminLayout({ children, title }) {
   }, [location.pathname]);
 
   function cerrarSesion() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    limpiarSesion({ avisar: true });
     navigate("/login", { replace: true });
   }
 

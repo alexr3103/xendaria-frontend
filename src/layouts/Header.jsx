@@ -91,13 +91,7 @@ export default function Header({
     <>
       <header className="w-full bg-gris text-white py-3 px-4 flex justify-between items-center shadow-md z-50 relative">
         {/* LOGO + NOMBRE */}
-        <a
-          href="https://xendaria.com.ar"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-menta"
-          aria-label="Visitar la web de Xendaria"
-        >
+        <div className="flex items-center gap-3">
           <img
             src={logoMini}
             alt="Xendaria logo"
@@ -106,7 +100,7 @@ export default function Header({
           <h1 className="font-fredoka text-xl font-semibold tracking-wide">
             Xendaria
           </h1>
-        </a>
+        </div>
 
         <div className="flex items-center gap-2">
           {showCart && (

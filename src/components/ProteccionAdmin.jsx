@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { limpiarSesion } from "../lib/sesion.js";
 
 const BASE64URL_DASH_REGEX = /-/g;
 const BASE64URL_UNDERSCORE_REGEX = /_/g;
@@ -30,8 +31,7 @@ export default function ProteccionAdmin() {
   }
 
   if (tokenExpirado(token)) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    limpiarSesion({ avisar: true });
     return <Navigate to="/login" replace />;
   }
 

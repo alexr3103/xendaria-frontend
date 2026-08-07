@@ -39,6 +39,7 @@ import ModalEliminarPunto from "../../components/ModalEliminarPunto.jsx";
 import RecompensaComercioAdmin from "../../components/RecompensaComercioAdmin.jsx";
 import CampoDireccionAdmin from "../../components/CampoDireccionAdmin.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 import {
   normalizarRecompensaComercio,
   recompensaComercioInicial,
@@ -327,8 +328,7 @@ export default function EditarPunto() {
         const errorMessage = await getErrorMessage(res);
 
         if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("usuario");
+          limpiarSesion({ avisar: true });
           mostrarMensajeArriba({
             variant: "error",
             text: "Tu sesión expiró. Iniciá sesión nuevamente para guardar cambios.",

@@ -11,6 +11,7 @@ import {
 import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 import {
   getMerchCategoryInfo,
 } from "../../constants/merchOptions.js";
@@ -255,8 +256,7 @@ export default function DetalleMerch() {
       const data = await res.json();
 
       if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
+        limpiarSesion({ avisar: true });
         setMensaje("Tenés que iniciar sesión para agregar productos al carrito.");
         setRequiereLogin(true);
         return;

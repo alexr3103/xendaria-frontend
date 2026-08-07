@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Upload } from "lucide-react";
 import Alert from "./Alertas.jsx";
+import { limpiarSesion } from "../lib/sesion.js";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -62,8 +63,7 @@ export default function SubidorImagen({
 
       if (!res.ok) {
         if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("usuario");
+          limpiarSesion({ avisar: true });
           setError("Tu sesión expiró. Iniciá sesión nuevamente para subir imágenes.");
           setTimeout(() => navigate("/login", { replace: true }), 1800);
           return;

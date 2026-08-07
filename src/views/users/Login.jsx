@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getMensajeError } from "../../lib/errores.js";
 import { Loader2, Mail, X } from "lucide-react";
 import {
+  consumirAvisoSesionCerrada,
   marcarBienvenidaPostLogin,
   obtenerDestinoSesion,
 } from "../../lib/sesion.js";
@@ -21,6 +22,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
+  const [avisoSesion, setAvisoSesion] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleCredentialPendiente, setGoogleCredentialPendiente] =
@@ -29,7 +31,12 @@ export default function Login() {
 
   useEffect(() => {
     const destino = obtenerDestinoSesion();
-    if (destino) navigate(destino, { replace: true });
+    if (destino) {
+      navigate(destino, { replace: true });
+      return;
+    }
+
+    setAvisoSesion(consumirAvisoSesionCerrada());
   }, [navigate]);
 
   // Recuperar contraseña
@@ -149,6 +156,7 @@ export default function Login() {
 
         {err && <Alert variant="error">{err}</Alert>}
         {msg && <Alert variant="success">{msg}</Alert>}
+        {avisoSesion && <Alert variant="info">{avisoSesion}</Alert>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <TextField

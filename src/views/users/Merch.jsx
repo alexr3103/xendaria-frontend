@@ -12,6 +12,7 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import EncabezadoVistaUsuario from "../../components/EncabezadoVistaUsuario.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 import {
   getMerchCategoryInfo,
   MERCH_CATEGORY_OPTIONS,
@@ -220,8 +221,7 @@ export default function Merch() {
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
+        limpiarSesion({ avisar: true });
         setMensaje({
           variant: "error",
           text: "Tu sesión venció. Iniciá sesión de nuevo.",

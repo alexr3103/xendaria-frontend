@@ -12,6 +12,7 @@ import Header from "../../layouts/Header.jsx";
 import Navbar from "../../components/Navbar.jsx";
 import Alert from "../../components/Alertas.jsx";
 import { getMensajeError } from "../../lib/errores.js";
+import { limpiarSesion } from "../../lib/sesion.js";
 
 const formatoPrecio = new Intl.NumberFormat("es-AR");
 const NON_DIGIT_REGEX = /\D/g;
@@ -171,9 +172,8 @@ export default function Checkout() {
         ]);
 
         if (resCarrito.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("usuario");
-          navigate("/login");
+          limpiarSesion({ avisar: true });
+          navigate("/login", { replace: true });
           return;
         }
 
@@ -275,9 +275,8 @@ export default function Checkout() {
       const dataPreferencia = await resPreferencia.json();
 
       if (resPreferencia.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
-        navigate("/login");
+        limpiarSesion({ avisar: true });
+        navigate("/login", { replace: true });
         return;
       }
 

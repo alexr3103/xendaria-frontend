@@ -379,7 +379,7 @@ export default function Perfil() {
           return;
         }
         if (error.status === 401) {
-          limpiarSesion();
+          limpiarSesion({ avisar: true });
           navigate("/login", { replace: true });
           return;
         }
@@ -439,9 +439,8 @@ export default function Perfil() {
     } catch {
       // El cierre de sesion debe continuar aunque falle la desvinculacion push.
     } finally {
-      localStorage.removeItem("token");
-      localStorage.removeItem("usuario");
-      navigate("/login");
+      limpiarSesion({ avisar: true });
+      navigate("/login", { replace: true });
     }
   }
 
@@ -839,7 +838,6 @@ export default function Perfil() {
                       <VisitadoItem
                         key={getId(visitado)}
                         visitado={visitado}
-                        onOpen={() => navigate(`/punto/${getId(visitado)}`)}
                       />
                     ))}
                   </div>
@@ -862,13 +860,6 @@ export default function Perfil() {
                       <CalificacionItem
                         key={getId(calificacion._id) || getId(calificacion.punto)}
                         calificacion={calificacion}
-                        onOpen={() =>
-                          navigate(
-                            `/punto/${getId(
-                              calificacion.idPunto || calificacion.punto
-                            )}`
-                          )
-                        }
                       />
                     ))}
                   </div>
@@ -892,7 +883,6 @@ export default function Perfil() {
                         key={getId(favorito)}
                         favorito={favorito}
                         eliminando={favoritoEliminando === getId(favorito)}
-                        onOpen={() => navigate(`/punto/${getId(favorito)}`)}
                         onDelete={() => eliminarFavorito(getId(favorito))}
                       />
                     ))}
@@ -1274,15 +1264,11 @@ function formatFechaVisita(fecha) {
   });
 }
 
-function VisitadoItem({ visitado, onOpen }) {
+function VisitadoItem({ visitado }) {
   const categoria = categorias[visitado.categoria];
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex w-full min-w-0 items-center gap-3 py-3 text-left"
-    >
+    <div className="flex w-full min-w-0 items-center gap-3 py-3 text-left">
       <img
         src={visitado.foto || cargafail}
         alt={visitado.nombre || "Punto visitado"}
@@ -1302,21 +1288,17 @@ function VisitadoItem({ visitado, onOpen }) {
       <span className="shrink-0 text-right text-[11px] font-bold text-fucsia">
         {formatFechaVisita(visitado.fechaVisita || visitado.visitadoEn)}
       </span>
-    </button>
+    </div>
   );
 }
 
-function CalificacionItem({ calificacion, onOpen }) {
+function CalificacionItem({ calificacion }) {
   const punto = calificacion.punto || {};
   const categoria = categorias[punto.categoria];
   const estrellas = Number(calificacion.estrellas) || 0;
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex w-full min-w-0 items-center gap-3 py-3 text-left"
-    >
+    <div className="flex w-full min-w-0 items-center gap-3 py-3 text-left">
       <img
         src={punto.foto || cargafail}
         alt={punto.nombre || "Punto calificado"}
@@ -1346,20 +1328,16 @@ function CalificacionItem({ calificacion, onOpen }) {
       <span className="shrink-0 text-right text-[11px] font-bold text-fucsia">
         {formatFechaVisita(calificacion.updatedAt || calificacion.fechaCalificacion)}
       </span>
-    </button>
+    </div>
   );
 }
 
-function FavoritoItem({ favorito, eliminando, onOpen, onDelete }) {
+function FavoritoItem({ favorito, eliminando, onDelete }) {
   const categoria = categorias[favorito.categoria];
 
   return (
     <div className="flex min-w-0 items-center gap-3 py-3">
-      <button
-        type="button"
-        onClick={onOpen}
-        className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden text-left"
-      >
+      <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden text-left">
         <img
           src={favorito.foto || cargafail}
           alt={favorito.nombre || "Favorito"}
@@ -1376,7 +1354,7 @@ function FavoritoItem({ favorito, eliminando, onOpen, onDelete }) {
             {categoria?.label || favorito.categoria || "Categoría"}
           </span>
         </span>
-      </button>
+      </div>
       <button
         type="button"
         onClick={onDelete}

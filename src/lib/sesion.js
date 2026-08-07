@@ -1,6 +1,9 @@
 const BASE64URL_DASH_REGEX = /-/g;
 const BASE64URL_UNDERSCORE_REGEX = /_/g;
 const CLAVE_BIENVENIDA_POST_LOGIN = "xendaria:bienvenida-post-login";
+const CLAVE_AVISO_SESION_CERRADA = "xendaria:aviso-sesion-cerrada";
+const MENSAJE_SESION_CERRADA =
+  "Tu sesión se cerró. Volvé a ingresar para continuar.";
 
 export function marcarBienvenidaPostLogin() {
   sessionStorage.setItem(CLAVE_BIENVENIDA_POST_LOGIN, "true");
@@ -43,9 +46,19 @@ export function obtenerUsuarioGuardado() {
   }
 }
 
-export function limpiarSesion() {
+export function limpiarSesion({ avisar = false } = {}) {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
+
+  if (avisar) {
+    sessionStorage.setItem(CLAVE_AVISO_SESION_CERRADA, MENSAJE_SESION_CERRADA);
+  }
+}
+
+export function consumirAvisoSesionCerrada() {
+  const mensaje = sessionStorage.getItem(CLAVE_AVISO_SESION_CERRADA) || "";
+  sessionStorage.removeItem(CLAVE_AVISO_SESION_CERRADA);
+  return mensaje;
 }
 
 export function obtenerDestinoSesion() {
@@ -55,7 +68,7 @@ export function obtenerDestinoSesion() {
   if (!token || !usuario) return null;
 
   if (!tokenVigente(token)) {
-    limpiarSesion();
+    limpiarSesion({ avisar: true });
     return null;
   }
 

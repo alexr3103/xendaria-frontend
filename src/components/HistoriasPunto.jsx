@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { BookOpenText } from "lucide-react";
 import { useState } from "react";
 import cargafail from "../assets/cargafail.png";
 
@@ -15,7 +15,7 @@ export default function HistoriasPunto({ historias = [] }) {
   return (
     <section className="mb-10">
       <div className="flex items-center gap-2 text-uva mb-3">
-        <BookOpen size={22} className="text-morado" />
+        <BookOpenText size={22} className="text-morado" />
         <h2 className="font-fredoka text-xl">Historias/leyendas del lugar</h2>
       </div>
 
